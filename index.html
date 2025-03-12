@@ -189,8 +189,10 @@
         </div>
     </template>
     
-    <!-- Load scripts properly - only what we actually need -->
+    <!-- Load scripts in proper order with THREE directly included -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
     <script src="https://unpkg.com/3d-force-graph@1.70.5/dist/3d-force-graph.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
     <script src="assets/js/network-data.js"></script>
     <script src="assets/js/main.js"></script>
     <script src="assets/js/graph.js"></script>

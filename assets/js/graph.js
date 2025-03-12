@@ -1,4 +1,4 @@
-// Ensure THREE access from ForceGraph3D
+// Self-contained graph initialization with high-quality nodes
 (function() {
     // Wait for DOM to be ready
     document.addEventListener('DOMContentLoaded', function() {
@@ -17,37 +17,31 @@
         // Store graph instance
         let graph = null;
         
-        // Initialize the graph
+        // Initialize the graph with high-quality nodes
         function initGraph() {
-            // Make sure ForceGraph3D is loaded before proceeding
-            if (typeof ForceGraph3D !== 'function') {
-                console.warn('ForceGraph3D not loaded yet, retrying...');
+            // Make sure THREE and ForceGraph3D are loaded
+            if (typeof THREE === 'undefined' || typeof ForceGraph3D !== 'function') {
+                console.warn('Required libraries not loaded yet, retrying...');
                 setTimeout(initGraph, 100);
                 return;
             }
-
-            // Basic setup without celestial themes - just a clean 3D graph
+            
+            // Create graph with enhanced node quality
             graph = ForceGraph3D()
-                .backgroundColor('#000000')
+                .backgroundColor('#000008')
                 .graphData(NetworkData)
                 .nodeLabel(node => `${node.name}: ${node.description}`)
-                .nodeRelSize(6)
-                .nodeColor(node => {
-                    // Basic color scheme
-                    if (node.id === 'center') return '#ffd700';
-                    if (node.id === 'professional') return '#2563eb';
-                    if (node.id === 'repositories') return '#16a34a';
-                    if (node.id === 'personal') return '#db2777';
-                    if (node.parentId === 'professional') return '#4a90e2';
-                    if (node.parentId === 'repositories') return '#2ecc71';
-                    if (node.parentId === 'personal') return '#ff6b81';
-                    return '#94a3b8';
-                })
-                .linkWidth(0.5)
+                .nodeRelSize(8)
+                .nodeThreeObject(createHighQualityNode) // Use our custom node renderer
+                .linkWidth(0.8)
                 .linkOpacity(0.4)
-                .linkDirectionalParticles(2)
+                .linkDirectionalParticles(4)
+                .linkDirectionalParticleSpeed(0.003)
+                .linkDirectionalParticleWidth(1.5)
                 .linkColor(() => '#ffffff50')
                 .onNodeClick(handleNodeClick)
+                .onNodeHover(handleNodeHover)
+                .onBackgroundClick(hidePanel)
                 .onEngineStop(() => {
                     hideLoadingScreen();
                 });
@@ -56,13 +50,77 @@
             graph(graphElement);
             
             // Set initial camera position
-            graph.cameraPosition({ x: 0, y: 0, z: 240 });
+            graph.cameraPosition({ x: 100, y: 100, z: 250 }, { x: 0, y: 0, z: 0 }, 1000);
             
             // Setup controls
             setupControls();
+            
+            console.log("Graph initialized successfully!");
         }
         
-        // Setup zoom and camera controls
+        // Custom function to create high-quality nodes
+        function createHighQualityNode(node) {
+            // Create group to hold the node objects
+            const group = new THREE.Group();
+            
+            // Determine node size
+            const size = (node.val || 10) / 3;
+            
+            // Determine node color based on type
+            let color;
+            
+            // Main categories with distinct colors
+            if (node.id === 'center') color = '#ffd700';  // Gold for center
+            else if (node.id === 'professional') color = '#2563eb';  // Blue
+            else if (node.id === 'repositories') color = '#16a34a';  // Green
+            else if (node.id === 'personal') color = '#db2777';  // Pink
+            
+            // Sub-nodes with lighter colors
+            else if (node.parentId === 'professional') color = '#4a90e2';  // Lighter blue
+            else if (node.parentId === 'repositories') color = '#2ecc71';  // Lighter green
+            else if (node.parentId === 'personal') color = '#ff6b81';  // Lighter pink
+            else color = '#94a3b8';  // Default gray
+            
+            // Create high-quality geometry with more segments for smoother appearance
+            // Important nodes get more segments for better quality
+            const segments = 
+                node.id === 'center' ? 32 : 
+                ['professional', 'repositories', 'personal'].includes(node.id) ? 24 : 16;
+            
+            const geometry = new THREE.SphereGeometry(size, segments, segments);
+            
+            // Create material with better appearance
+            const material = new THREE.MeshPhongMaterial({ 
+                color: color,
+                shininess: 80,
+                transparent: true,
+                opacity: 0.9
+            });
+            
+            // Create mesh and add to group
+            const mesh = new THREE.Mesh(geometry, material);
+            
+            // Add slow rotation animation
+            const rotationSpeed = Math.random() * 0.01 + 0.002;
+            mesh.userData = { rotationSpeed };
+            
+            // Start the rotation animation
+            animateRotation(mesh);
+            
+            group.add(mesh);
+            return group;
+        }
+        
+        // Animate node rotation
+        function animateRotation(mesh) {
+            requestAnimationFrame(() => animateRotation(mesh));
+            if (mesh && mesh.userData && mesh.userData.rotationSpeed) {
+                mesh.rotation.y += mesh.userData.rotationSpeed;
+                mesh.rotation.z += mesh.userData.rotationSpeed * 0.3;
+            }
+        }
+        
+        // Setup camera/zoom controls
         function setupControls() {
             // Zoom in button
             if (zoomInBtn) {
@@ -130,17 +188,49 @@
             }
         }
         
-        // Handle node click
+        // Node hover handler
+        function handleNodeHover(node) {
+            // Change cursor
+            graphElement.style.cursor = node ? 'pointer' : null;
+            
+            if (!graph) return;
+            
+            // Simple highlight effect
+            graph.nodeColor(n => {
+                if (n === node) {
+                    // Highlight hovered node
+                    return node.id === 'center' ? '#fff8b9' : // Brighter gold
+                           node.id === 'professional' ? '#6495ed' : // Brighter blue
+                           node.id === 'repositories' ? '#3cb371' : // Brighter green
+                           node.id === 'personal' ? '#ff69b4' : // Brighter pink
+                           '#d3d3d3'; // Brighter gray
+                } else {
+                    // Regular colors for other nodes
+                    return n.id === 'center' ? '#ffd700' : // Gold
+                           n.id === 'professional' ? '#2563eb' : // Blue
+                           n.id === 'repositories' ? '#16a34a' : // Green
+                           n.id === 'personal' ? '#db2777' : // Pink
+                           n.parentId === 'professional' ? '#4a90e2' : // Lighter blue
+                           n.parentId === 'repositories' ? '#2ecc71' : // Lighter green
+                           n.parentId === 'personal' ? '#ff6b81' : // Lighter pink
+                           '#94a3b8'; // Default gray
+                }
+            });
+        }
+        
+        // Node click handler
         function handleNodeClick(node) {
             if (!node || !graph) return;
             
-            // Determine suitable camera distance based on node type
+            // Determine suitable camera distance
             let distance = 120;
             if (node.id === 'center') distance = 200;
             else if (['professional', 'repositories', 'personal'].includes(node.id)) distance = 100;
             
-            // Move camera to look at node
+            // Calculate target position
             const distRatio = 1 + distance/Math.hypot(node.x || 0, node.y || 0, node.z || 0);
+            
+            // Move camera
             graph.cameraPosition(
                 { 
                     x: (node.x || 0) * distRatio, 
@@ -148,10 +238,10 @@
                     z: (node.z || 0) * distRatio 
                 },
                 node, 
-                1000
+                1200
             );
             
-            // Show content panels based on node type
+            // Show content panel for main sections
             if (node.id === 'center') {
                 hidePanel();
             }
@@ -160,7 +250,17 @@
             }
         }
         
-        // Show content panel with section data
+        // Loading screen functions
+        function hideLoadingScreen() {
+            if (loadingScreen) {
+                loadingScreen.style.opacity = '0';
+                setTimeout(() => {
+                    loadingScreen.style.display = 'none';
+                }, 500);
+            }
+        }
+        
+        // Content panel functions
         function showSectionContent(sectionId) {
             const templateId = `${sectionId}-template`;
             const template = document.getElementById(templateId);
@@ -179,22 +279,11 @@
             if (sectionId === 'photography') loadPhotographyData();
         }
         
-        // Hide content panel
         function hidePanel() {
             contentPanel.classList.add('hidden');
         }
         
-        // Hide loading screen
-        function hideLoadingScreen() {
-            if (loadingScreen) {
-                loadingScreen.style.opacity = '0';
-                setTimeout(() => {
-                    loadingScreen.style.display = 'none';
-                }, 500);
-            }
-        }
-        
-        // Setup filter buttons
+        // Rest of your existing functions
         function setupFilterButtons() {
             const filterBtns = document.querySelectorAll('.filter-btn');
             
@@ -227,7 +316,6 @@
             });
         }
         
-        // Load projects data
         function loadProjectsData() {
             fetch('projects.json')
                 .then(response => response.json())
@@ -264,7 +352,6 @@
                 });
         }
         
-        // Load photography data
         function loadPhotographyData() {
             const gallery = document.querySelector('.gallery');
             if (!gallery) return;
@@ -288,11 +375,6 @@
                 
                 gallery.appendChild(photoItem);
             }
-        }
-        
-        // Close panel button
-        if (closePanel) {
-            closePanel.addEventListener('click', hidePanel);
         }
         
         // Start initialization
