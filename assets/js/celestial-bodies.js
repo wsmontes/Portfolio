@@ -37,7 +37,7 @@
         // Create enhanced node with beautiful materials and effects
         function createEnhancedNode(node) {
             const group = new THREE.Group();
-            const size = node.size || (node.val || 10) / 3;
+            const size = node.size || (node.val || 100) / 2.5; // Doubled from 50 to 100
             
             // Get color based on node type with enhanced palette
             let color, emissive, metalness, roughness;
@@ -71,8 +71,9 @@
             // Create high-quality geometry with more segments for smoother appearance
             const geometryKey = `sphere-${size}`;
             if (!geometryCache[geometryKey]) {
-                const segments = node.id === 'center' ? 32 : 
-                              ['professional', 'repositories', 'personal'].includes(node.id) ? 24 : 16;
+                // Increased segments for even smoother appearance on larger nodes
+                const segments = node.id === 'center' ? 64 : 
+                              ['professional', 'repositories', 'personal'].includes(node.id) ? 48 : 36;
                 geometryCache[geometryKey] = new THREE.SphereGeometry(size, segments, segments);
             }
             const geometry = geometryCache[geometryKey];
@@ -99,8 +100,8 @@
             
             // Add userData for animations
             mesh.userData = { 
-                rotationSpeed: node.rotationSpeed || (Math.random() * 0.01) + 0.003,
-                pulseSpeed: (Math.random() * 0.002) + 0.001,
+                rotationSpeed: node.rotationSpeed || (Math.random() * 0.008) + 0.002, // Slightly reduced
+                pulseSpeed: (Math.random() * 0.0015) + 0.0008, // Slightly reduced
                 originalScale: 1
             };
             

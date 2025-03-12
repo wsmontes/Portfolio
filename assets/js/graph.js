@@ -47,12 +47,12 @@
                         return createBasicNode(node);
                     }
                 })
-                .nodeRelSize(6)
-                .linkWidth(link => link.value * 0.5)
+                .nodeRelSize(40) // Doubled from 20 to 40
+                .linkWidth(link => link.value * 1.2) // Increased for better visibility with larger nodes
                 .linkOpacity(0.6)
                 .linkDirectionalParticles(3)
-                .linkDirectionalParticleSpeed(0.005)
-                .linkDirectionalParticleWidth(1.2)
+                .linkDirectionalParticleSpeed(0.002) // Reduced from 0.005 to 0.002 for slower particles
+                .linkDirectionalParticleWidth(4.0) // Increased to match larger nodes
                 .linkColor(() => '#ffffff30')
                 .onNodeHover(handleNodeHover)
                 .onNodeClick(handleNodeClick)
@@ -99,8 +99,8 @@
                 const node = nodes.find(n => n.id === nodeId);
                 
                 if (node) {
-                    // Calculate appropriate distance based on node type
-                    const distance = ['professional', 'repositories', 'personal', 'about', 'contact'].includes(nodeId) ? 100 : 60;
+                    // Increased camera distances for larger nodes
+                    const distance = ['professional', 'repositories', 'personal', 'about', 'contact'].includes(nodeId) ? 300 : 200;
                     const distRatio = 1 + distance/Math.hypot(node.x, node.y, node.z);
                     
                     // Move camera to focus on the node
@@ -147,8 +147,8 @@
         
         // Create basic Three.js object for node when celestial-bodies.js isn't loaded
         function createBasicNode(node) {
-            // Determine node size
-            const size = node.size || (node.val || 10) / 3;
+            // Determine node size - doubled the base size again
+            const size = node.size || (node.val || 100) / 3; // Doubled from 50 to 100
             
             // Determine node color based on type
             let color;
@@ -300,8 +300,8 @@
             // First focus on the node (camera movement)
             const nodeId = node.id;
             
-            // Focus camera on the node
-            const distance = nodeId === 'center' ? 120 : 60;
+            // Focus camera on the node - increased distances for larger nodes
+            const distance = nodeId === 'center' ? 400 : 250;
             const distRatio = 1 + distance/Math.hypot(node.x, node.y, node.z);
             graph.cameraPosition(
                 { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio },
