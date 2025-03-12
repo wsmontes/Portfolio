@@ -1,0 +1,54 @@
+{
+  "projects": [
+    {
+      "id": 1,
+      "title": "E-commerce Platform",
+      "category": "web",
+      "image": "assets/images/projects/project1.jpg",
+      "description": "A full-featured e-commerce platform with shopping cart, user authentication and payment processing capabilities.",
+      "technologies": ["React", "Node.js", "MongoDB", "Stripe"],
+      "liveUrl": "https://example.com/ecommerce",
+      "githubUrl": "https://github.com/yourusername/ecommerce-project"
+    },
+    {
+      "id": 2,
+      "title": "Fitness Tracker App",
+      "category": "mobile",
+      "image": "assets/images/projects/project2.jpg",
+      "description": "Mobile application for tracking workouts, nutrition, and fitness goals with data visualization.",
+      "technologies": ["React Native", "Firebase", "Chart.js"],
+      "liveUrl": "https://example.com/fitness-app",
+      "githubUrl": "https://github.com/yourusername/fitness-tracker"
+    },
+    {
+      "id": 3,
+      "title": "Smart Home Dashboard",
+      "category": "web",
+      "image": "assets/images/projects/project3.jpg",
+      "description": "Interactive dashboard for controlling and monitoring smart home devices with real-time updates.",
+      "technologies": ["Vue.js", "WebSockets", "MQTT", "Express"],
+      "liveUrl": "https://example.com/smart-home",
+      "githubUrl": "https://github.com/yourusername/smart-home-dashboard"
+    },
+    {
+      "id": 4,
+      "title": "AI Image Recognition Tool",
+      "category": "other",
+      "image": "assets/images/projects/project4.jpg",
+      "description": "Machine learning tool that identifies and classifies objects in images using computer vision techniques.",
+      "technologies": ["Python", "TensorFlow", "Flask", "OpenCV"],
+      "liveUrl": "https://example.com/ai-recognition",
+      "githubUrl": "https://github.com/yourusername/image-recognition"
+    },
+    {
+      "id": 5,
+      "title": "Portfolio Website",
+      "category": "web",
+      "image": "assets/images/projects/project5.jpg",
+      "description": "Interactive 3D portfolio website showcasing software development and photography work.",
+      "technologies": ["Three.js", "JavaScript", "HTML/CSS", "Force Graph"],
+      "liveUrl": "https://example.com/portfolio",
+      "githubUrl": "https://github.com/yourusername/portfolio-website"
+    }
+  ]
+}

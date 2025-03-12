@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Portfolio Network</title>
+    <meta name="description" content="Interactive 3D portfolio showcasing software development, IT skills, media work, and photography">
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/png" href="assets/images/favicon.png">
+</head>
+<body>
+    <div class="overlay">
+        <div class="loading-screen">
+            <div class="spinner"></div>
+            <p>Building network...</p>
+        </div>
+        
+        <nav class="navbar">
+            <div class="logo">
+                <a href="#" id="resetView">My Portfolio</a>
+            </div>
+            <button class="theme-toggle" aria-label="Toggle Dark Mode">
+                <i class="fas fa-moon"></i>
+            </button>
+            <button class="menu-toggle" aria-label="Toggle Menu">
+                <i class="fas fa-bars"></i>
+            </button>
+            <ul class="nav-menu">
+                <li><a href="#" data-section="about">About</a></li>
+                <li><a href="#" data-section="skills">Skills</a></li>
+                <li><a href="#" data-section="projects">Projects</a></li>
+                <li><a href="#" data-section="photography">Photography</a></li>
+                <li><a href="#" data-section="contact">Contact</a></li>
+                <li><a href="assets/resume.pdf" class="btn" target="_blank">Resume</a></li>
+            </ul>
+        </nav>
+        
+        <div id="graph-container"></div>
+        
+        <div id="content-panel" class="hidden">
+            <button class="close-panel"><i class="fas fa-times"></i></button>
+            <div class="content-inner">
+                <!-- Content will be loaded here dynamically -->
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button id="zoom-in" title="Zoom In"><i class="fas fa-plus"></i></button>
+            <button id="zoom-out" title="Zoom Out"><i class="fas fa-minus"></i></button>
+            <button id="reset-camera" title="Reset View"><i class="fas fa-home"></i></button>
+        </div>
+        
+        <footer>
+            <p>&copy; <span id="current-year"></span> Your Name. All rights reserved.</p>
+        </footer>
+    </div>
+    
+    <!-- Templates for sections -->
+    <template id="about-template">
+        <div class="section-content">
+            <h2 class="section-title">About Me</h2>
+            <div class="about-content">
+                <div class="about-text">
+                    <p>I'm a passionate software developer with expertise in [Your Technologies]. With [X] years of experience in the tech industry, I've worked on a range of projects from [type of projects].</p>
+                    <p>In addition to software development, I'm an avid photographer specializing in [your photography style/subjects]. My technical background enhances my approach to photography, while my creative eye influences my software design philosophy.</p>
+                </div>
+                <div class="about-stats">
+                    <div class="stat">
+                        <h3>Experience</h3>
+                        <p>X+ Years</p>
+                    </div>
+                    <div class="stat">
+                        <h3>Projects</h3>
+                        <p>Y+ Completed</p>
+                    </div>
+                    <div class="stat">
+                        <h3>Clients</h3>
+                        <p>Z+ Satisfied</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+    
+    <template id="skills-template">
+        <div class="section-content">
+            <h2 class="section-title">Skills</h2>
+            <div class="skills-container">
+                <div class="skill-category">
+                    <h3>Software Development</h3>
+                    <ul class="skill-list">
+                        <li class="skill-item">
+                            <span class="skill-name">JavaScript</span>
+                            <div class="skill-bar"><div class="skill-progress" style="width: 90%"></div></div>
+                        </li>
+                        <li class="skill-item">
+                            <span class="skill-name">React</span>
+                            <div class="skill-bar"><div class="skill-progress" style="width: 85%"></div></div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="skill-category">
+                    <h3>Photography & Media</h3>
+                    <ul class="skill-list">
+                        <li class="skill-item">
+                            <span class="skill-name">Adobe Photoshop</span>
+                            <div class="skill-bar"><div class="skill-progress" style="width: 80%"></div></div>
+                        </li>
+                        <li class="skill-item">
+                            <span class="skill-name">Portrait Photography</span>
+                            <div class="skill-bar"><div class="skill-progress" style="width: 75%"></div></div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </template>
+    
+    <template id="projects-template">
+        <div class="section-content">
+            <h2 class="section-title">Software Projects</h2>
+            <div class="project-filters">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="web">Web</button>
+                <button class="filter-btn" data-filter="mobile">Mobile</button>
+                <button class="filter-btn" data-filter="other">Other</button>
+            </div>
+            <div class="projects-grid">
+                <!-- Projects loaded dynamically -->
+            </div>
+        </div>
+    </template>
+    
+    <template id="photography-template">
+        <div class="section-content">
+            <h2 class="section-title">Photography Portfolio</h2>
+            <div class="photo-filters">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="portrait">Portrait</button>
+                <button class="filter-btn" data-filter="landscape">Landscape</button>
+                <button class="filter-btn" data-filter="street">Street</button>
+            </div>
+            <div class="gallery">
+                <!-- Gallery loaded dynamically -->
+            </div>
+        </div>
+    </template>
+    
+    <template id="contact-template">
+        <div class="section-content">
+            <h2 class="section-title">Get In Touch</h2>
+            <div class="contact-content">
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <p>your.email@example.com</p>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-phone"></i>
+                        <p>+1 (123) 456-7890</p>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <p>Your Location</p>
+                    </div>
+                    <div class="social-links">
+                        <a href="https://github.com/yourusername" target="_blank"><i class="fab fa-github"></i></a>
+                        <a href="https://linkedin.com/in/yourusername" target="_blank"><i class="fab fa-linkedin"></i></a>
+                        <a href="https://instagram.com/yourusername" target="_blank"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <form class="contact-form">
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Message</label>
+                        <textarea id="message" name="message" rows="5" required></textarea>
+                    </div>
+                    <button type="submit" class="btn primary">Send Message</button>
+                </form>
+            </div>
+        </div>
+    </template>
+    
+    <!-- Load scripts properly - only what we actually need -->
+    <script src="https://unpkg.com/3d-force-graph@1.70.5/dist/3d-force-graph.min.js"></script>
+    <script src="assets/js/network-data.js"></script>
+    <script src="assets/js/main.js"></script>
+    <script src="assets/js/graph.js"></script>
+
+</body>
+</html>
