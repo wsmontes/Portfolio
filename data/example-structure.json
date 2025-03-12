@@ -1,0 +1,76 @@
+{
+  "networkData": {
+    "nodes": [
+      {
+        "id": "center",
+        "name": "Portfolio",
+        "description": "Explore my interactive portfolio system",
+        "group": "main",
+        "val": 30,
+        "mass": 100,
+        "size": 6,
+        "texture": "assets/images/textures/sun.jpg",
+        "emissive": true,
+        "rotationSpeed": 0.003,
+        "fx": 0,
+        "fy": 0,
+        "fz": 0,
+        "content": {
+          "templateId": "center-template",
+          "data": {
+            "title": "Interactive Portfolio",
+            "subtitle": "Welcome to my interactive portfolio",
+            "description": "Click on nodes to explore different sections of my work"
+          }
+        }
+      },
+      {
+        "id": "professional",
+        "name": "Professional Experience",
+        "description": "My professional journey",
+        "group": "category",
+        "val": 24,
+        "mass": 30,
+        "size": 3.8,
+        "texture": "assets/images/textures/blue-planet.jpg",
+        "rotationSpeed": 0.01,
+        "content": {
+          "templateId": "professional-template",
+          "dataSource": "data/content/professional.json"
+        }
+      }
+    ],
+    "links": [
+      {
+        "source": "center",
+        "target": "professional",
+        "value": 5,
+        "type": "connection"
+      }
+    ]
+  },
+  "navigation": {
+    "items": [
+      {
+        "id": "professional",
+        "label": "Professional",
+        "order": 1
+      },
+      {
+        "id": "repositories",
+        "label": "Code Repositories",
+        "order": 2
+      },
+      {
+        "id": "personal",
+        "label": "Personal",
+        "order": 3
+      },
+      {
+        "id": "contact",
+        "label": "Contact",
+        "order": 4
+      }
+    ]
+  }
+}
