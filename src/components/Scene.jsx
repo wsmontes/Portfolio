@@ -6,6 +6,7 @@ import Menu from './Menu';
 const Scene = () => {
   const [activeNode, setActiveNode] = useState(null);
   const [showFrame, setShowFrame] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   // ...existing code...
 
   // Debug state changes with useEffect
@@ -15,16 +16,38 @@ const Scene = () => {
 
   const handleNodeClick = (nodeId) => {
     console.log("Node clicked:", nodeId);
-    // Removed early return for 'portfolio' node so that content frame always shows
+    
+    // Don't interrupt ongoing transitions
+    if (isTransitioning) return;
+    
+    // Check if it's one of our main content nodes
+    const contentNodes = ['professional', 'repositories', 'personal', 'about', 'contact'];
+    const isContentNode = contentNodes.includes(nodeId);
+    
+    // Set active node for all nodes
     setActiveNode(nodeId);
-    setShowFrame(true);
-
-    const targetPosition = getNodePosition(nodeId);
-    console.log("Navigating to position:", targetPosition);
-
-    navigateToPosition(targetPosition, () => {
-      console.log("Navigation complete for:", nodeId);
-    });
+    
+    // Only show frame for content nodes
+    if (isContentNode) {
+      setIsTransitioning(true);
+      
+      // Get position and navigate camera there first
+      const targetPosition = getNodePosition(nodeId);
+      console.log("Navigating to position:", targetPosition);
+      
+      navigateToPosition(targetPosition, () => {
+        console.log("Navigation complete for:", nodeId);
+        // Show frame after camera reaches the position
+        setShowFrame(true);
+        setTimeout(() => setIsTransitioning(false), 500);
+      });
+    } else {
+      // For non-content nodes, just navigate without showing frame
+      const targetPosition = getNodePosition(nodeId);
+      navigateToPosition(targetPosition, () => {
+        console.log("Navigation complete for non-content node:", nodeId);
+      });
+    }
   };
 
   // Add a direct method to test frame visibility
@@ -42,21 +65,24 @@ const Scene = () => {
       
       <Menu onNodeClick={handleNodeClick} />
       
-      {/* Debug buttons - uncommented for testing */}
-      <div className="debug-controls" style={{ position: 'fixed', top: '10px', left: '10px', zIndex: 2000 }}>
+      {/* Debug buttons - for testing only, can be hidden in production */}
+      <div className="debug-controls" style={{ position: 'fixed', top: '10px', left: '10px', zIndex: 2000, display: 'none' }}>
         <button onClick={() => forceShowFrame('about')}>Show About Frame</button>
         <button onClick={() => forceShowFrame('contact')}>Show Contact Frame</button>
+        <button onClick={() => forceShowFrame('professional')}>Show Professional Frame</button>
+        <button onClick={() => forceShowFrame('personal')}>Show Personal Frame</button>
+        <button onClick={() => forceShowFrame('repositories')}>Show Repositories Frame</button>
       </div>
       
-      {/* Ensure frame is always rendered when showFrame is true */}
+      {/* Ensure frame is displayed when conditions are met */}
       {showFrame && activeNode && (
         <ContentFrame 
           nodeId={activeNode} 
           onClose={() => {
             console.log("Closing frame");
             setShowFrame(false);
-            // Optional: add a timeout to reset active node after animation
-            setTimeout(() => setActiveNode(null), 300);
+            // Reset active node after animation completes
+            setTimeout(() => setActiveNode(null), 500);
           }} 
         />
       )}

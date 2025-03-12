@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Projects</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+            color: #f5f5f5;
+            line-height: 1.6;
+            padding: 25px;
+            background: transparent;
+            margin: 0;
+        }
+        
+        h2 {
+            color: #4a6cf7;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+        
+        p.intro {
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+            max-width: 800px;
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 25px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+            font-weight: 500;
+        }
+        
+        .tab.active {
+            color: #4a6cf7;
+            border-bottom: 3px solid #4a6cf7;
+        }
+        
+        .tab:hover:not(.active) {
+            color: #a0aec0;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Photography Section */
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .gallery-item {
+            position: relative;
+            height: 0;
+            padding-bottom: 75%;
+            overflow: hidden;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .gallery-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+        
+        .gallery-item img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        
+        .gallery-item:hover img {
+            transform: scale(1.05);
+        }
+        
+        .gallery-caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+            color: white;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .gallery-item:hover .gallery-caption {
+            opacity: 1;
+        }
+        
+        .gallery-title {
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+        
+        /* Travel Section */
+        .travel-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 25px;
+        }
+        
+        .travel-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .travel-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+        
+        .travel-image {
+            height: 200px;
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .travel-content {
+            padding: 20px;
+        }
+        
+        .travel-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #4a6cf7;
+            margin-bottom: 8px;
+        }
+        
+        .travel-date {
+            display: inline-block;
+            background-color: rgba(74, 108, 247, 0.1);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            margin-bottom: 15px;
+        }
+        
+        /* Hobbies Section */
+        .hobbies-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .hobby-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            text-align: center;
+        }
+        
+        .hobby-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+        
+        .hobby-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: #4a6cf7;
+        }
+        
+        .hobby-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        /* Initialize tabs in script */
+    </style>
+</head>
+<body>
+    <h2>Personal Projects</h2>
+    <p class="intro">Outside of my professional work, I enjoy exploring various creative endeavors and personal interests. Here's a glimpse into my world beyond code.</p>
+    
+    <div class="tabs">
+        <div class="tab active" data-tab="photography">Photography</div>
+        <div class="tab" data-tab="travel">Travel</div>
+        <div class="tab" data-tab="hobbies">Hobbies & Interests</div>
+    </div>
+    
+    <div class="tab-content active" id="photography">
+        <div class="gallery">
+            <div class="gallery-item">
+                <img src="https://source.unsplash.com/random/600x400?cityscape" alt="Urban Photography">
+                <div class="gallery-caption">
+                    <div class="gallery-title">Urban Exploration</div>
+                    <p>Downtown architecture captured during golden hour</p>
+                </div>
+            </div>
+            
+            <div class="gallery-item">
+                <img src="https://source.unsplash.com/random/600x400?portrait" alt="Portrait Photography">
+                <div class="gallery-caption">
+                    <div class="gallery-title">Environmental Portrait</div>
+                    <p>Natural light portrait session in the botanical gardens</p>
+                </div>
+            </div>
+            
+            <div class="gallery-item">
+                <img src="https://source.unsplash.com/random/600x400?nature" alt="Nature Photography">
+                <div class="gallery-caption">
+                    <div class="gallery-title">Forest Tranquility</div>
+                    <p>Morning fog lifting in the ancient redwood forest</p>
+                </div>
+            </div>
+            
+            <div class="gallery-item">
+                <img src="https://source.unsplash.com/random/600x400?street" alt="Street Photography">
+                <div class="gallery-caption">
+                    <div class="gallery-title">Street Life</div>
+                    <p>Candid moments from city streets during rush hour</p>
+                </div>
+            </div>
+            
+            <div class="gallery-item">
+                <img src="https://source.unsplash.com/random/600x400?architecture" alt="Architecture Photography">
+                <div class="gallery-caption">
+                    <div class="gallery-title">Modern Structures</div>
+                    <p>Contemporary architecture with minimalist composition</p>
+                </div>
+            </div>
+            
+            <div class="gallery-item">
+                <img src="https://source.unsplash.com/random/600x400?macro" alt="Macro Photography">
+                <div class="gallery-caption">
+                    <div class="gallery-title">Hidden Details</div>
+                    <p>Macro exploration of natural patterns and textures</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="tab-content" id="travel">
+        <div class="travel-grid">
+            <div class="travel-card">
+                <div class="travel-image" style="background-image: url('https://source.unsplash.com/random/600x400?japan')"></div>
+                <div class="travel-content">
+                    <div class="travel-title">Japan: Ancient & Modern</div>
+                    <div class="travel-date">October 2022</div>
+                    <p>Exploring the perfect blend of ancient traditions and futuristic technology in Tokyo, Kyoto, and the Japanese countryside.</p>
+                </div>
+            </div>
+            
+            <div class="travel-card">
+                <div class="travel-image" style="background-image: url('https://source.unsplash.com/random/600x400?norway')"></div>
+                <div class="travel-content">
+                    <div class="travel-title">Norway: Land of Fjords</div>
+                    <div class="travel-date">June 2021</div>
+                    <p>Hiking through dramatic landscapes and cruising along stunning fjords in the Norwegian wilderness.</p>
+                </div>
+            </div>
+            
+            <div class="travel-card">
+                <div class="travel-image" style="background-image: url('https://source.unsplash.com/random/600x400?morocco')"></div>
+                <div class="travel-content">
+                    <div class="travel-title">Morocco: Desert Adventures</div>
+                    <div class="travel-date">March 2020</div>
+                    <p>From the vibrant markets of Marrakech to camping under stars in the Sahara Desert.</p>
+                </div>
+            </div>
+            
+            <div class="travel-card">
+                <div class="travel-image" style="background-image: url('https://source.unsplash.com/random/600x400?peru')"></div>
+                <div class="travel-content">
+                    <div class="travel-title">Peru: Inca Trails</div>
+                    <div class="travel-date">September 2019</div>
+                    <p>Hiking to Machu Picchu and exploring the cultural heritage of Cusco and the Sacred Valley.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="tab-content" id="hobbies">
+        <div class="hobbies-list">
+            <div class="hobby-card">
+                <div class="hobby-icon">🎸</div>
+                <div class="hobby-title">Music</div>
+                <p>Playing guitar and piano, composing electronic music, and collecting vinyl records.</p>
+            </div>
+            
+            <div class="hobby-card">
+                <div class="hobby-icon">🧗</div>
+                <div class="hobby-title">Rock Climbing</div>
+                <p>Regular indoor climbing and occasional outdoor bouldering and sport routes.</p>
+            </div>
+            
+            <div class="hobby-card">
+                <div class="hobby-icon">📚</div>
+                <div class="hobby-title">Reading</div>
+                <p>Science fiction, philosophy, and technical books on new technologies and design.</p>
+            </div>
+            
+            <div class="hobby-card">
+                <div class="hobby-icon">🍳</div>
+                <div class="hobby-title">Cooking</div>
+                <p>Experimenting with international cuisines and perfecting the art of sourdough bread.</p>
+            </div>
+            
+            <div class="hobby-card">
+                <div class="hobby-icon">🏃</div>
+                <div class="hobby-title">Running</div>
+                <p>Training for half-marathons and exploring new cities through morning runs.</p>
+            </div>
+            
+            <div class="hobby-card">
+                <div class="hobby-icon">🎮</div>
+                <div class="hobby-title">Game Development</div>
+                <p>Creating small indie games and exploring procedural generation techniques.</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Tab functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabs = document.querySelectorAll('.tab');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Remove active class from all tabs and content
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    
+                    // Add active class to current tab
+                    this.classList.add('active');
+                    
+                    // Show corresponding content
+                    const tabName = this.getAttribute('data-tab');
+                    document.getElementById(tabName).classList.add('active');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

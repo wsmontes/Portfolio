@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Experience</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+            color: #f5f5f5;
+            line-height: 1.6;
+            padding: 25px;
+            background: transparent;
+            margin: 0;
+        }
+        
+        h2 {
+            color: #4a6cf7;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+        
+        .experience-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+        
+        .experience-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .experience-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+        
+        .experience-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(to right, #4a6cf7, #7c3aed);
+        }
+        
+        .role {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #4a6cf7;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .company {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+        
+        .period {
+            display: inline-block;
+            background-color: rgba(74, 108, 247, 0.1);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            margin: 10px 0;
+        }
+        
+        .skills-used {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 15px;
+        }
+        
+        .skill-tag {
+            background-color: rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.9);
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+        }
+        
+        .projects-section {
+            margin-top: 40px;
+        }
+        
+        .achievements {
+            margin-top: 15px;
+            padding-left: 20px;
+        }
+        
+        .achievements li {
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Professional Experience</h2>
+    
+    <div class="experience-grid">
+        <div class="experience-card">
+            <div class="role">Senior Software Engineer</div>
+            <div class="company">Tech Innovations Inc.</div>
+            <div class="period">2020 - Present</div>
+            
+            <p>Led development of enterprise applications focusing on scalability and performance. Managed a team of developers and collaborated with product stakeholders.</p>
+            
+            <div class="achievements">
+                <li>Redesigned authentication system improving security and reducing login time by 40%</li>
+                <li>Implemented CI/CD pipeline reducing deployment time from days to hours</li>
+                <li>Mentored junior developers through pair programming and code reviews</li>
+            </div>
+            
+            <div class="skills-used">
+                <span class="skill-tag">React</span>
+                <span class="skill-tag">Node.js</span>
+                <span class="skill-tag">AWS</span>
+                <span class="skill-tag">GraphQL</span>
+                <span class="skill-tag">Team Leadership</span>
+            </div>
+        </div>
+        
+        <div class="experience-card">
+            <div class="role">Full Stack Developer</div>
+            <div class="company">Digital Solutions Ltd</div>
+            <div class="period">2017 - 2020</div>
+            
+            <p>Developed full-stack web applications using modern JavaScript frameworks. Created responsive UIs and RESTful APIs for various client projects.</p>
+            
+            <div class="achievements">
+                <li>Built e-commerce platform serving 10k+ daily users</li>
+                <li>Integrated payment processing reducing transaction errors by 25%</li>
+                <li>Optimized database queries improving load times by 35%</li>
+            </div>
+            
+            <div class="skills-used">
+                <span class="skill-tag">JavaScript</span>
+                <span class="skill-tag">React</span>
+                <span class="skill-tag">Express</span>
+                <span class="skill-tag">MongoDB</span>
+                <span class="skill-tag">RESTful APIs</span>
+            </div>
+        </div>
+        
+        <div class="experience-card">
+            <div class="role">Frontend Developer</div>
+            <div class="company">WebCreations Studio</div>
+            <div class="period">2015 - 2017</div>
+            
+            <p>Created responsive and interactive user interfaces for client websites. Collaborated with designers to implement pixel-perfect designs.</p>
+            
+            <div class="achievements">
+                <li>Developed 20+ client websites with focus on accessibility</li>
+                <li>Reduced load times by implementing lazy loading techniques</li>
+                <li>Created reusable component library used across multiple projects</li>
+            </div>
+            
+            <div class="skills-used">
+                <span class="skill-tag">HTML/CSS</span>
+                <span class="skill-tag">JavaScript</span>
+                <span class="skill-tag">jQuery</span>
+                <span class="skill-tag">SCSS</span>
+                <span class="skill-tag">Bootstrap</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="projects-section">
+        <h2>Key Projects</h2>
+        
+        <div class="experience-grid">
+            <div class="experience-card">
+                <div class="role">Project Lead - Enterprise Dashboard</div>
+                <div class="company">Tech Innovations Inc.</div>
+                <div class="period">2021 - 2022</div>
+                
+                <p>Led development of a comprehensive analytics dashboard providing real-time insights for enterprise clients.</p>
+                
+                <div class="achievements">
+                    <li>Integrated 5+ data sources for comprehensive reporting</li>
+                    <li>Implemented real-time updates using WebSockets</li>
+                    <li>Designed flexible dashboard widgets system</li>
+                </div>
+                
+                <div class="skills-used">
+                    <span class="skill-tag">React</span>
+                    <span class="skill-tag">D3.js</span>
+                    <span class="skill-tag">WebSockets</span>
+                    <span class="skill-tag">Redis</span>
+                </div>
+            </div>
+            
+            <div class="experience-card">
+                <div class="role">Lead Developer - E-Commerce Platform</div>
+                <div class="company">Digital Solutions Ltd</div>
+                <div class="period">2018 - 2020</div>
+                
+                <p>Built a scalable e-commerce platform with advanced product filtering, shopping cart functionality, and payment processing.</p>
+                
+                <div class="achievements">
+                    <li>Implemented secure payment processing with Stripe</li>
+                    <li>Created advanced product search with filters</li>
+                    <li>Built responsive design for all device sizes</li>
+                </div>
+                
+                <div class="skills-used">
+                    <span class="skill-tag">MERN Stack</span>
+                    <span class="skill-tag">Stripe API</span>
+                    <span class="skill-tag">Redux</span>
+                    <span class="skill-tag">Elastic Search</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

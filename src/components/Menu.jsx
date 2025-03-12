@@ -1,9 +1,11 @@
 import React from 'react';
-// ...existing code...
 
 const Menu = ({ onNodeClick }) => {
   const menuNodes = [
     { title: 'Portfolio', id: 'portfolio' },
+    { title: 'Professional', id: 'professional' },
+    { title: 'Repositories', id: 'repositories' },
+    { title: 'Personal', id: 'personal' },
     { title: 'About', id: 'about' },
     { title: 'Contact', id: 'contact' }
   ];
@@ -23,4 +25,4 @@ const Menu = ({ onNodeClick }) => {
   );
 };
 
-// ...existing code...
+export default Menu;
