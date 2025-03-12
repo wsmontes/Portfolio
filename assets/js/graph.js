@@ -245,7 +245,9 @@
             
             // Show content panel for main sections
             if (['professional', 'repositories', 'personal'].includes(node.id)) {
-                showSectionContent(node.id);
+                setTimeout(function() {
+                    showSectionContent(node.id);
+                }, 1000);
             }
         }
         
