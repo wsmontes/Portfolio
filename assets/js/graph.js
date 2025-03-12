@@ -222,10 +222,12 @@
         function handleNodeClick(node) {
             if (!node || !graph) return;
             
+            // Return early if it's the center/portfolio node - don't trigger any action
+            if (node.id === 'center') return;
+            
             // Determine suitable camera distance
             let distance = 120;
-            if (node.id === 'center') distance = 200;
-            else if (['professional', 'repositories', 'personal'].includes(node.id)) distance = 100;
+            if (['professional', 'repositories', 'personal'].includes(node.id)) distance = 100;
             
             // Calculate target position
             const distRatio = 1 + distance/Math.hypot(node.x || 0, node.y || 0, node.z || 0);
@@ -242,10 +244,7 @@
             );
             
             // Show content panel for main sections
-            if (node.id === 'center') {
-                hidePanel();
-            }
-            else if (['professional', 'repositories', 'personal'].includes(node.id)) {
+            if (['professional', 'repositories', 'personal'].includes(node.id)) {
                 showSectionContent(node.id);
             }
         }
@@ -262,25 +261,55 @@
         
         // Content panel functions
         function showSectionContent(sectionId) {
-            const templateId = `${sectionId}-template`;
+            // Map node IDs to template IDs
+            let templateId;
+            
+            // Map the main section nodes to appropriate templates
+            if (sectionId === 'professional') {
+                templateId = 'professional-template';
+            } else if (sectionId === 'repositories') {
+                templateId = 'repositories-template';
+            } else if (sectionId === 'personal') {
+                templateId = 'personal-template';
+            } else {
+                templateId = `${sectionId}-template`; // Default mapping
+            }
+            
             const template = document.getElementById(templateId);
             
-            if (!template) return;
+            if (!template) {
+                console.warn(`Template not found for section: ${sectionId}, template ID: ${templateId}`);
+                return;
+            }
             
             contentInner.innerHTML = '';
             contentInner.appendChild(template.content.cloneNode(true));
             contentPanel.classList.remove('hidden');
             
+            // Setup close button functionality
+            const closeButton = document.querySelector('.close-panel');
+            if (closeButton) {
+                closeButton.addEventListener('click', hidePanel);
+            }
+            
             // Setup filter buttons if any
             setupFilterButtons();
             
             // Load dynamic content if needed
-            if (sectionId === 'projects') loadProjectsData();
-            if (sectionId === 'photography') loadPhotographyData();
+            if (sectionId === 'repositories') loadProjectsData();
+            if (sectionId === 'personal') loadPhotographyData();
         }
         
         function hidePanel() {
             contentPanel.classList.add('hidden');
+            
+            // Reset camera to home position when panel is closed
+            if (graph) {
+                // Use smooth animation to return to default view
+                graph.cameraPosition({ 
+                    x: 0, y: 0, z: 240 
+                }, { x: 0, y: 0, z: 0 }, 800);
+            }
         }
         
         // Rest of your existing functions

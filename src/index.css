@@ -1,0 +1,9 @@
+/* Ensure proper stacking context for z-index to work */
+#root {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  width: 100%;
+}
+
+/* ...existing code... */

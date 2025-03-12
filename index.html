@@ -39,7 +39,7 @@
         <div id="graph-container"></div>
         
         <div id="content-panel" class="hidden">
-            <button class="close-panel"><i class="fas fa-times"></i></button>
+            <button class="close-panel" aria-label="Close panel"><i class="fas fa-times"></i></button>
             <div class="content-inner">
                 <!-- Content will be loaded here dynamically -->
             </div>
@@ -185,6 +185,66 @@
                     </div>
                     <button type="submit" class="btn primary">Send Message</button>
                 </form>
+            </div>
+        </div>
+    </template>
+
+    <!-- Professional template with improved structure -->
+    <template id="professional-template">
+        <div class="section-content">
+            <h2 class="section-title">Professional Experience</h2>
+            <div class="professional-content">
+                <div class="card">
+                    <h3><i class="fas fa-briefcase"></i> Senior Developer</h3>
+                    <p>Led development of enterprise applications using modern JavaScript frameworks and cloud technologies. Managed a team of 5 developers and collaborated with product managers to deliver features on time.</p>
+                    <div class="date-range">2020 - Present</div>
+                    <a href="#" class="btn primary"><i class="fas fa-external-link-alt"></i> View Details</a>
+                </div>
+                <div class="card">
+                    <h3><i class="fas fa-code"></i> Full Stack Developer</h3>
+                    <p>Developed full stack applications using React, Node.js, and MongoDB. Implemented responsive UIs and RESTful APIs for data-driven web applications.</p>
+                    <div class="date-range">2017 - 2020</div>
+                    <a href="#" class="btn primary"><i class="fas fa-external-link-alt"></i> View Details</a>
+                </div>
+                <div class="card">
+                    <h3><i class="fas fa-graduation-cap"></i> Education</h3>
+                    <p>B.S. in Computer Science with focus on software engineering and database systems. Graduated with honors and completed multiple collaborative programming projects.</p>
+                    <div class="date-range">2013 - 2017</div>
+                    <a href="#" class="btn primary"><i class="fas fa-external-link-alt"></i> View Details</a>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- Repositories template with improved structure -->
+    <template id="repositories-template">
+        <div class="section-content">
+            <h2 class="section-title">Code Repositories</h2>
+            <div class="project-filters">
+                <button class="filter-btn active" data-filter="all">All Projects</button>
+                <button class="filter-btn" data-filter="web">Web Apps</button>
+                <button class="filter-btn" data-filter="mobile">Mobile Apps</button>
+                <button class="filter-btn" data-filter="other">Other Projects</button>
+            </div>
+            <div class="projects-grid">
+                <!-- Projects loaded dynamically from projects.json -->
+            </div>
+        </div>
+    </template>
+
+    <!-- Personal template with improved structure -->
+    <template id="personal-template">
+        <div class="section-content">
+            <h2 class="section-title">Photography Portfolio</h2>
+            <p class="section-intro">A collection of my favorite photography work capturing moments, landscapes and people.</p>
+            <div class="photo-filters">
+                <button class="filter-btn active" data-filter="all">All Photos</button>
+                <button class="filter-btn" data-filter="portrait">Portraits</button>
+                <button class="filter-btn" data-filter="landscape">Landscapes</button>
+                <button class="filter-btn" data-filter="street">Street Photography</button>
+            </div>
+            <div class="gallery">
+                <!-- Gallery loaded dynamically -->
             </div>
         </div>
     </template>

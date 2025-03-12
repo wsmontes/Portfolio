@@ -1,0 +1,132 @@
+.frame-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999; /* Increase z-index to ensure visibility */
+  pointer-events: all;
+  background-color: rgba(0, 0, 0, 0.2); /* More transparent background */
+  transition: opacity 0.3s ease;
+}
+
+.frame-container {
+  background: rgba(20, 20, 30, 0.7); /* More transparent for better visibility */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px); /* Safari support */
+  border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.3); /* More visible border */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 15px rgba(255, 255, 255, 0.1);
+  padding: 30px;
+  width: 70%; /* Slightly smaller */
+  max-width: 700px;
+  color: white;
+  position: relative;
+  animation: fadeIn 0.4s ease-out;
+  pointer-events: auto;
+  max-height: 70vh; /* Not taking full screen height */
+  overflow-y: auto;
+  z-index: 10000; /* Higher than overlay */
+  transition: all 0.3s ease;
+}
+
+.close-button {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 24px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.close-button:hover {
+  color: white;
+}
+
+.frame-content {
+  padding: 10px;
+}
+
+.frame-content h2 {
+  font-size: 28px;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.content-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+}
+
+.content-column {
+  flex: 1;
+  min-width: 250px;
+}
+
+.contact-form .form-group {
+  margin-bottom: 20px;
+}
+
+.contact-form label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.contact-form input,
+.contact-form textarea {
+  width: 100%;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 5px;
+  color: white;
+}
+
+.submit-button {
+  background: rgba(78, 115, 223, 0.8);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.3s;
+}
+
+.submit-button:hover {
+  background: rgba(78, 115, 223, 1);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Add this for disabled menu items */
+.menu-item-disabled {
+  opacity: 0.6;
+  cursor: default;
+  pointer-events: none; /* Prevents hover effects */
+}
+
+/* Debug styles - uncomment if needed */
+/* 
+.debug-visible {
+  border: 3px solid red !important;
+}
+*/
