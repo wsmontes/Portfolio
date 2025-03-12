@@ -1,0 +1,42 @@
+{
+  "title": "Photography Portfolio",
+  "intro": "A collection of my favorite photography work capturing moments, landscapes and people.",
+  "categories": [
+    {
+      "id": "all",
+      "name": "All Photos"
+    },
+    {
+      "id": "portrait",
+      "name": "Portraits"
+    },
+    {
+      "id": "landscape",
+      "name": "Landscapes"
+    },
+    {
+      "id": "street",
+      "name": "Street Photography"
+    }
+  ],
+  "photos": [
+    {
+      "title": "Mountain Vista",
+      "description": "Sunrise over the mountain range",
+      "category": "landscape",
+      "image": "assets/images/photography/landscape1.jpg"
+    },
+    {
+      "title": "City Life",
+      "description": "Urban moments captured in black and white",
+      "category": "street",
+      "image": "assets/images/photography/street1.jpg"
+    },
+    {
+      "title": "Portrait Study",
+      "description": "Environmental portrait with natural lighting",
+      "category": "portrait",
+      "image": "assets/images/photography/portrait1.jpg"
+    }
+  ]
+}

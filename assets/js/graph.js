@@ -17,6 +17,10 @@
         // Store graph instance
         let graph = null;
         
+        // Camera animation duration (ms)
+        const CAMERA_ANIMATION_DURATION = 1000;
+        const CONTENT_DELAY = 800; // Slightly less than camera animation to feel responsive
+        
         // Initialize the graph with high-quality nodes
         function initGraph() {
             // Make sure THREE and ForceGraph3D are loaded
@@ -27,42 +31,124 @@
             }
             
             // Create graph with enhanced node quality
-            graph = ForceGraph3D()
+            graph = ForceGraph3D({ 
+                controlType: 'orbit',
+                rendererConfig: { antialias: true, alpha: true }
+            })(graphElement)
                 .backgroundColor('#000008')
                 .graphData(NetworkData)
                 .nodeLabel(node => `${node.name}: ${node.description}`)
-                .nodeRelSize(8)
-                .nodeThreeObject(createHighQualityNode)
-                .linkWidth(0.8)
-                .linkOpacity(0.4)
-                .linkDirectionalParticles(4)
-                .linkDirectionalParticleSpeed(0.003)
-                .linkDirectionalParticleWidth(1.5)
-                .linkColor(() => '#ffffff50')
-                .onNodeClick(handleNodeClick)
+                .nodeThreeObject(node => {
+                    // Use the celestial bodies creator if available
+                    if (window.createCelestialBody) {
+                        return window.createCelestialBody(node);
+                    } else {
+                        // Fallback to basic node creation
+                        return createBasicNode(node);
+                    }
+                })
+                .nodeRelSize(6)
+                .linkWidth(link => link.value * 0.5)
+                .linkOpacity(0.6)
+                .linkDirectionalParticles(3)
+                .linkDirectionalParticleSpeed(0.005)
+                .linkDirectionalParticleWidth(1.2)
+                .linkColor(() => '#ffffff30')
                 .onNodeHover(handleNodeHover)
+                .onNodeClick(handleNodeClick)
                 .onBackgroundClick(hidePanel)
                 .onEngineStop(() => {
                     hideLoadingScreen();
                 });
             
+            // Setup force physics for better node positioning
+            graph.d3Force('charge').strength(-120);
+            graph.d3Force('link').distance(link => {
+                // Adjust link distance based on node types
+                const sourceIsCenter = link.source.id === 'center';
+                const targetIsCategory = ['professional', 'repositories', 'personal'].includes(link.target.id);
+                
+                if (sourceIsCenter && targetIsCategory) {
+                    return 80; // Distance from center to main categories
+                } else if (targetIsCategory) {
+                    return 60; // Distance to subcategories
+                } else {
+                    return 40; // Distance to items
+                }
+            });
+            
+            // Add frame loop for animations
+            graph.onEngineTick(() => {
+                if (window.animateNodes) {
+                    window.animateNodes(graph.nodeThreeObjectExtend(), 0.016);
+                }
+            });
+            
             // Mount to container
             graph(graphElement);
             
             // Set initial camera position
-            graph.cameraPosition({ x: 100, y: 100, z: 250 }, { x: 0, y: 0, z: 0 }, 1000);
+            graph.cameraPosition({ x: 0, y: 0, z: 220 }, { x: 0, y: 0, z: 0 }, 1000);
             
             // Setup controls
             setupControls();
+
+            // Make focusOnNode function available globally
+            window.focusOnNode = (nodeId, showContentAfter = false) => {
+                const nodes = graph.graphData().nodes;
+                const node = nodes.find(n => n.id === nodeId);
+                
+                if (node) {
+                    // Calculate appropriate distance based on node type
+                    const distance = ['professional', 'repositories', 'personal', 'about', 'contact'].includes(nodeId) ? 100 : 60;
+                    const distRatio = 1 + distance/Math.hypot(node.x, node.y, node.z);
+                    
+                    // Move camera to focus on the node
+                    graph.cameraPosition(
+                        { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio },
+                        node,
+                        CAMERA_ANIMATION_DURATION
+                    );
+                    
+                    // If showContentAfter is true, dispatch the nodeClick event after camera movement
+                    if (showContentAfter) {
+                        setTimeout(() => {
+                            // Dispatch node click event with flag to show content
+                            const clickEvent = new CustomEvent('nodeClick', {
+                                detail: { id: nodeId, showContent: true }
+                            });
+                            window.dispatchEvent(clickEvent);
+                        }, CONTENT_DELAY);
+                    }
+                    
+                    return true;
+                }
+                return false;
+            };
+            
+            // Make resetGraphView function available globally
+            window.resetGraphView = () => {
+                graph.cameraPosition({ 
+                    x: 0, y: 0, z: 240 
+                }, { x: 0, y: 0, z: 0 }, 800);
+                
+                // If there's a content panel open, hide it
+                hidePanel();
+            };
+            
+            // Emit graph loaded event after short delay to ensure rendering
+            setTimeout(() => {
+                window.dispatchEvent(new Event('graphLoaded'));
+            }, 1000);
+            
+            // Setup zoom control buttons
+            setupZoomControls(graph);
         }
         
-        // Custom function to create high-quality nodes
-        function createHighQualityNode(node) {
-            // Create group to hold the node objects
-            const group = new THREE.Group();
-            
+        // Create basic Three.js object for node when celestial-bodies.js isn't loaded
+        function createBasicNode(node) {
             // Determine node size
-            const size = (node.val || 10) / 3;
+            const size = node.size || (node.val || 10) / 3;
             
             // Determine node color based on type
             let color;
@@ -79,15 +165,12 @@
             else if (node.parentId === 'personal') color = '#ff6b81';  // Lighter pink
             else color = '#94a3b8';  // Default gray
             
-            // Create high-quality geometry with more segments for smoother appearance
-            // Important nodes get more segments for better quality
+            // Create mesh with appropriate segments for quality
             const segments = 
                 node.id === 'center' ? 32 : 
                 ['professional', 'repositories', 'personal'].includes(node.id) ? 24 : 16;
-            
+                
             const geometry = new THREE.SphereGeometry(size, segments, segments);
-            
-            // Create material with better appearance
             const material = new THREE.MeshPhongMaterial({ 
                 color: color,
                 shininess: 80,
@@ -95,27 +178,7 @@
                 opacity: 0.9
             });
             
-            // Create mesh and add to group
-            const mesh = new THREE.Mesh(geometry, material);
-            
-            // Add slow rotation animation
-            const rotationSpeed = Math.random() * 0.01 + 0.002;
-            mesh.userData = { rotationSpeed };
-            
-            // Start the rotation animation
-            animateRotation(mesh);
-            
-            group.add(mesh);
-            return group;
-        }
-        
-        // Animate node rotation
-        function animateRotation(mesh) {
-            requestAnimationFrame(() => animateRotation(mesh));
-            if (mesh && mesh.userData && mesh.userData.rotationSpeed) {
-                mesh.rotation.y += mesh.userData.rotationSpeed;
-                mesh.rotation.z += mesh.userData.rotationSpeed * 0.3;
-            }
+            return new THREE.Mesh(geometry, material);
         }
         
         // Setup camera/zoom controls
@@ -184,69 +247,76 @@
                     });
                 });
             }
+            
+            // Close panel button
+            if (closePanel) {
+                closePanel.addEventListener('click', hidePanel);
+            }
+        }
+
+        /**
+         * Setup zoom control buttons
+         * @param {Object} graph - 3D Force Graph instance
+         */
+        function setupZoomControls(graph) {
+            if (zoomInBtn) {
+                zoomInBtn.addEventListener('click', () => {
+                    const { x, y, z } = graph.cameraPosition();
+                    const distance = Math.sqrt(x*x + y*y + z*z);
+                    const scale = 0.8;
+                    graph.cameraPosition({
+                        x: x * scale, y: y * scale, z: z * scale
+                    }, undefined, 300);
+                });
+            }
+            
+            if (zoomOutBtn) {
+                zoomOutBtn.addEventListener('click', () => {
+                    const { x, y, z } = graph.cameraPosition();
+                    const scale = 1.25;
+                    graph.cameraPosition({
+                        x: x * scale, y: y * scale, z: z * scale
+                    }, undefined, 300);
+                });
+            }
+            
+            if (resetCameraBtn) {
+                resetCameraBtn.addEventListener('click', () => {
+                    graph.cameraPosition({ x: 0, y: 0, z: 220 }, { x: 0, y: 0, z: 0 }, 1000);
+                });
+            }
         }
         
         // Node hover handler
         function handleNodeHover(node) {
             // Change cursor
             graphElement.style.cursor = node ? 'pointer' : null;
-            
-            if (!graph) return;
-            
-            // Simple highlight effect
-            graph.nodeColor(n => {
-                if (n === node) {
-                    // Highlight hovered node
-                    return node.id === 'center' ? '#fff8b9' : // Brighter gold
-                           node.id === 'professional' ? '#6495ed' : // Brighter blue
-                           node.id === 'repositories' ? '#3cb371' : // Brighter green
-                           node.id === 'personal' ? '#ff69b4' : // Brighter pink
-                           '#d3d3d3'; // Brighter gray
-                } else {
-                    // Regular colors for other nodes
-                    return n.id === 'center' ? '#ffd700' : // Gold
-                           n.id === 'professional' ? '#2563eb' : // Blue
-                           n.id === 'repositories' ? '#16a34a' : // Green
-                           n.id === 'personal' ? '#db2777' : // Pink
-                           n.parentId === 'professional' ? '#4a90e2' : // Lighter blue
-                           n.parentId === 'repositories' ? '#2ecc71' : // Lighter green
-                           n.parentId === 'personal' ? '#ff6b81' : // Lighter pink
-                           '#94a3b8'; // Default gray
-                }
-            });
         }
         
         // Node click handler
         function handleNodeClick(node) {
-            if (!node || !graph) return;
+            if (!node) return;
             
-            // Return early if it's the center/portfolio node - don't trigger any action
-            if (node.id === 'center') return;
+            // First focus on the node (camera movement)
+            const nodeId = node.id;
             
-            // Determine suitable camera distance
-            let distance = 120;
-            if (['professional', 'repositories', 'personal'].includes(node.id)) distance = 100;
-            
-            // Calculate target position
-            const distRatio = 1 + distance/Math.hypot(node.x || 0, node.y || 0, node.z || 0);
-            
-            // Move camera
+            // Focus camera on the node
+            const distance = nodeId === 'center' ? 120 : 60;
+            const distRatio = 1 + distance/Math.hypot(node.x, node.y, node.z);
             graph.cameraPosition(
-                { 
-                    x: (node.x || 0) * distRatio, 
-                    y: (node.y || 0) * distRatio, 
-                    z: (node.z || 0) * distRatio 
-                },
-                node, 
-                1200
+                { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio },
+                node,
+                CAMERA_ANIMATION_DURATION
             );
             
-            // Show content panel for main sections
-            if (['professional', 'repositories', 'personal', 'contact'].includes(node.id)) {
-                setTimeout(function() {
-                    showSectionContent(node.id);
-                }, 1000);
-            }
+            // After camera has started moving, dispatch event to show content
+            setTimeout(() => {
+                // Dispatch node click event with flag to show content
+                const clickEvent = new CustomEvent('nodeClick', {
+                    detail: { id: nodeId, showContent: true }
+                });
+                window.dispatchEvent(clickEvent);
+            }, CONTENT_DELAY);
         }
         
         // Loading screen functions
@@ -260,42 +330,41 @@
         }
         
         // Content panel functions
-        function showSectionContent(sectionId) {
-            const templateId = `${sectionId}-template`;
-            const template = document.getElementById(templateId);
+        function showSectionContent(section) {
+            if (!contentPanel || !contentInner) return;
             
-            if (!template) {
-                console.warn(`Template not found for section: ${sectionId}`);
-                return;
-            }
-            
+            // Clear previous content
             contentInner.innerHTML = '';
-            contentInner.appendChild(template.content.cloneNode(true));
-            contentPanel.classList.remove('hidden');
             
-            // Setup close button functionality
-            const closeButton = document.querySelector('.close-panel');
-            if (closeButton) {
-                closeButton.addEventListener('click', hidePanel);
+            try {
+                // Use ContentLoader to load content directly from JSON
+                if (typeof ContentLoader === 'function') {
+                    ContentLoader.loadContent(section, contentInner)
+                        .then(() => {
+                            console.log(`Content for ${section} loaded successfully`);
+                            // Show the content panel
+                            contentPanel.classList.remove('hidden');
+                        })
+                        .catch(error => {
+                            console.error(`Error loading ${section} content:`, error);
+                            contentInner.innerHTML = '<p>Failed to load content. Please try again later.</p>';
+                            contentPanel.classList.remove('hidden');
+                        });
+                } else {
+                    console.error('ContentLoader not available');
+                    contentInner.innerHTML = '<p>Content loading system is not available</p>';
+                    contentPanel.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Error showing section content:', error);
+                contentInner.innerHTML = '<p>An error occurred while loading content.</p>';
+                contentPanel.classList.remove('hidden');
             }
-            
-            // Setup filter buttons if any
-            setupFilterButtons();
-            
-            // Use project-loader.js for repository data loading
-            if (sectionId === 'personal') loadPhotographyData();
         }
         
         function hidePanel() {
+            if (!contentPanel) return;
             contentPanel.classList.add('hidden');
-            
-            // Reset camera to home position when panel is closed
-            if (graph) {
-                // Use smooth animation to return to default view
-                graph.cameraPosition({ 
-                    x: 0, y: 0, z: 240 
-                }, { x: 0, y: 0, z: 0 }, 800);
-            }
         }
         
         // Setup filter buttons

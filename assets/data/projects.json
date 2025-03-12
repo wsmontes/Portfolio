@@ -1,0 +1,41 @@
+{
+  "title": "Code Repositories",
+  "projects": [
+    {
+      "title": "Portfolio Network Visualizer",
+      "description": "Interactive 3D network visualization portfolio built with Three.js and Force Graph. Features dynamic content loading and responsive design.",
+      "image": "assets/images/projects/portfolio.jpg",
+      "technologies": ["HTML5", "CSS3", "JavaScript", "Three.js", "Force Graph"],
+      "category": "web",
+      "liveUrl": "#",
+      "githubUrl": "https://github.com/username/portfolio-network"
+    },
+    {
+      "title": "E-commerce Platform",
+      "description": "Full-featured e-commerce platform with product management, cart functionality, payment processing, and user authentication.",
+      "image": "assets/images/projects/ecommerce.jpg",
+      "technologies": ["React", "Node.js", "Express", "MongoDB", "Stripe API"],
+      "category": "web",
+      "liveUrl": "#",
+      "githubUrl": "https://github.com/username/ecommerce-platform"
+    },
+    {
+      "title": "Fitness Tracking App",
+      "description": "Mobile application for tracking workouts, nutrition, and fitness goals with data visualization and progress tracking.",
+      "image": "assets/images/projects/fitness.jpg",
+      "technologies": ["React Native", "Firebase", "Chart.js"],
+      "category": "mobile",
+      "liveUrl": "#",
+      "githubUrl": "https://github.com/username/fitness-tracker"
+    },
+    {
+      "title": "Machine Learning Model",
+      "description": "Implementation of various machine learning algorithms for predicting housing prices using historical data.",
+      "image": "assets/images/projects/ml.jpg",
+      "technologies": ["Python", "TensorFlow", "scikit-learn", "Pandas"],
+      "category": "other",
+      "liveUrl": "#",
+      "githubUrl": "https://github.com/username/ml-housing-prices"
+    }
+  ]
+}

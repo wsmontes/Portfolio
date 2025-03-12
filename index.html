@@ -27,6 +27,7 @@
                 <li><a href="#" data-section="professional">Professional</a></li>
                 <li><a href="#" data-section="repositories">Code Repositories</a></li>
                 <li><a href="#" data-section="personal">Personal</a></li>
+                <li><a href="#" data-section="about">About</a></li>
                 <li><a href="#" data-section="contact">Contact</a></li>
             </ul>
         </nav>
@@ -47,116 +48,14 @@
         </div>
     </div>
     
-    <!-- Only keep the actively used templates based on graph.js -->
-    <!-- Professional template -->
-    <template id="professional-template">
-        <div class="section-content">
-            <h2 class="section-title">Professional Experience</h2>
-            <div class="professional-content">
-                <div class="card">
-                    <h3><i class="fas fa-briefcase"></i> Senior Developer</h3>
-                    <p>Led development of enterprise applications using modern JavaScript frameworks and cloud technologies. Managed a team of 5 developers and collaborated with product managers to deliver features on time.</p>
-                    <div class="date-range">2020 - Present</div>
-                    <a href="#" class="btn primary"><i class="fas fa-external-link-alt"></i> View Details</a>
-                </div>
-                <div class="card">
-                    <h3><i class="fas fa-code"></i> Full Stack Developer</h3>
-                    <p>Developed full stack applications using React, Node.js, and MongoDB. Implemented responsive UIs and RESTful APIs for data-driven web applications.</p>
-                    <div class="date-range">2017 - 2020</div>
-                    <a href="#" class="btn primary"><i class="fas fa-external-link-alt"></i> View Details</a>
-                </div>
-                <div class="card">
-                    <h3><i class="fas fa-graduation-cap"></i> Education</h3>
-                    <p>B.S. in Computer Science with focus on software engineering and database systems. Graduated with honors and completed multiple collaborative programming projects.</p>
-                    <div class="date-range">2013 - 2017</div>
-                    <a href="#" class="btn primary"><i class="fas fa-external-link-alt"></i> View Details</a>
-                </div>
-            </div>
-        </div>
-    </template>
-
-    <!-- Repositories template -->
-    <template id="repositories-template">
-        <div class="section-content">
-            <h2 class="section-title">Code Repositories</h2>
-            <div class="project-filters">
-                <button class="filter-btn active" data-filter="all">All Projects</button>
-                <button class="filter-btn" data-filter="web">Web Apps</button>
-                <button class="filter-btn" data-filter="mobile">Mobile Apps</button>
-                <button class="filter-btn" data-filter="other">Other Projects</button>
-            </div>
-            <div class="projects-grid">
-                <!-- Projects loaded dynamically from projects.json -->
-            </div>
-        </div>
-    </template>
-
-    <!-- Personal template -->
-    <template id="personal-template">
-        <div class="section-content">
-            <h2 class="section-title">Photography Portfolio</h2>
-            <p class="section-intro">A collection of my favorite photography work capturing moments, landscapes and people.</p>
-            <div class="photo-filters">
-                <button class="filter-btn active" data-filter="all">All Photos</button>
-                <button class="filter-btn" data-filter="portrait">Portraits</button>
-                <button class="filter-btn" data-filter="landscape">Landscapes</button>
-                <button class="filter-btn" data-filter="street">Street Photography</button>
-            </div>
-            <div class="gallery">
-                <!-- Gallery loaded dynamically -->
-            </div>
-        </div>
-    </template>
-    
-    <!-- Contact template -->
-    <template id="contact-template">
-        <div class="section-content">
-            <h2 class="section-title">Get In Touch</h2>
-            <div class="contact-content">
-                <div class="contact-info">
-                    <div class="contact-item">
-                        <i class="fas fa-envelope"></i>
-                        <p>your.email@example.com</p>
-                    </div>
-                    <div class="contact-item">
-                        <i class="fas fa-phone"></i>
-                        <p>+1 (123) 456-7890</p>
-                    </div>
-                    <div class="contact-item">
-                        <i class="fas fa-map-marker-alt"></i>
-                        <p>Your Location</p>
-                    </div>
-                    <div class="social-links">
-                        <a href="https://github.com/yourusername" target="_blank"><i class="fab fa-github"></i></a>
-                        <a href="https://linkedin.com/in/yourusername" target="_blank"><i class="fab fa-linkedin"></i></a>
-                        <a href="https://instagram.com/yourusername" target="_blank"><i class="fab fa-instagram"></i></a>
-                    </div>
-                </div>
-                <form class="contact-form">
-                    <div class="form-group">
-                        <label for="name">Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="message">Message</label>
-                        <textarea id="message" name="message" rows="5" required></textarea>
-                    </div>
-                    <button type="submit" class="btn primary">Send Message</button>
-                </form>
-            </div>
-        </div>
-    </template>
-    
     <!-- Load scripts in proper order with async for non-critical scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
     <script src="https://unpkg.com/3d-force-graph@1.70.5/dist/3d-force-graph.min.js"></script>
     <script src="assets/js/network-data.js"></script>
+    <script src="assets/js/celestial-bodies.js"></script>
+    <script src="assets/js/content-loader.js"></script>
+    <script src="assets/js/react-bridge.js"></script>
     <script src="assets/js/main.js"></script>
-    <script src="assets/js/project-loader.js"></script>
     <script src="assets/js/graph.js"></script>
 </body>
 </html>

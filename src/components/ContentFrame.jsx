@@ -5,19 +5,47 @@ const ContentFrame = ({ nodeId, onClose }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const [contentLoaded, setContentLoaded] = useState(false);
-  const iframeRef = useRef(null);
-
-  // Show frame on mount and add ESC key listener
+  const contentContainerRef = useRef(null);
+  
+  // Single useEffect for handling frame appearance and content loading
   useEffect(() => {
     console.log("ContentFrame mounted for:", nodeId);
     const handleEsc = event => { if (event.key === 'Escape') triggerClose(); };
     window.addEventListener('keydown', handleEsc);
     
-    // Delay visibility for animation effect
-    setTimeout(() => setIsVisible(true), 50);
+    // First show the frame with the loading indicator
+    // Small delay needed for the CSS transition to work properly
+    const showFrameTimeout = setTimeout(() => setIsVisible(true), 10);
+    
+    // Then load the content
+    if (contentContainerRef.current && nodeId) {
+      // Only start loading content once the frame is visible
+      const loadContentTimeout = setTimeout(() => {
+        window.ContentLoader.loadContent(nodeId, contentContainerRef.current)
+          .then(() => {
+            // Only mark content as loaded after the frame is fully visible
+            setTimeout(() => {
+              setContentLoaded(true);
+              console.log("Content loaded for", nodeId);
+            }, 300); // Wait for frame animation to complete
+          })
+          .catch((error) => {
+            console.error("Failed to load content for", nodeId, error);
+            setContentLoaded(true);
+          });
+      }, 300); // Wait for frame animation to start
+      
+      return () => {
+        window.removeEventListener('keydown', handleEsc);
+        clearTimeout(showFrameTimeout);
+        clearTimeout(loadContentTimeout);
+        console.log("ContentFrame unmounted");
+      };
+    }
     
     return () => {
       window.removeEventListener('keydown', handleEsc);
+      clearTimeout(showFrameTimeout);
       console.log("ContentFrame unmounted");
     };
   }, [nodeId]);
@@ -26,31 +54,13 @@ const ContentFrame = ({ nodeId, onClose }) => {
     if (isClosing) return;
     setIsClosing(true);
     
+    // Reset the graph view when closing the frame
+    if (window.resetGraphView) {
+      window.resetGraphView();
+    }
+    
     // Animation duration for smoother exit
     setTimeout(() => { onClose(); }, 400);
-  };
-
-  // Map node IDs to template paths
-  const contentSources = {
-    professional: 'assets/content/professional.html',
-    repositories: 'assets/content/repositories.html',
-    personal: 'assets/content/personal.html',
-    about: 'assets/content/about.html',
-    contact: 'assets/content/contact.html'
-  };
-  
-  const src = contentSources[nodeId];
-  console.log("Rendering content for", nodeId, "with src:", src);
-
-  // Handle iframe load events
-  const handleIframeLoad = () => {
-    console.log("Content loaded for", nodeId);
-    setContentLoaded(true);
-  };
-
-  const handleIframeError = () => {
-    console.error("Failed to load content for", nodeId);
-    setContentLoaded(true); // Still mark as loaded to show error message
   };
 
   // Determine frame title based on node ID
@@ -67,7 +77,7 @@ const ContentFrame = ({ nodeId, onClose }) => {
 
   // Render appropriate content
   const renderContent = () => {
-    if (!src) {
+    if (!nodeId) {
       return (
         <div className="frame-fallback-content">
           <h2>Content Not Found</h2>
@@ -79,15 +89,10 @@ const ContentFrame = ({ nodeId, onClose }) => {
     return (
       <div className="frame-content-wrapper">
         {!contentLoaded && <div className="content-loader"></div>}
-        <iframe 
-          ref={iframeRef}
-          id="content-frame" 
-          src={src} 
-          title={getFrameTitle()}
-          className={contentLoaded ? 'loaded' : ''}
-          onLoad={handleIframeLoad}
-          onError={handleIframeError}
-        />
+        <div 
+          ref={contentContainerRef}
+          className={`content-container ${contentLoaded ? 'loaded' : ''}`}
+        ></div>
       </div>
     );
   };

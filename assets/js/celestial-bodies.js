@@ -2,21 +2,31 @@
  * Enhanced node creation for beautiful and smooth 3D force graph
  */
 (function() {
-    // Function to initialize after THREE is available
-    function initCelestialBodies() {
-        // Access THREE from ForceGraph3D
-        if (typeof ForceGraph3D === 'undefined') {
-            console.warn('ForceGraph3D not available yet, retrying...');
-            setTimeout(initCelestialBodies, 100);
-            return;
+    // Ensure THREE is properly initialized before using it
+    function initCelestialBodies(ForceGraph3D) {
+        // Wait for THREE to be available from ForceGraph3D
+        if (!ForceGraph3D.hasOwnProperty('three') || !ForceGraph3D.three || typeof ForceGraph3D.three !== 'object') {
+            console.warn("THREE not available from ForceGraph3D yet, retrying...");
+            // Make sure we have an exit condition for the retry mechanism
+            if (window._celestialRetryCount === undefined) {
+                window._celestialRetryCount = 0;
+            }
+            
+            if (window._celestialRetryCount < 10) { // Limit retries to avoid infinite loop
+                window._celestialRetryCount++;
+                setTimeout(() => initCelestialBodies(ForceGraph3D), 300);
+                return;
+            } else {
+                console.error("Failed to initialize celestial bodies after multiple retries");
+                return;
+            }
         }
         
-        const THREE = ForceGraph3D.THREE;
-        if (!THREE) {
-            console.warn('THREE not available from ForceGraph3D yet, retrying...');
-            setTimeout(initCelestialBodies, 100);
-            return;
-        }
+        // Reset retry counter
+        window._celestialRetryCount = 0;
+        
+        // Now THREE should be available
+        const THREE = ForceGraph3D.three;
         
         console.log("THREE initialized successfully from ForceGraph3D");
         
@@ -27,7 +37,7 @@
         // Create enhanced node with beautiful materials and effects
         function createEnhancedNode(node) {
             const group = new THREE.Group();
-            const size = (node.val || 10) / 3;
+            const size = node.size || (node.val || 10) / 3;
             
             // Get color based on node type with enhanced palette
             let color, emissive, metalness, roughness;
@@ -89,7 +99,7 @@
             
             // Add userData for animations
             mesh.userData = { 
-                rotationSpeed: (Math.random() * 0.01) + 0.003,
+                rotationSpeed: node.rotationSpeed || (Math.random() * 0.01) + 0.003,
                 pulseSpeed: (Math.random() * 0.002) + 0.001,
                 originalScale: 1
             };
@@ -104,8 +114,8 @@
         
         // Animation function for nodes
         window.animateNodes = function(nodes, delta) {
-            Object.values(nodes).forEach(nodeObj => {
-                if (!nodeObj.group) return;
+            Object.values(nodes || {}).forEach(nodeObj => {
+                if (!nodeObj || !nodeObj.group) return;
                 
                 nodeObj.group.children.forEach(child => {
                     if (child instanceof THREE.Mesh && child.userData.rotationSpeed) {
@@ -125,9 +135,9 @@
     
     // Start initialization
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initCelestialBodies);
+        document.addEventListener('DOMContentLoaded', () => initCelestialBodies(ForceGraph3D));
     } else {
         // DOM already ready, run immediately
-        initCelestialBodies();
+        initCelestialBodies(ForceGraph3D);
     }
 })();
