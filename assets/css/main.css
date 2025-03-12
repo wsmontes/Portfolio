@@ -63,6 +63,7 @@ html, body {
   color: var(--text-color);
 }
 
+/* Ensure graph container doesn't block UI elements */
 #graph-container {
   position: fixed;
   top: 0;
@@ -155,7 +156,8 @@ html, body {
   backdrop-filter: blur(10px);
   box-shadow: 0 2px 10px var(--shadow-color);
   pointer-events: auto;
-  z-index: 100;
+  position: relative;
+  z-index: 10000;
 }
 
 .logo a {
@@ -201,13 +203,17 @@ html, body {
   border: none;
   color: var(--text-color);
   cursor: pointer;
-  font-size: 1.2rem;
+  font-size: 1.4rem;
   display: none;
   align-items: center;
   justify-content: center;
   margin-left: auto;
   margin-right: 1rem;
   pointer-events: auto;
+  width: 40px;
+  height: 40px;
+  position: relative;
+  z-index: 10001;
 }
 
 /* Content Panel */
@@ -834,14 +840,6 @@ footer {
     display: none;
   }
   
-  .navbar {
-    padding: 0.75rem 1rem;
-  }
-  
-  .skill-category {
-    min-width: 100%;
-  }
-
   .menu-toggle {
     display: flex;
   }
@@ -851,26 +849,64 @@ footer {
     top: 64px;
     left: 0;
     right: 0;
-    background-color: var(--overlay-bg);
+    background-color: rgba(20, 20, 30, 0.95); /* Darker, more opaque background */
     backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px); /* For Safari support */
     flex-direction: column;
     align-items: center;
-    padding: var(--spacing-md) 0;
-    box-shadow: 0 5px 10px var(--shadow-color);
+    padding: 20px 0;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
     transform: translateY(-150%);
-    transition: var(--transition-normal);
-    opacity: 0;
+    transition: transform 0.3s ease;
+    opacity: 1; /* Always fully opaque */
     pointer-events: none;
+    z-index: 10000;
+    display: flex;
+    visibility: hidden;
   }
   
   .nav-menu.active {
     transform: translateY(0);
-    opacity: 1;
     pointer-events: auto;
+    visibility: visible;
   }
   
   .nav-menu li {
     margin: 0.5rem 0;
+    width: 100%;
+    text-align: center;
+  }
+  
+  .nav-menu a {
+    display: block;
+    padding: 12px 0;
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: white;
+  }
+
+  /* Ensure the navbar stays on top */
+  .navbar {
+    position: relative;
+    z-index: 10000; /* Higher than the menu to ensure the toggle button works */
+  }
+
+  /* Improve the toggle button visibility */
+  .menu-toggle {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    color: var(--text-color);
+    background-color: transparent;
+    border-radius: 5px;
+    transition: all 0.2s ease;
+  }
+  
+  .menu-toggle:hover {
+    background-color: rgba(255, 255, 255, 0.1);
   }
 }
 
@@ -1180,3 +1216,31 @@ footer {
   opacity: 1;
   transform: translateY(0);
 }
+
+/* ...existing code... */
+
+.menu-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  /* ...existing styling... */
+}
+
+/* Mobile adjustments for top menu */
+@media (max-width: 768px) {
+  .menu-container.menu-mobile {
+    flex-direction: column;
+    padding: 10px;
+  }
+  .menu-container.menu-mobile .menu-item {
+    padding: 10px 0;
+    width: 100%;
+    text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  .menu-container.menu-mobile .menu-item:last-child {
+    border-bottom: none;
+  }
+}
+
+/* ...existing code... */
