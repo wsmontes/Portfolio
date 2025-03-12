@@ -32,7 +32,7 @@
                 .graphData(NetworkData)
                 .nodeLabel(node => `${node.name}: ${node.description}`)
                 .nodeRelSize(8)
-                .nodeThreeObject(createHighQualityNode) // Use our custom node renderer
+                .nodeThreeObject(createHighQualityNode)
                 .linkWidth(0.8)
                 .linkOpacity(0.4)
                 .linkDirectionalParticles(4)
@@ -54,8 +54,6 @@
             
             // Setup controls
             setupControls();
-            
-            console.log("Graph initialized successfully!");
         }
         
         // Custom function to create high-quality nodes
@@ -244,7 +242,7 @@
             );
             
             // Show content panel for main sections
-            if (['professional', 'repositories', 'personal'].includes(node.id)) {
+            if (['professional', 'repositories', 'personal', 'contact'].includes(node.id)) {
                 setTimeout(function() {
                     showSectionContent(node.id);
                 }, 1000);
@@ -263,24 +261,11 @@
         
         // Content panel functions
         function showSectionContent(sectionId) {
-            // Map node IDs to template IDs
-            let templateId;
-            
-            // Map the main section nodes to appropriate templates
-            if (sectionId === 'professional') {
-                templateId = 'professional-template';
-            } else if (sectionId === 'repositories') {
-                templateId = 'repositories-template';
-            } else if (sectionId === 'personal') {
-                templateId = 'personal-template';
-            } else {
-                templateId = `${sectionId}-template`; // Default mapping
-            }
-            
+            const templateId = `${sectionId}-template`;
             const template = document.getElementById(templateId);
             
             if (!template) {
-                console.warn(`Template not found for section: ${sectionId}, template ID: ${templateId}`);
+                console.warn(`Template not found for section: ${sectionId}`);
                 return;
             }
             
@@ -297,8 +282,7 @@
             // Setup filter buttons if any
             setupFilterButtons();
             
-            // Load dynamic content if needed
-            if (sectionId === 'repositories') loadProjectsData();
+            // Use project-loader.js for repository data loading
             if (sectionId === 'personal') loadPhotographyData();
         }
         
@@ -314,7 +298,7 @@
             }
         }
         
-        // Rest of your existing functions
+        // Setup filter buttons
         function setupFilterButtons() {
             const filterBtns = document.querySelectorAll('.filter-btn');
             
@@ -347,42 +331,7 @@
             });
         }
         
-        function loadProjectsData() {
-            fetch('projects.json')
-                .then(response => response.json())
-                .then(data => {
-                    const projectsGrid = document.querySelector('.projects-grid');
-                    if (!projectsGrid) return;
-                    
-                    projectsGrid.innerHTML = '';
-                    
-                    data.projects.forEach(project => {
-                        const projectCard = document.createElement('div');
-                        projectCard.className = `project-card ${project.category}`;
-                        
-                        projectCard.innerHTML = `
-                            <div class="project-image" style="background-image: url('${project.image}')"></div>
-                            <div class="project-info">
-                                <h3 class="project-title">${project.title}</h3>
-                                <p>${project.description}</p>
-                                <div class="project-tech">
-                                    ${project.technologies.map(tech => `<span class="project-tech-tag">${tech}</span>`).join('')}
-                                </div>
-                                <div class="project-links" style="margin-top: 15px">
-                                    <a href="${project.liveUrl}" class="btn primary" target="_blank">View Live</a>
-                                    <a href="${project.githubUrl}" class="btn secondary" target="_blank">GitHub</a>
-                                </div>
-                            </div>
-                        `;
-                        
-                        projectsGrid.appendChild(projectCard);
-                    });
-                })
-                .catch(error => {
-                    console.error('Error loading projects:', error);
-                });
-        }
-        
+        // Load photography data
         function loadPhotographyData() {
             const gallery = document.querySelector('.gallery');
             if (!gallery) return;

@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Always enable dark mode
     document.body.setAttribute('data-theme', 'dark');
     
-    // Mobile menu toggle - Fix for the null reference error
+    // Mobile menu toggle
     const menuToggle = document.querySelector('.menu-toggle');
     const navMenu = document.querySelector('.nav-menu');
     
@@ -21,7 +21,6 @@ document.addEventListener('DOMContentLoaded', function() {
             // Stop event propagation
             e.stopPropagation();
             
-            console.log('Menu toggle clicked'); // Debug log
             navMenu.classList.toggle('active');
             const isOpen = navMenu.classList.contains('active');
             this.innerHTML = isOpen ? 
@@ -51,7 +50,4 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-    
-    // The rest of the main.js file isn't being used in the 3D graph version
-    // Since filter functionality is handled in graph.js when sections are loaded
 });

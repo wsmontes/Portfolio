@@ -8,35 +8,6 @@
     <link rel="stylesheet" href="assets/css/main.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" type="image/png" href="assets/images/favicon.png">
-    <style>
-        /* Responsive adjustments for nodes view and controls */
-        @media (max-width: 768px) {
-            #graph-container {
-                width: 100%;
-                height: 300px;
-            }
-            .navbar {
-                flex-direction: column;
-                align-items: center;
-            }
-            .controls {
-                bottom: 10px;
-                right: 10px;
-                transform: scale(0.8);
-            }
-        }
-        @media (max-width: 480px) {
-            #graph-container {
-                height: 250px;
-            }
-            .navbar .logo a {
-                font-size: 18px;
-            }
-            .nav-menu li {
-                margin: 5px 0;
-            }
-        }
-    </style>
 </head>
 <body>
     <div class="overlay">
@@ -76,90 +47,60 @@
         </div>
     </div>
     
-    <!-- Templates for sections -->
-    <template id="about-template">
+    <!-- Only keep the actively used templates based on graph.js -->
+    <!-- Professional template -->
+    <template id="professional-template">
         <div class="section-content">
-            <h2 class="section-title">About Me</h2>
-            <div class="about-content">
-                <div class="about-text">
-                    <p>I'm a passionate software developer with expertise in [Your Technologies]. With [X] years of experience in the tech industry, I've worked on a range of projects from [type of projects].</p>
-                    <p>In addition to software development, I'm an avid photographer specializing in [your photography style/subjects]. My technical background enhances my approach to photography, while my creative eye influences my software design philosophy.</p>
+            <h2 class="section-title">Professional Experience</h2>
+            <div class="professional-content">
+                <div class="card">
+                    <h3><i class="fas fa-briefcase"></i> Senior Developer</h3>
+                    <p>Led development of enterprise applications using modern JavaScript frameworks and cloud technologies. Managed a team of 5 developers and collaborated with product managers to deliver features on time.</p>
+                    <div class="date-range">2020 - Present</div>
+                    <a href="#" class="btn primary"><i class="fas fa-external-link-alt"></i> View Details</a>
                 </div>
-                <div class="about-stats">
-                    <div class="stat">
-                        <h3>Experience</h3>
-                        <p>X+ Years</p>
-                    </div>
-                    <div class="stat">
-                        <h3>Projects</h3>
-                        <p>Y+ Completed</p>
-                    </div>
-                    <div class="stat">
-                        <h3>Clients</h3>
-                        <p>Z+ Satisfied</p>
-                    </div>
+                <div class="card">
+                    <h3><i class="fas fa-code"></i> Full Stack Developer</h3>
+                    <p>Developed full stack applications using React, Node.js, and MongoDB. Implemented responsive UIs and RESTful APIs for data-driven web applications.</p>
+                    <div class="date-range">2017 - 2020</div>
+                    <a href="#" class="btn primary"><i class="fas fa-external-link-alt"></i> View Details</a>
+                </div>
+                <div class="card">
+                    <h3><i class="fas fa-graduation-cap"></i> Education</h3>
+                    <p>B.S. in Computer Science with focus on software engineering and database systems. Graduated with honors and completed multiple collaborative programming projects.</p>
+                    <div class="date-range">2013 - 2017</div>
+                    <a href="#" class="btn primary"><i class="fas fa-external-link-alt"></i> View Details</a>
                 </div>
             </div>
         </div>
     </template>
-    
-    <template id="skills-template">
+
+    <!-- Repositories template -->
+    <template id="repositories-template">
         <div class="section-content">
-            <h2 class="section-title">Skills</h2>
-            <div class="skills-container">
-                <div class="skill-category">
-                    <h3>Software Development</h3>
-                    <ul class="skill-list">
-                        <li class="skill-item">
-                            <span class="skill-name">JavaScript</span>
-                            <div class="skill-bar"><div class="skill-progress" style="width: 90%"></div></div>
-                        </li>
-                        <li class="skill-item">
-                            <span class="skill-name">React</span>
-                            <div class="skill-bar"><div class="skill-progress" style="width: 85%"></div></div>
-                        </li>
-                    </ul>
-                </div>
-                <div class="skill-category">
-                    <h3>Photography & Media</h3>
-                    <ul class="skill-list">
-                        <li class="skill-item">
-                            <span class="skill-name">Adobe Photoshop</span>
-                            <div class="skill-bar"><div class="skill-progress" style="width: 80%"></div></div>
-                        </li>
-                        <li class="skill-item">
-                            <span class="skill-name">Portrait Photography</span>
-                            <div class="skill-bar"><div class="skill-progress" style="width: 75%"></div></div>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </template>
-    
-    <template id="projects-template">
-        <div class="section-content">
-            <h2 class="section-title">Software Projects</h2>
+            <h2 class="section-title">Code Repositories</h2>
             <div class="project-filters">
-                <button class="filter-btn active" data-filter="all">All</button>
-                <button class="filter-btn" data-filter="web">Web</button>
-                <button class="filter-btn" data-filter="mobile">Mobile</button>
-                <button class="filter-btn" data-filter="other">Other</button>
+                <button class="filter-btn active" data-filter="all">All Projects</button>
+                <button class="filter-btn" data-filter="web">Web Apps</button>
+                <button class="filter-btn" data-filter="mobile">Mobile Apps</button>
+                <button class="filter-btn" data-filter="other">Other Projects</button>
             </div>
             <div class="projects-grid">
-                <!-- Projects loaded dynamically -->
+                <!-- Projects loaded dynamically from projects.json -->
             </div>
         </div>
     </template>
-    
-    <template id="photography-template">
+
+    <!-- Personal template -->
+    <template id="personal-template">
         <div class="section-content">
             <h2 class="section-title">Photography Portfolio</h2>
+            <p class="section-intro">A collection of my favorite photography work capturing moments, landscapes and people.</p>
             <div class="photo-filters">
-                <button class="filter-btn active" data-filter="all">All</button>
-                <button class="filter-btn" data-filter="portrait">Portrait</button>
-                <button class="filter-btn" data-filter="landscape">Landscape</button>
-                <button class="filter-btn" data-filter="street">Street</button>
+                <button class="filter-btn active" data-filter="all">All Photos</button>
+                <button class="filter-btn" data-filter="portrait">Portraits</button>
+                <button class="filter-btn" data-filter="landscape">Landscapes</button>
+                <button class="filter-btn" data-filter="street">Street Photography</button>
             </div>
             <div class="gallery">
                 <!-- Gallery loaded dynamically -->
@@ -167,6 +108,7 @@
         </div>
     </template>
     
+    <!-- Contact template -->
     <template id="contact-template">
         <div class="section-content">
             <h2 class="section-title">Get In Touch</h2>
@@ -208,74 +150,13 @@
             </div>
         </div>
     </template>
-
-    <!-- Professional template with improved structure -->
-    <template id="professional-template">
-        <div class="section-content">
-            <h2 class="section-title">Professional Experience</h2>
-            <div class="professional-content">
-                <div class="card">
-                    <h3><i class="fas fa-briefcase"></i> Senior Developer</h3>
-                    <p>Led development of enterprise applications using modern JavaScript frameworks and cloud technologies. Managed a team of 5 developers and collaborated with product managers to deliver features on time.</p>
-                    <div class="date-range">2020 - Present</div>
-                    <a href="#" class="btn primary"><i class="fas fa-external-link-alt"></i> View Details</a>
-                </div>
-                <div class="card">
-                    <h3><i class="fas fa-code"></i> Full Stack Developer</h3>
-                    <p>Developed full stack applications using React, Node.js, and MongoDB. Implemented responsive UIs and RESTful APIs for data-driven web applications.</p>
-                    <div class="date-range">2017 - 2020</div>
-                    <a href="#" class="btn primary"><i class="fas fa-external-link-alt"></i> View Details</a>
-                </div>
-                <div class="card">
-                    <h3><i class="fas fa-graduation-cap"></i> Education</h3>
-                    <p>B.S. in Computer Science with focus on software engineering and database systems. Graduated with honors and completed multiple collaborative programming projects.</p>
-                    <div class="date-range">2013 - 2017</div>
-                    <a href="#" class="btn primary"><i class="fas fa-external-link-alt"></i> View Details</a>
-                </div>
-            </div>
-        </div>
-    </template>
-
-    <!-- Repositories template with improved structure -->
-    <template id="repositories-template">
-        <div class="section-content">
-            <h2 class="section-title">Code Repositories</h2>
-            <div class="project-filters">
-                <button class="filter-btn active" data-filter="all">All Projects</button>
-                <button class="filter-btn" data-filter="web">Web Apps</button>
-                <button class="filter-btn" data-filter="mobile">Mobile Apps</button>
-                <button class="filter-btn" data-filter="other">Other Projects</button>
-            </div>
-            <div class="projects-grid">
-                <!-- Projects loaded dynamically from projects.json -->
-            </div>
-        </div>
-    </template>
-
-    <!-- Personal template with improved structure -->
-    <template id="personal-template">
-        <div class="section-content">
-            <h2 class="section-title">Photography Portfolio</h2>
-            <p class="section-intro">A collection of my favorite photography work capturing moments, landscapes and people.</p>
-            <div class="photo-filters">
-                <button class="filter-btn active" data-filter="all">All Photos</button>
-                <button class="filter-btn" data-filter="portrait">Portraits</button>
-                <button class="filter-btn" data-filter="landscape">Landscapes</button>
-                <button class="filter-btn" data-filter="street">Street Photography</button>
-            </div>
-            <div class="gallery">
-                <!-- Gallery loaded dynamically -->
-            </div>
-        </div>
-    </template>
     
-    <!-- Load scripts in proper order with THREE directly included -->
+    <!-- Load scripts in proper order with async for non-critical scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
     <script src="https://unpkg.com/3d-force-graph@1.70.5/dist/3d-force-graph.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
     <script src="assets/js/network-data.js"></script>
     <script src="assets/js/main.js"></script>
+    <script src="assets/js/project-loader.js"></script>
     <script src="assets/js/graph.js"></script>
-
 </body>
 </html>
