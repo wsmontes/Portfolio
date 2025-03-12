@@ -5,42 +5,8 @@ document.addEventListener('DOMContentLoaded', function() {
         currentYearElement.textContent = new Date().getFullYear();
     }
     
-    // Dark mode toggle
-    const themeToggle = document.querySelector('.theme-toggle');
-    if (themeToggle) {
-        const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
-        
-        // Check for saved theme preference or use the system preference
-        const currentTheme = localStorage.getItem('theme') || 
-                             (prefersDarkScheme.matches ? 'dark' : 'light');
-        
-        // Apply the saved theme or system preference
-        if (currentTheme === 'dark') {
-            document.body.setAttribute('data-theme', 'dark');
-            themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
-        } else {
-            document.body.removeAttribute('data-theme');
-            themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
-        }
-        
-        // Theme toggle click event
-        themeToggle.addEventListener('click', function() {
-            let theme;
-            
-            if (document.body.getAttribute('data-theme') === 'dark') {
-                document.body.removeAttribute('data-theme');
-                theme = 'light';
-                this.innerHTML = '<i class="fas fa-moon"></i>';
-            } else {
-                document.body.setAttribute('data-theme', 'dark');
-                theme = 'dark';
-                this.innerHTML = '<i class="fas fa-sun"></i>';
-            }
-            
-            // Save the preference
-            localStorage.setItem('theme', theme);
-        });
-    }
+    // Always enable dark mode
+    document.body.setAttribute('data-theme', 'dark');
     
     // Mobile menu toggle - Fix for the null reference error
     const menuToggle = document.querySelector('.menu-toggle');
