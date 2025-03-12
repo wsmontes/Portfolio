@@ -21,8 +21,8 @@
         const CAMERA_ANIMATION_DURATION = 1000;
         const CONTENT_DELAY = 800; // Slightly less than camera animation to feel responsive
         
-        // Initialize the graph with high-quality nodes
-        function initGraph() {
+        // Initialize the graph with dynamically generated network data
+        async function initGraph() {
             // Make sure THREE and ForceGraph3D are loaded
             if (typeof THREE === 'undefined' || typeof ForceGraph3D !== 'function') {
                 console.warn('Required libraries not loaded yet, retrying...');
@@ -30,119 +30,161 @@
                 return;
             }
             
-            // Create graph with enhanced node quality
-            graph = ForceGraph3D({ 
-                controlType: 'orbit',
-                rendererConfig: { antialias: true, alpha: true }
-            })(graphElement)
-                .backgroundColor('#000008')
-                .graphData(NetworkData)
-                .nodeLabel(node => `${node.name}: ${node.description}`)
-                .nodeThreeObject(node => {
-                    // Use the celestial bodies creator if available
-                    if (window.createCelestialBody) {
-                        return window.createCelestialBody(node);
-                    } else {
-                        // Fallback to basic node creation
-                        return createBasicNode(node);
-                    }
-                })
-                .nodeRelSize(40) // Doubled from 20 to 40
-                .linkWidth(link => link.value * 1.2) // Increased for better visibility with larger nodes
-                .linkOpacity(0.6)
-                .linkDirectionalParticles(3)
-                .linkDirectionalParticleSpeed(0.002) // Reduced from 0.005 to 0.002 for slower particles
-                .linkDirectionalParticleWidth(4.0) // Increased to match larger nodes
-                .linkColor(() => '#ffffff30')
-                .onNodeHover(handleNodeHover)
-                .onNodeClick(handleNodeClick)
-                .onBackgroundClick(hidePanel)
-                .onEngineStop(() => {
-                    hideLoadingScreen();
-                });
-            
-            // Setup force physics for better node positioning
-            graph.d3Force('charge').strength(-120);
-            graph.d3Force('link').distance(link => {
-                // Adjust link distance based on node types
-                const sourceIsCenter = link.source.id === 'center';
-                const targetIsCategory = ['professional', 'repositories', 'personal'].includes(link.target.id);
+            try {
+                // Generate network data dynamically from JSON files
+                let networkData;
                 
-                if (sourceIsCenter && targetIsCategory) {
-                    return 80; // Distance from center to main categories
-                } else if (targetIsCategory) {
-                    return 60; // Distance to subcategories
+                if (window.NetworkDataGenerator) {
+                    // Show loading message
+                    if (loadingScreen) {
+                        const loadingText = loadingScreen.querySelector('p');
+                        if (loadingText) {
+                            loadingText.textContent = 'Generating network...';
+                        }
+                    }
+                    
+                    try {
+                        // Generate data from JSON files
+                        const generator = new NetworkDataGenerator();
+                        networkData = await generator.generate();
+                        
+                        // Expose the generated data globally for other components to use
+                        window.NetworkData = networkData;
+                    } catch (error) {
+                        console.error('Error generating network data:', error);
+                        // Fall back to static data if available
+                        networkData = window.NetworkData || { nodes: [], links: [] };
+                    }
                 } else {
-                    return 40; // Distance to items
+                    // Fall back to static data if available
+                    networkData = window.NetworkData || { nodes: [], links: [] };
                 }
-            });
-            
-            // Add frame loop for animations
-            graph.onEngineTick(() => {
-                if (window.animateNodes) {
-                    window.animateNodes(graph.nodeThreeObjectExtend(), 0.016);
-                }
-            });
-            
-            // Mount to container
-            graph(graphElement);
-            
-            // Set initial camera position
-            graph.cameraPosition({ x: 0, y: 0, z: 220 }, { x: 0, y: 0, z: 0 }, 1000);
-            
-            // Setup controls
-            setupControls();
-
-            // Make focusOnNode function available globally
-            window.focusOnNode = (nodeId, showContentAfter = false) => {
-                const nodes = graph.graphData().nodes;
-                const node = nodes.find(n => n.id === nodeId);
                 
-                if (node) {
-                    // Increased camera distances for larger nodes
-                    const distance = ['professional', 'repositories', 'personal', 'about', 'contact'].includes(nodeId) ? 300 : 200;
-                    const distRatio = 1 + distance/Math.hypot(node.x, node.y, node.z);
-                    
-                    // Move camera to focus on the node
-                    graph.cameraPosition(
-                        { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio },
-                        node,
-                        CAMERA_ANIMATION_DURATION
-                    );
-                    
-                    // If showContentAfter is true, dispatch the nodeClick event after camera movement
-                    if (showContentAfter) {
-                        setTimeout(() => {
-                            // Dispatch node click event with flag to show content
-                            const clickEvent = new CustomEvent('nodeClick', {
-                                detail: { id: nodeId, showContent: true }
-                            });
-                            window.dispatchEvent(clickEvent);
-                        }, CONTENT_DELAY);
+                // Update loading message
+                if (loadingScreen) {
+                    const loadingText = loadingScreen.querySelector('p');
+                    if (loadingText) {
+                        loadingText.textContent = 'Building visualization...';
                     }
-                    
-                    return true;
                 }
-                return false;
-            };
-            
-            // Make resetGraphView function available globally
-            window.resetGraphView = () => {
-                graph.cameraPosition({ 
-                    x: 0, y: 0, z: 240 
-                }, { x: 0, y: 0, z: 0 }, 800);
                 
-                // If there's a content panel open, hide it
-                hidePanel();
-            };
-            
-            // Emit graph loaded event after short delay to ensure rendering
-            setTimeout(() => {
-                window.dispatchEvent(new Event('graphLoaded'));
-            }, 1000);
-            
-            // Setup zoom control buttons
-            setupZoomControls(graph);
+                // Create graph with enhanced node quality
+                graph = ForceGraph3D({ 
+                    controlType: 'orbit',
+                    rendererConfig: { antialias: true, alpha: true }
+                })(graphElement)
+                    .backgroundColor('#000008')
+                    .graphData(networkData)
+                    .nodeLabel(node => `${node.name}: ${node.description}`)
+                    .nodeThreeObject(node => {
+                        // Use the celestial bodies creator if available
+                        if (window.createCelestialBody) {
+                            return window.createCelestialBody(node);
+                        } else {
+                            // Fallback to basic node creation
+                            return createBasicNode(node);
+                        }
+                    })
+                    .nodeRelSize(40) // Doubled from 20 to 40
+                    .linkWidth(link => link.value * 1.2) // Increased for better visibility with larger nodes
+                    .linkOpacity(0.6)
+                    .linkDirectionalParticles(3)
+                    .linkDirectionalParticleSpeed(0.002) // Reduced from 0.005 to 0.002 for slower particles
+                    .linkDirectionalParticleWidth(4.0) // Increased to match larger nodes
+                    .linkColor(() => '#ffffff30')
+                    .onNodeHover(handleNodeHover)
+                    .onNodeClick(handleNodeClick)
+                    .onBackgroundClick(hidePanel)
+                    .onEngineStop(() => {
+                        hideLoadingScreen();
+                    });
+                
+                // Setup force physics for better node positioning
+                graph.d3Force('charge').strength(-120);
+                graph.d3Force('link').distance(link => {
+                    // Adjust link distance based on node types
+                    const sourceIsCenter = link.source.id === 'center';
+                    const targetIsCategory = ['professional', 'repositories', 'personal'].includes(link.target.id);
+                    
+                    if (sourceIsCenter && targetIsCategory) {
+                        return 80; // Distance from center to main categories
+                    } else if (targetIsCategory) {
+                        return 60; // Distance to subcategories
+                    } else {
+                        return 40; // Distance to items
+                    }
+                });
+                
+                // Add frame loop for animations
+                graph.onEngineTick(() => {
+                    if (window.animateNodes) {
+                        window.animateNodes(graph.nodeThreeObjectExtend(), 0.016);
+                    }
+                });
+                
+                // Mount to container
+                graph(graphElement);
+                
+                // Set initial camera position
+                graph.cameraPosition({ x: 0, y: 0, z: 220 }, { x: 0, y: 0, z: 0 }, 1000);
+                
+                // Setup controls
+                setupControls();
+
+                // Make focusOnNode function available globally
+                window.focusOnNode = (nodeId, showContentAfter = false) => {
+                    const nodes = graph.graphData().nodes;
+                    const node = nodes.find(n => n.id === nodeId);
+                    
+                    if (node) {
+                        // Increased camera distances for larger nodes
+                        const distance = ['professional', 'repositories', 'personal', 'about', 'contact'].includes(nodeId) ? 300 : 200;
+                        const distRatio = 1 + distance/Math.hypot(node.x, node.y, node.z);
+                        
+                        // Move camera to focus on the node
+                        graph.cameraPosition(
+                            { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio },
+                            node,
+                            CAMERA_ANIMATION_DURATION
+                        );
+                        
+                        // If showContentAfter is true, dispatch the nodeClick event after camera movement
+                        if (showContentAfter) {
+                            setTimeout(() => {
+                                // Dispatch node click event with flag to show content
+                                const clickEvent = new CustomEvent('nodeClick', {
+                                    detail: { id: nodeId, showContent: true }
+                                });
+                                window.dispatchEvent(clickEvent);
+                            }, CONTENT_DELAY);
+                        }
+                        
+                        return true;
+                    }
+                    return false;
+                };
+                
+                // Make resetGraphView function available globally
+                window.resetGraphView = () => {
+                    graph.cameraPosition({ 
+                        x: 0, y: 0, z: 240 
+                    }, { x: 0, y: 0, z: 0 }, 800);
+                    
+                    // If there's a content panel open, hide it
+                    hidePanel();
+                };
+                
+                // Emit graph loaded event after short delay to ensure rendering
+                setTimeout(() => {
+                    window.dispatchEvent(new Event('graphLoaded'));
+                }, 1000);
+                
+                // Setup zoom control buttons
+                setupZoomControls(graph);
+            } catch (error) {
+                console.error('Error initializing graph:', error);
+                hideLoadingScreen();
+            }
         }
         
         // Create basic Three.js object for node when celestial-bodies.js isn't loaded
@@ -430,6 +472,6 @@
         initGraph();
         
         // Fallback for loading screen
-        setTimeout(hideLoadingScreen, 8000);
+        setTimeout(hideLoadingScreen, 12000); // Increased timeout for network data generation
     });
 })();
