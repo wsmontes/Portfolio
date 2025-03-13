@@ -86,11 +86,11 @@
                         }
                     })
                     .nodeRelSize(40) // Doubled from 20 to 40
-                    .linkWidth(link => link.value * 1.2) // Increased for better visibility with larger nodes
+                    .linkWidth(link => (link.value * 1.2) / 5) // Reduced tube width 5x
                     .linkOpacity(0.6)
                     .linkDirectionalParticles(3)
                     .linkDirectionalParticleSpeed(0.002) // Reduced from 0.005 to 0.002 for slower particles
-                    .linkDirectionalParticleWidth(4.0) // Increased to match larger nodes
+                    .linkDirectionalParticleWidth(4.0 / 5) // Reduced particle width 5x (0.8)
                     .linkColor(() => '#ffffff30')
                     .onNodeHover(handleNodeHover)
                     .onNodeClick(handleNodeClick)
