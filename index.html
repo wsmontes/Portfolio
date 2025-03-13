@@ -53,15 +53,27 @@
         </div>
     </div>
     
-    <!-- Load scripts in proper order with async for non-critical scripts -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <!-- Structured script loading for better dependency management -->
+    <!-- 1. Load THREE.js library -->
+    <script src="https://unpkg.com/three@0.149.0/build/three.min.js"></script>
+    
+    <!-- 2. Immediately initialize THREE.js and make it globally available -->
+    <script src="assets/js/three-init.js"></script>
+    
+    <!-- 3. Load 3D-force-graph which depends on THREE -->
     <script src="https://unpkg.com/3d-force-graph@1.70.5/dist/3d-force-graph.min.js"></script>
+    
+    <!-- 4. Load baseline data and utilities -->
     <script src="assets/js/network-data.js"></script>
     <script src="assets/js/network-data-generator.js"></script>
     <script src="assets/js/content-loader.js"></script>
+    
+    <!-- 5. Load dependent modules after THREE and data are available -->
     <script src="assets/js/celestial-bodies.js"></script>
     <script src="assets/js/react-bridge.js"></script>
     <script src="assets/js/main.js"></script>
+    
+    <!-- 6. Finally load the graph initialization -->
     <script src="assets/js/graph.js"></script>
 </body>
 </html>

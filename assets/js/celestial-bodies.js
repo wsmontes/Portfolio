@@ -3,38 +3,19 @@
  */
 (function() {
     // Ensure THREE is properly initialized before using it
-    function initCelestialBodies(ForceGraph3D) {
-        // More robust check for THREE.js availability
-        if (typeof ForceGraph3D !== 'function' || !ForceGraph3D.hasOwnProperty('three')) {
-            console.warn("ForceGraph3D or THREE not available yet, retrying...");
-            // Make sure we have an exit condition for the retry mechanism
-            if (window._celestialRetryCount === undefined) {
-                window._celestialRetryCount = 0;
-            }
-            
-            if (window._celestialRetryCount < 15) { // Increased from 10 to 15 retries
-                window._celestialRetryCount++;
-                setTimeout(() => initCelestialBodies(window.ForceGraph3D), 500); // Increased delay and use window object
-                return;
-            } else {
-                console.error("Failed to initialize celestial bodies after multiple retries");
-                // Fallback to basic functionality
-                window.createBasicNode = function(node) {
-                    return null; // Will use default node rendering
-                };
-                window.createCelestialBody = window.createBasicNode;
-                window.animateNodes = function() {}; // Empty animation function
-                return;
-            }
+    function initCelestialBodies() {
+        if (!window.THREE) {
+            console.error("THREE.js not available, cannot initialize celestial bodies");
+            // Setup fallback functions
+            window.createBasicNode = function(node) {
+                return null; // Will use default node rendering
+            };
+            window.createCelestialBody = window.createBasicNode;
+            window.animateNodes = function() {}; // Empty animation function
+            return;
         }
         
-        // Reset retry counter
-        window._celestialRetryCount = 0;
-        
-        // Now THREE should be available
-        const THREE = ForceGraph3D.three;
-        
-        console.log("THREE initialized successfully from ForceGraph3D");
+        console.log("THREE initialized successfully in celestial-bodies.js");
         
         // Cache for materials and geometries to improve performance
         const materialCache = {};
@@ -140,34 +121,34 @@
         console.log("Celestial bodies module initialized successfully");
     }
     
-    // Check if ForceGraph3D is already available
-    if (typeof window.ForceGraph3D === 'function') {
-        initCelestialBodies(window.ForceGraph3D);
-    } else {
-        // Wait for ForceGraph3D to be available
-        window.addEventListener('load', () => {
-            if (typeof window.ForceGraph3D === 'function') {
-                initCelestialBodies(window.ForceGraph3D);
-            } else {
-                console.warn("ForceGraph3D not available on window load, using MutationObserver");
-                // Use MutationObserver as a last resort to detect when scripts are added
-                const observer = new MutationObserver((mutations) => {
-                    if (typeof window.ForceGraph3D === 'function') {
-                        observer.disconnect();
-                        initCelestialBodies(window.ForceGraph3D);
-                    }
-                });
-                
-                observer.observe(document.documentElement, {
-                    childList: true,
-                    subtree: true
-                });
-                
-                // Safety timeout to disconnect observer
-                setTimeout(() => {
-                    observer.disconnect();
-                }, 10000);
+    // Wait for THREE to be available using the global flag or event
+    function checkThreeAndInitialize() {
+        if (window.THREE_LOADED && window.THREE) {
+            initCelestialBodies();
+            return;
+        }
+        
+        // Listen for the threeReady event
+        window.addEventListener('threeReady', initCelestialBodies, { once: true });
+        
+        // Also set a timeout as a fallback
+        setTimeout(() => {
+            if (window.THREE) {
+                console.log("THREE found after waiting, initializing celestial bodies");
+                initCelestialBodies();
+            } else if (!window.THREE_INITIALIZING) {
+                console.error("THREE initialization seems to have failed");
+                window.createBasicNode = function(node) { return null; };
+                window.createCelestialBody = window.createBasicNode;
+                window.animateNodes = function() {};
             }
-        });
+        }, 2000);
+    }
+    
+    // Start the initialization when the document is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', checkThreeAndInitialize);
+    } else {
+        checkThreeAndInitialize();
     }
 })();
