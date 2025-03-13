@@ -19,16 +19,44 @@
         
         // Camera animation duration (ms)
         const CAMERA_ANIMATION_DURATION = 1000;
-        const CONTENT_DELAY = 1000; // Slightly less than camera animation to feel responsive
+        const CONTENT_DELAY = 1000;
+        
+        // Function to safely initialize when dependencies are available
+        function checkDependenciesAndInit() {
+            if (window.THREE && typeof ForceGraph3D === 'function') {
+                console.log("THREE and ForceGraph3D are available, initializing graph");
+                initGraph();
+            } else {
+                console.warn('Required libraries not loaded yet, waiting for THREE_LOADED event');
+                
+                // Listen for THREE being ready
+                window.addEventListener('threeReady', () => {
+                    if (typeof ForceGraph3D === 'function') {
+                        console.log("THREE is ready, ForceGraph3D available, initializing graph");
+                        initGraph();
+                    } else {
+                        console.warn("THREE is ready but ForceGraph3D is not available");
+                        setTimeout(checkDependenciesAndInit, 100);
+                    }
+                }, { once: true });
+                
+                // Fallback timeout
+                setTimeout(() => {
+                    if (!window.THREE || typeof ForceGraph3D !== 'function') {
+                        console.error("Dependencies never loaded after waiting");
+                        hideLoadingScreen();
+                    } else if (!graph) {
+                        console.log("Dependencies loaded via timeout check, initializing graph");
+                        initGraph();
+                    }
+                }, 5000);
+            }
+        }
         
         // Initialize the graph with dynamically generated network data
         async function initGraph() {
-            // Make sure THREE and ForceGraph3D are loaded
-            if (typeof THREE === 'undefined' || typeof ForceGraph3D !== 'function') {
-                console.warn('Required libraries not loaded yet, retrying...');
-                setTimeout(initGraph, 100);
-                return;
-            }
+            // Safety check - don't initialize more than once
+            if (graph) return;
             
             try {
                 // Generate network data dynamically from JSON files
@@ -146,7 +174,15 @@
                     }
                     if (graph.refresh) graph.refresh();
                 }
-                window.addEventListener('resize', updateGraphLayout);
+                // Replace the resize listener with a debounced version to avoid rapid camera repositioning:
+                let resizeTimeout;
+                window.addEventListener('resize', () => {
+                    clearTimeout(resizeTimeout);
+                    resizeTimeout = setTimeout(() => {
+                        updateGraphLayout();
+                        fitNodesToView(graph);
+                    }, 200);
+                });
                 updateGraphLayout();
                 
                 // Add frame loop for animations
@@ -585,7 +621,7 @@
         }
 
         // Start initialization
-        initGraph();
+        checkDependenciesAndInit();
         
         // Fallback for loading screen
         setTimeout(hideLoadingScreen, 12000); // Increased timeout for network data generation
