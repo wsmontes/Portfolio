@@ -2,21 +2,37 @@
  * Enhanced node creation for beautiful and smooth 3D force graph
  */
 (function() {
-    // Function to initialize after THREE is available
-    function initCelestialBodies() {
-        // Access THREE from ForceGraph3D
-        if (typeof ForceGraph3D === 'undefined') {
-            console.warn('ForceGraph3D not available yet, retrying...');
-            setTimeout(initCelestialBodies, 100);
-            return;
+    // Ensure THREE is properly initialized before using it
+    function initCelestialBodies(ForceGraph3D) {
+        // More robust check for THREE.js availability
+        if (typeof ForceGraph3D !== 'function' || !ForceGraph3D.hasOwnProperty('three')) {
+            console.warn("ForceGraph3D or THREE not available yet, retrying...");
+            // Make sure we have an exit condition for the retry mechanism
+            if (window._celestialRetryCount === undefined) {
+                window._celestialRetryCount = 0;
+            }
+            
+            if (window._celestialRetryCount < 15) { // Increased from 10 to 15 retries
+                window._celestialRetryCount++;
+                setTimeout(() => initCelestialBodies(window.ForceGraph3D), 500); // Increased delay and use window object
+                return;
+            } else {
+                console.error("Failed to initialize celestial bodies after multiple retries");
+                // Fallback to basic functionality
+                window.createBasicNode = function(node) {
+                    return null; // Will use default node rendering
+                };
+                window.createCelestialBody = window.createBasicNode;
+                window.animateNodes = function() {}; // Empty animation function
+                return;
+            }
         }
         
-        const THREE = ForceGraph3D.THREE;
-        if (!THREE) {
-            console.warn('THREE not available from ForceGraph3D yet, retrying...');
-            setTimeout(initCelestialBodies, 100);
-            return;
-        }
+        // Reset retry counter
+        window._celestialRetryCount = 0;
+        
+        // Now THREE should be available
+        const THREE = ForceGraph3D.three;
         
         console.log("THREE initialized successfully from ForceGraph3D");
         
@@ -27,7 +43,7 @@
         // Create enhanced node with beautiful materials and effects
         function createEnhancedNode(node) {
             const group = new THREE.Group();
-            const size = (node.val || 10) / 3;
+            const size = node.size || (node.val || 100) / 2.5; // Doubled from 50 to 100
             
             // Get color based on node type with enhanced palette
             let color, emissive, metalness, roughness;
@@ -61,8 +77,9 @@
             // Create high-quality geometry with more segments for smoother appearance
             const geometryKey = `sphere-${size}`;
             if (!geometryCache[geometryKey]) {
-                const segments = node.id === 'center' ? 32 : 
-                              ['professional', 'repositories', 'personal'].includes(node.id) ? 24 : 16;
+                // Increased segments for even smoother appearance on larger nodes
+                const segments = node.id === 'center' ? 64 : 
+                              ['professional', 'repositories', 'personal'].includes(node.id) ? 48 : 36;
                 geometryCache[geometryKey] = new THREE.SphereGeometry(size, segments, segments);
             }
             const geometry = geometryCache[geometryKey];
@@ -89,8 +106,8 @@
             
             // Add userData for animations
             mesh.userData = { 
-                rotationSpeed: (Math.random() * 0.01) + 0.003,
-                pulseSpeed: (Math.random() * 0.002) + 0.001,
+                rotationSpeed: node.rotationSpeed || (Math.random() * 0.008) + 0.002, // Slightly reduced
+                pulseSpeed: (Math.random() * 0.0015) + 0.0008, // Slightly reduced
                 originalScale: 1
             };
             
@@ -104,8 +121,8 @@
         
         // Animation function for nodes
         window.animateNodes = function(nodes, delta) {
-            Object.values(nodes).forEach(nodeObj => {
-                if (!nodeObj.group) return;
+            Object.values(nodes || {}).forEach(nodeObj => {
+                if (!nodeObj || !nodeObj.group) return;
                 
                 nodeObj.group.children.forEach(child => {
                     if (child instanceof THREE.Mesh && child.userData.rotationSpeed) {
@@ -123,11 +140,34 @@
         console.log("Celestial bodies module initialized successfully");
     }
     
-    // Start initialization
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initCelestialBodies);
+    // Check if ForceGraph3D is already available
+    if (typeof window.ForceGraph3D === 'function') {
+        initCelestialBodies(window.ForceGraph3D);
     } else {
-        // DOM already ready, run immediately
-        initCelestialBodies();
+        // Wait for ForceGraph3D to be available
+        window.addEventListener('load', () => {
+            if (typeof window.ForceGraph3D === 'function') {
+                initCelestialBodies(window.ForceGraph3D);
+            } else {
+                console.warn("ForceGraph3D not available on window load, using MutationObserver");
+                // Use MutationObserver as a last resort to detect when scripts are added
+                const observer = new MutationObserver((mutations) => {
+                    if (typeof window.ForceGraph3D === 'function') {
+                        observer.disconnect();
+                        initCelestialBodies(window.ForceGraph3D);
+                    }
+                });
+                
+                observer.observe(document.documentElement, {
+                    childList: true,
+                    subtree: true
+                });
+                
+                // Safety timeout to disconnect observer
+                setTimeout(() => {
+                    observer.disconnect();
+                }, 10000);
+            }
+        });
     }
 })();

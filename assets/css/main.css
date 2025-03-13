@@ -718,6 +718,139 @@ footer {
   transform: translateY(0);
 }
 
+/* Edge node detail views */
+.detail-view {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+.detail-card {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.detail-card h3 {
+  color: var(--primary-color);
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.node-info {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.node-info h3 {
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+}
+
+.project-detail {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+.project-detail-image {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.project-detail-image img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.project-detail-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.project-detail-content h3 {
+  color: var(--primary-color);
+  margin-bottom: 0.75rem;
+}
+
+.project-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.imdb-content, .instagram-feed {
+  margin-top: 2rem;
+}
+
+.media-grid, .insta-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.media-item, .insta-item {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.media-item:hover, .insta-item:hover {
+  transform: translateY(-5px);
+}
+
+.media-item img, .insta-item img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.media-item h3, .media-item p {
+  padding: 0.75rem 1rem;
+}
+
+.media-item h3 {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--primary-color);
+}
+
+.external-link {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+/* Media queries for responsive layout */
+@media (min-width: 768px) {
+  .detail-view {
+    grid-template-columns: 2fr 1fr;
+  }
+  
+  .project-detail {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 767px) {
+  .media-grid, .insta-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+}
+
 /* Media Queries - Consolidated */
 @media (max-width: 992px) {
   .professional-content, .personal-content {

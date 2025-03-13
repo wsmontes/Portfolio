@@ -1,0 +1,25 @@
+{
+  "experiences": [
+    {
+      "title": "Senior Developer",
+      "icon": "fas fa-briefcase",
+      "description": "Led development of enterprise applications using modern JavaScript frameworks and cloud technologies. Managed a team of 5 developers and collaborated with product managers to deliver features on time.",
+      "dateRange": "2020 - Present",
+      "detailsLink": "#senior-developer"
+    },
+    {
+      "title": "Full Stack Developer",
+      "icon": "fas fa-code",
+      "description": "Developed full stack applications using React, Node.js, and MongoDB. Implemented responsive UIs and RESTful APIs for data-driven web applications.",
+      "dateRange": "2017 - 2020",
+      "detailsLink": "#full-stack"
+    },
+    {
+      "title": "Education",
+      "icon": "fas fa-graduation-cap",
+      "description": "B.S. in Computer Science with focus on software engineering and database systems. Graduated with honors and completed multiple collaborative programming projects.",
+      "dateRange": "2013 - 2017",
+      "detailsLink": "#education"
+    }
+  ]
+}

@@ -17,8 +17,12 @@
         // Store graph instance
         let graph = null;
         
-        // Initialize the graph with high-quality nodes
-        function initGraph() {
+        // Camera animation duration (ms)
+        const CAMERA_ANIMATION_DURATION = 1000;
+        const CONTENT_DELAY = 1000; // Slightly less than camera animation to feel responsive
+        
+        // Initialize the graph with dynamically generated network data
+        async function initGraph() {
             // Make sure THREE and ForceGraph3D are loaded
             if (typeof THREE === 'undefined' || typeof ForceGraph3D !== 'function') {
                 console.warn('Required libraries not loaded yet, retrying...');
@@ -26,43 +30,229 @@
                 return;
             }
             
-            // Create graph with enhanced node quality
-            graph = ForceGraph3D()
-                .backgroundColor('#000008')
-                .graphData(NetworkData)
-                .nodeLabel(node => `${node.name}: ${node.description}`)
-                .nodeRelSize(8)
-                .nodeThreeObject(createHighQualityNode)
-                .linkWidth(0.8)
-                .linkOpacity(0.4)
-                .linkDirectionalParticles(4)
-                .linkDirectionalParticleSpeed(0.003)
-                .linkDirectionalParticleWidth(1.5)
-                .linkColor(() => '#ffffff50')
-                .onNodeClick(handleNodeClick)
-                .onNodeHover(handleNodeHover)
-                .onBackgroundClick(hidePanel)
-                .onEngineStop(() => {
-                    hideLoadingScreen();
+            try {
+                // Generate network data dynamically from JSON files
+                let networkData;
+                
+                if (window.NetworkDataGenerator) {
+                    // Show loading message
+                    if (loadingScreen) {
+                        const loadingText = loadingScreen.querySelector('p');
+                        if (loadingText) {
+                            loadingText.textContent = 'Generating network...';
+                        }
+                    }
+                    
+                    try {
+                        // Generate data from JSON files
+                        const generator = new NetworkDataGenerator();
+                        networkData = await generator.generate();
+                        
+                        // Expose the generated data globally for other components to use
+                        window.NetworkData = networkData;
+                    } catch (error) {
+                        console.error('Error generating network data:', error);
+                        // Fall back to static data if available
+                        networkData = window.NetworkData || { nodes: [], links: [] };
+                    }
+                } else {
+                    // Fall back to static data if available
+                    networkData = window.NetworkData || { nodes: [], links: [] };
+                }
+                
+                // Update loading message
+                if (loadingScreen) {
+                    const loadingText = loadingScreen.querySelector('p');
+                    if (loadingText) {
+                        loadingText.textContent = 'Building visualization...';
+                    }
+                }
+                
+                // Create graph with enhanced node quality
+                graph = ForceGraph3D({ 
+                    controlType: 'orbit',
+                    rendererConfig: { antialias: true, alpha: true }
+                })(graphElement)
+                    .backgroundColor('#000008')
+                    .graphData(networkData)
+                    .nodeLabel(node => `${node.name}: ${node.description}`)
+                    .nodeThreeObject(node => {
+                        // Use the celestial bodies creator if available
+                        if (window.createCelestialBody) {
+                            return window.createCelestialBody(node);
+                        } else {
+                            // Fallback to basic node creation
+                            return createBasicNode(node);
+                        }
+                    })
+                    .nodeRelSize(40) // Doubled from 20 to 40
+                    .linkWidth(link => (link.value * 1.2) / 5) // Reduced tube width 5x
+                    .linkOpacity(0.6)
+                    .linkDirectionalParticles(3)
+                    .linkDirectionalParticleSpeed(0.002) // Reduced from 0.005 to 0.002 for slower particles
+                    .linkDirectionalParticleWidth(4.0 / 5) // Reduced particle width 5x (0.8)
+                    .linkColor(() => '#ffffff30')
+                    .onNodeHover(handleNodeHover)
+                    .onNodeClick(handleNodeClick)
+                    .onBackgroundClick(hidePanel)
+                    .onEngineStop(() => {
+                        hideLoadingScreen();
+                        // Use a delay to ensure nodes are positioned before calculating view
+                        setTimeout(() => {
+                            fitNodesToView(graph);
+                        }, 1000); // Updated delay to 1000ms
+                    });
+                
+                // Setup force physics for better node positioning
+                graph.d3Force('charge').strength(-120);
+                graph.d3Force('link').distance(link => {
+                    // Adjust link distance based on node types
+                    const sourceIsCenter = link.source.id === 'center';
+                    const targetIsCategory = ['professional', 'repositories', 'personal'].includes(link.target.id);
+                    
+                    if (sourceIsCenter && targetIsCategory) {
+                        return 80; // Distance from center to main categories
+                    } else if (targetIsCategory) {
+                        return 60; // Distance to subcategories
+                    } else {
+                        return 40; // Distance to items
+                    }
                 });
-            
-            // Mount to container
-            graph(graphElement);
-            
-            // Set initial camera position
-            graph.cameraPosition({ x: 100, y: 100, z: 250 }, { x: 0, y: 0, z: 0 }, 1000);
-            
-            // Setup controls
-            setupControls();
+
+                // New: Update graph layout for better node distribution based on screen size
+                function updateGraphLayout() {
+                    if (!graph) return;
+                    if (window.innerWidth < 768) {
+                        graph.d3Force('charge').strength(-80);
+                        graph.d3Force('link').distance(link => {
+                            const isMain = link.source.id === 'center' && ['professional','repositories','personal'].includes(link.target.id);
+                            const isSub = ['professional','repositories','personal'].includes(link.target.id);
+                            return isMain ? 60 : isSub ? 50 : 30;
+                        });
+                    } else if (window.innerWidth < 992) {
+                        graph.d3Force('charge').strength(-100);
+                        graph.d3Force('link').distance(link => {
+                            const isMain = link.source.id === 'center' && ['professional','repositories','personal'].includes(link.target.id);
+                            const isSub = ['professional','repositories','personal'].includes(link.target.id);
+                            return isMain ? 70 : isSub ? 60 : 40;
+                        });
+                    } else {
+                        graph.d3Force('charge').strength(-120);
+                        graph.d3Force('link').distance(link => {
+                            const isMain = link.source.id === 'center' && ['professional','repositories','personal'].includes(link.target.id);
+                            const isSub = ['professional','repositories','personal'].includes(link.target.id);
+                            return isMain ? 80 : isSub ? 60 : 40;
+                        });
+                    }
+                    if (graph.refresh) graph.refresh();
+                }
+                window.addEventListener('resize', updateGraphLayout);
+                updateGraphLayout();
+                
+                // Add frame loop for animations
+                graph.onEngineTick(() => {
+                    if (window.animateNodes) {
+                        window.animateNodes(graph.nodeThreeObjectExtend(), 0.016);
+                    }
+                });
+                
+                // Mount to container
+                graph(graphElement);
+
+                // Add initial inertial movement so the user sees interactive 3D motion
+                (function() {
+                    const duration = 4000; // Longer duration (4 seconds)
+                    const startTime = Date.now();
+                    const totalAngle = Math.PI * 1.5; // reduced from 2π for a more natural arc
+                    const radius = 280; // Increased initial distance
+
+                    function animate() {
+                        const elapsed = Date.now() - startTime;
+                        if (elapsed < duration) {
+                            const progress = elapsed / duration;
+                            // Use easing function for smoother motion
+                            const easedProgress = progress < 0.5 ? 2*progress*progress : -1+(4-2*progress)*progress;
+                            const angle = totalAngle * easedProgress;
+                            // Calculate camera's position along a circular path
+                            const newX = Math.sin(angle) * radius;
+                            const newZ = Math.cos(angle) * radius;
+                            const newY = Math.sin(angle * 0.5) * radius * 0.3; // Add gentle vertical motion
+                            graph.cameraPosition({ x: newX, y: newY, z: newZ }, { x: 0, y: 0, z: 0 }, 0);
+                            requestAnimationFrame(animate);
+                        } else {
+                            // After inertial movement, fit all nodes in view with a smooth transition
+                            fitNodesToView(graph);
+                        }
+                    }
+                    animate();
+                })();
+
+                // Set initial camera position (this will be overridden by the inertial movement)
+                // graph.cameraPosition({ x: 0, y: 0, z: 220 }, { x: 0, y: 0, z: 0 }, 1000);
+                
+                // Setup controls
+                setupControls();
+
+                // Make focusOnNode function available globally
+                window.focusOnNode = (nodeId, showContentAfter = false) => {
+                    const nodes = graph.graphData().nodes;
+                    const node = nodes.find(n => n.id === nodeId);
+                    
+                    if (node) {
+                        // Increased camera distances for larger nodes
+                        const distance = ['professional', 'repositories', 'personal', 'about', 'contact'].includes(nodeId) ? 300 : 200;
+                        const distRatio = 1 + distance/Math.hypot(node.x, node.y, node.z);
+                        
+                        // Move camera to focus on the node
+                        graph.cameraPosition(
+                            { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio },
+                            node,
+                            CAMERA_ANIMATION_DURATION
+                        );
+                        
+                        // If showContentAfter is true, dispatch the nodeClick event after camera movement
+                        if (showContentAfter) {
+                            setTimeout(() => {
+                                // Dispatch node click event with flag to show content
+                                const clickEvent = new CustomEvent('nodeClick', {
+                                    detail: { id: nodeId, showContent: true }
+                                });
+                                window.dispatchEvent(clickEvent);
+                            }, CONTENT_DELAY);
+                        }
+                        
+                        return true;
+                    }
+                    return false;
+                };
+                
+                // Make resetGraphView function available globally
+                window.resetGraphView = () => {
+                    graph.cameraPosition({ 
+                        x: 0, y: 0, z: 240 
+                    }, { x: 0, y: 0, z: 0 }, 800);
+                    
+                    // If there's a content panel open, hide it
+                    hidePanel();
+                };
+                
+                // Emit graph loaded event after short delay to ensure rendering
+                setTimeout(() => {
+                    window.dispatchEvent(new Event('graphLoaded'));
+                }, 1000);
+                
+                // Setup zoom control buttons
+                setupZoomControls(graph);
+            } catch (error) {
+                console.error('Error initializing graph:', error);
+                hideLoadingScreen();
+            }
         }
         
-        // Custom function to create high-quality nodes
-        function createHighQualityNode(node) {
-            // Create group to hold the node objects
-            const group = new THREE.Group();
-            
-            // Determine node size
-            const size = (node.val || 10) / 3;
+        // Create basic Three.js object for node when celestial-bodies.js isn't loaded
+        function createBasicNode(node) {
+            // Determine node size - doubled the base size again
+            const size = node.size || (node.val || 100) / 3; // Doubled from 50 to 100
             
             // Determine node color based on type
             let color;
@@ -79,15 +269,12 @@
             else if (node.parentId === 'personal') color = '#ff6b81';  // Lighter pink
             else color = '#94a3b8';  // Default gray
             
-            // Create high-quality geometry with more segments for smoother appearance
-            // Important nodes get more segments for better quality
+            // Create mesh with appropriate segments for quality
             const segments = 
                 node.id === 'center' ? 32 : 
                 ['professional', 'repositories', 'personal'].includes(node.id) ? 24 : 16;
-            
+                
             const geometry = new THREE.SphereGeometry(size, segments, segments);
-            
-            // Create material with better appearance
             const material = new THREE.MeshPhongMaterial({ 
                 color: color,
                 shininess: 80,
@@ -95,27 +282,7 @@
                 opacity: 0.9
             });
             
-            // Create mesh and add to group
-            const mesh = new THREE.Mesh(geometry, material);
-            
-            // Add slow rotation animation
-            const rotationSpeed = Math.random() * 0.01 + 0.002;
-            mesh.userData = { rotationSpeed };
-            
-            // Start the rotation animation
-            animateRotation(mesh);
-            
-            group.add(mesh);
-            return group;
-        }
-        
-        // Animate node rotation
-        function animateRotation(mesh) {
-            requestAnimationFrame(() => animateRotation(mesh));
-            if (mesh && mesh.userData && mesh.userData.rotationSpeed) {
-                mesh.rotation.y += mesh.userData.rotationSpeed;
-                mesh.rotation.z += mesh.userData.rotationSpeed * 0.3;
-            }
+            return new THREE.Mesh(geometry, material);
         }
         
         // Setup camera/zoom controls
@@ -184,69 +351,76 @@
                     });
                 });
             }
+            
+            // Close panel button
+            if (closePanel) {
+                closePanel.addEventListener('click', hidePanel);
+            }
+        }
+
+        /**
+         * Setup zoom control buttons
+         * @param {Object} graph - 3D Force Graph instance
+         */
+        function setupZoomControls(graph) {
+            if (zoomInBtn) {
+                zoomInBtn.addEventListener('click', () => {
+                    const { x, y, z } = graph.cameraPosition();
+                    const distance = Math.sqrt(x*x + y*y + z*z);
+                    const scale = 0.8;
+                    graph.cameraPosition({
+                        x: x * scale, y: y * scale, z: z * scale
+                    }, undefined, 300);
+                });
+            }
+            
+            if (zoomOutBtn) {
+                zoomOutBtn.addEventListener('click', () => {
+                    const { x, y, z } = graph.cameraPosition();
+                    const scale = 1.25;
+                    graph.cameraPosition({
+                        x: x * scale, y: y * scale, z: z * scale
+                    }, undefined, 300);
+                });
+            }
+            
+            if (resetCameraBtn) {
+                resetCameraBtn.addEventListener('click', () => {
+                    graph.cameraPosition({ x: 0, y: 0, z: 220 }, { x: 0, y: 0, z: 0 }, 1000);
+                });
+            }
         }
         
         // Node hover handler
         function handleNodeHover(node) {
             // Change cursor
             graphElement.style.cursor = node ? 'pointer' : null;
-            
-            if (!graph) return;
-            
-            // Simple highlight effect
-            graph.nodeColor(n => {
-                if (n === node) {
-                    // Highlight hovered node
-                    return node.id === 'center' ? '#fff8b9' : // Brighter gold
-                           node.id === 'professional' ? '#6495ed' : // Brighter blue
-                           node.id === 'repositories' ? '#3cb371' : // Brighter green
-                           node.id === 'personal' ? '#ff69b4' : // Brighter pink
-                           '#d3d3d3'; // Brighter gray
-                } else {
-                    // Regular colors for other nodes
-                    return n.id === 'center' ? '#ffd700' : // Gold
-                           n.id === 'professional' ? '#2563eb' : // Blue
-                           n.id === 'repositories' ? '#16a34a' : // Green
-                           n.id === 'personal' ? '#db2777' : // Pink
-                           n.parentId === 'professional' ? '#4a90e2' : // Lighter blue
-                           n.parentId === 'repositories' ? '#2ecc71' : // Lighter green
-                           n.parentId === 'personal' ? '#ff6b81' : // Lighter pink
-                           '#94a3b8'; // Default gray
-                }
-            });
         }
         
         // Node click handler
         function handleNodeClick(node) {
-            if (!node || !graph) return;
+            if (!node) return;
             
-            // Return early if it's the center/portfolio node - don't trigger any action
-            if (node.id === 'center') return;
+            // First focus on the node (camera movement)
+            const nodeId = node.id;
             
-            // Determine suitable camera distance
-            let distance = 120;
-            if (['professional', 'repositories', 'personal'].includes(node.id)) distance = 100;
-            
-            // Calculate target position
-            const distRatio = 1 + distance/Math.hypot(node.x || 0, node.y || 0, node.z || 0);
-            
-            // Move camera
+            // Focus camera on the node - increased distances for larger nodes
+            const distance = nodeId === 'center' ? 400 : 250;
+            const distRatio = 1 + distance/Math.hypot(node.x, node.y, node.z);
             graph.cameraPosition(
-                { 
-                    x: (node.x || 0) * distRatio, 
-                    y: (node.y || 0) * distRatio, 
-                    z: (node.z || 0) * distRatio 
-                },
-                node, 
-                1200
+                { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio },
+                node,
+                CAMERA_ANIMATION_DURATION
             );
             
-            // Show content panel for main sections
-            if (['professional', 'repositories', 'personal', 'contact'].includes(node.id)) {
-                setTimeout(function() {
-                    showSectionContent(node.id);
-                }, 1000);
-            }
+            // After camera has started moving, dispatch event to show content
+            setTimeout(() => {
+                // Dispatch node click event with flag to show content
+                const clickEvent = new CustomEvent('nodeClick', {
+                    detail: { id: nodeId, showContent: true }
+                });
+                window.dispatchEvent(clickEvent);
+            }, CONTENT_DELAY);
         }
         
         // Loading screen functions
@@ -260,42 +434,41 @@
         }
         
         // Content panel functions
-        function showSectionContent(sectionId) {
-            const templateId = `${sectionId}-template`;
-            const template = document.getElementById(templateId);
+        function showSectionContent(section) {
+            if (!contentPanel || !contentInner) return;
             
-            if (!template) {
-                console.warn(`Template not found for section: ${sectionId}`);
-                return;
-            }
-            
+            // Clear previous content
             contentInner.innerHTML = '';
-            contentInner.appendChild(template.content.cloneNode(true));
-            contentPanel.classList.remove('hidden');
             
-            // Setup close button functionality
-            const closeButton = document.querySelector('.close-panel');
-            if (closeButton) {
-                closeButton.addEventListener('click', hidePanel);
+            try {
+                // Use ContentLoader to load content directly from JSON
+                if (typeof ContentLoader === 'function') {
+                    ContentLoader.loadContent(section, contentInner)
+                        .then(() => {
+                            console.log(`Content for ${section} loaded successfully`);
+                            // Show the content panel
+                            contentPanel.classList.remove('hidden');
+                        })
+                        .catch(error => {
+                            console.error(`Error loading ${section} content:`, error);
+                            contentInner.innerHTML = '<p>Failed to load content. Please try again later.</p>';
+                            contentPanel.classList.remove('hidden');
+                        });
+                } else {
+                    console.error('ContentLoader not available');
+                    contentInner.innerHTML = '<p>Content loading system is not available</p>';
+                    contentPanel.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Error showing section content:', error);
+                contentInner.innerHTML = '<p>An error occurred while loading content.</p>';
+                contentPanel.classList.remove('hidden');
             }
-            
-            // Setup filter buttons if any
-            setupFilterButtons();
-            
-            // Use project-loader.js for repository data loading
-            if (sectionId === 'personal') loadPhotographyData();
         }
         
         function hidePanel() {
+            if (!contentPanel) return;
             contentPanel.classList.add('hidden');
-            
-            // Reset camera to home position when panel is closed
-            if (graph) {
-                // Use smooth animation to return to default view
-                graph.cameraPosition({ 
-                    x: 0, y: 0, z: 240 
-                }, { x: 0, y: 0, z: 0 }, 800);
-            }
         }
         
         // Setup filter buttons
@@ -357,10 +530,64 @@
             }
         }
         
+        // Function to fit all nodes in view
+        function fitNodesToView(graph) {
+            if (!graph || !graph.graphData) return;
+            
+            const graphData = graph.graphData();
+            
+            // Don't proceed if there are no nodes
+            if (!graphData.nodes || graphData.nodes.length === 0) return;
+            
+            // Calculate the bounding sphere of all nodes
+            let maxDistance = 0;
+            let maxX = 0, maxY = 0, maxZ = 0;
+            
+            graphData.nodes.forEach(node => {
+                if (node.x !== undefined && node.y !== undefined && node.z !== undefined) {
+                    // Track max distance from origin
+                    const distance = Math.sqrt(node.x * node.x + node.y * node.y + node.z * node.z);
+                    maxDistance = Math.max(maxDistance, distance);
+                    
+                    // Track max component values to determine aspect ratio
+                    maxX = Math.max(maxX, Math.abs(node.x));
+                    maxY = Math.max(maxY, Math.abs(node.y));
+                    maxZ = Math.max(maxZ, Math.abs(node.z));
+                }
+            });
+            
+            // Adjust for aspect ratio of the graph (nodes might be spread more in one direction)
+            const aspectRatio = Math.max(maxX / maxZ, maxZ / maxX, maxY / maxZ, maxZ / maxY, 1);
+            
+            // Add a generous margin (2x) to ensure all nodes are visible
+            maxDistance *= 2.0;
+            
+            // Adjust distance for screen aspect ratio
+            const containerRect = graphElement.getBoundingClientRect();
+            const screenRatio = containerRect.width / containerRect.height;
+            if (screenRatio < 1) {
+                // Taller than wide, adjust distance to fit vertical space
+                maxDistance *= (1.2 / screenRatio);
+            }
+            
+            // Smooth transition to the new position
+            graph.cameraPosition(
+                { x: 0, y: 0, z: maxDistance }, // Position camera at origin looking in
+                { x: 0, y: 0, z: 0 },          // Look at the center
+                3000,                          // Animation duration (3 seconds)
+                (p) => {                       // Easing function for smoother motion
+                    // Quadratic easing in and out
+                    return p < 0.5 ? 2*p*p : -1+(4-2*p)*p;
+                }
+            );
+            
+            console.log("Camera positioned to view all nodes at distance:", maxDistance);
+        }
+
         // Start initialization
         initGraph();
         
         // Fallback for loading screen
-        setTimeout(hideLoadingScreen, 8000);
+        setTimeout(hideLoadingScreen, 12000); // Increased timeout for network data generation
     });
 })();

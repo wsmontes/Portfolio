@@ -1,0 +1,18 @@
+{
+  "title": "About Me",
+  "introduction": "Hello, I'm Wagner Montes, a full-stack developer passionate about building interactive 3D applications and immersive web experiences.",
+  "profileImage": "assets/images/profile.jpg",
+  "bio": "With years of experience in JavaScript, React, and Three.js, I bridge creative design with cutting-edge development. My journey has taken me through various challenging projects, honing my skills in both front-end and back-end technologies.",
+  "skills": [
+    "JavaScript",
+    "React",
+    "Three.js",
+    "Node.js",
+    "CSS3",
+    "Responsive Design"
+  ],
+  "contact": {
+    "email": "wagner@example.com",
+    "linkedin": "https://www.linkedin.com/in/wagnermontes"
+  }
+}

@@ -1,4 +1,6 @@
-// This file defines the data structure for our portfolio network system
+// This file provides a fallback static network data structure
+// The actual network will be generated dynamically from JSON files
+// This is kept for backward compatibility
 
 const NetworkData = {
   // Nodes representing portfolio sections
@@ -9,9 +11,9 @@ const NetworkData = {
       name: 'Portfolio', 
       description: 'Explore my interactive portfolio system', 
       group: 'main',
-      val: 30,
-      mass: 100,
-      size: 6,
+      val: 80,
+      mass: 200,
+      size: 18,
       texture: 'assets/images/textures/sun.jpg',
       emissive: true,
       rotationSpeed: 0.003,
@@ -24,9 +26,9 @@ const NetworkData = {
       name: 'Professional Experience', 
       description: 'My professional journey', 
       group: 'category',
-      val: 24,
-      mass: 30,
-      size: 3.8,
+      val: 64,
+      mass: 80,
+      size: 11.4,
       texture: 'assets/images/textures/blue-planet.jpg',
       rotationSpeed: 0.01
     },
@@ -35,9 +37,9 @@ const NetworkData = {
       name: 'Code Repositories', 
       description: 'My software development projects', 
       group: 'category',
-      val: 26,
-      mass: 35,
-      size: 4.2,
+      val: 70,
+      mass: 90,
+      size: 12.6,
       texture: 'assets/images/textures/green-planet.jpg',
       rotationSpeed: 0.008
     },
@@ -46,9 +48,9 @@ const NetworkData = {
       name: 'Personal Universe', 
       description: 'Personal interests and activities', 
       group: 'category',
-      val: 22,
-      mass: 25,
-      size: 3.5,
+      val: 60,
+      mass: 70,
+      size: 10.4,
       texture: 'assets/images/textures/red-planet.jpg',
       rotationSpeed: 0.012
     },
@@ -59,9 +61,9 @@ const NetworkData = {
       name: 'LinkedIn', 
       description: 'Professional networking profile', 
       group: 'subcategory',
-      val: 10,
-      mass: 5,
-      size: 1.5,
+      val: 30,
+      mass: 16,
+      size: 4.4,
       texture: 'assets/images/textures/moon1.jpg',
       parentId: 'professional',
       rotationSpeed: 0.02
@@ -71,9 +73,9 @@ const NetworkData = {
       name: 'Curriculum Vitae', 
       description: 'Professional work history', 
       group: 'subcategory',
-      val: 10,
-      mass: 5,
-      size: 1.5,
+      val: 20,
+      mass: 10,
+      size: 3.0,
       texture: 'assets/images/textures/moon2.jpg',
       parentId: 'professional',
       rotationSpeed: 0.015
@@ -83,9 +85,9 @@ const NetworkData = {
       name: 'Academic', 
       description: 'Research and studies', 
       group: 'subcategory',
-      val: 9,
-      mass: 4,
-      size: 1.4,
+      val: 18,
+      mass: 8,
+      size: 2.8,
       texture: 'assets/images/textures/moon3.jpg',
       parentId: 'professional',
       rotationSpeed: 0.018
@@ -97,9 +99,9 @@ const NetworkData = {
       name: 'JavaScript', 
       description: 'JavaScript projects', 
       group: 'cluster',
-      val: 12,
-      mass: 10,
-      size: 2.2,
+      val: 24,
+      mass: 20,
+      size: 4.4,
       texture: 'assets/images/textures/asteroid_yellow.jpg',
       parentId: 'repositories',
       rotationSpeed: 0.03
@@ -109,9 +111,9 @@ const NetworkData = {
       name: 'Python', 
       description: 'Python projects', 
       group: 'cluster',
-      val: 12,
-      mass: 10,
-      size: 2.2,
+      val: 24,
+      mass: 20,
+      size: 4.4,
       texture: 'assets/images/textures/asteroid_blue.jpg',
       parentId: 'repositories',
       rotationSpeed: 0.025
@@ -121,9 +123,9 @@ const NetworkData = {
       name: 'AI & ML', 
       description: 'Artificial Intelligence projects', 
       group: 'cluster',
-      val: 12,
-      mass: 11,
-      size: 2.3,
+      val: 24,
+      mass: 22,
+      size: 4.6,
       texture: 'assets/images/textures/asteroid_purple.jpg',
       parentId: 'repositories',
       rotationSpeed: 0.022
@@ -135,9 +137,9 @@ const NetworkData = {
       name: 'TechBR', 
       description: 'TechBR Group Website', 
       group: 'item',
-      val: 6,
-      mass: 1,
-      size: 0.8,
+      val: 12,
+      mass: 2,
+      size: 1.6,
       texture: 'assets/images/textures/asteroid1.jpg',
       parentId: 'javascript',
       rotationSpeed: 0.05
@@ -147,9 +149,9 @@ const NetworkData = {
       name: 'Text-to-Speech', 
       description: 'Voice synthesis module', 
       group: 'item',
-      val: 6,
-      mass: 1,
-      size: 0.7,
+      val: 12,
+      mass: 2,
+      size: 1.4,
       texture: 'assets/images/textures/asteroid2.jpg',
       parentId: 'javascript',
       rotationSpeed: 0.06
@@ -161,9 +163,9 @@ const NetworkData = {
       name: 'Photography', 
       description: 'Image collection', 
       group: 'subcategory',
-      val: 9,
-      mass: 6,
-      size: 1.7,
+      val: 18,
+      mass: 12,
+      size: 3.4,
       texture: 'assets/images/textures/moon_rocky.jpg',
       parentId: 'personal',
       rotationSpeed: 0.017
@@ -173,9 +175,9 @@ const NetworkData = {
       name: 'IMDB', 
       description: 'Entertainment database', 
       group: 'subcategory',
-      val: 8,
-      mass: 4,
-      size: 1.4,
+      val: 16,
+      mass: 8,
+      size: 2.8,
       texture: 'assets/images/textures/moon_crater.jpg',
       parentId: 'personal',
       rotationSpeed: 0.022
@@ -185,9 +187,9 @@ const NetworkData = {
       name: 'Instagram', 
       description: 'Visual transmission station', 
       group: 'subcategory',
-      val: 7,
-      mass: 3,
-      size: 1.2,
+      val: 14,
+      mass: 6,
+      size: 2.4,
       texture: 'assets/images/textures/moon_smooth.jpg',
       parentId: 'personal',
       rotationSpeed: 0.02
@@ -221,3 +223,6 @@ const NetworkData = {
     { source: 'personal', target: 'instagram', value: 3, type: 'connection' }
   ]
 };
+
+// Note: This static NetworkData will be replaced by dynamically generated data
+// when the page loads. It's kept here as a fallback in case data generation fails.

@@ -35,8 +35,11 @@ There are two ways to navigate through the portfolio:
 
 - HTML5 & CSS3 (CSS Variables, Flexbox, Grid)
 - JavaScript (ES6+)
+- React for UI components
 - Three.js for 3D rendering
 - Force-Graph library for network visualization
+- Responsive design for all device sizes
+- Dynamic content loading with fetch API
 - GitHub Pages for hosting
 
 ## Setup
@@ -51,7 +54,7 @@ There are two ways to navigate through the portfolio:
 To customize this portfolio:
 1. Update the personal information in the templates in index.html
 2. Modify the network structure in network-data.js
-3. Add your projects to projects.json
+3. Add your projects to data/projects.json
 4. Replace placeholder images in the assets/images directory
 
 ## Performance Considerations
