@@ -149,7 +149,7 @@ class ContentLoader {
         <h2 class="section-title">About Me</h2>
         <div class="about-content">
           <div class="about-image">
-            <img src="assets/images/profile.jpg" alt="Profile Picture">
+            <img src="assets/images/profile.jpg" alt="Profile Picture" onerror="handleImageError(event)">
           </div>
           <div class="about-text">
             <p>Hello! I'm a full-stack developer passionate about creating interactive, engaging web applications. With experience in both front-end and back-end development, I enjoy bringing ideas to life through code.</p>
@@ -294,7 +294,7 @@ class ContentLoader {
       html += `
         <div class="project-card" data-category="${project.category}">
           <div class="project-image">
-            <img src="${project.image}" alt="${project.title}">
+            <img src="${project.image}" alt="${project.title}" onerror="handleImageError(event)">
           </div>
           <div class="project-details">
             <h3>${project.title}</h3>
@@ -390,7 +390,7 @@ class ContentLoader {
         html += `
           <div class="project-card">
             <div class="project-image">
-              <img src="${project.image}" alt="${project.title}">
+              <img src="${project.image}" alt="${project.title}" onerror="handleImageError(event)">
             </div>
             <div class="project-details">
               <h3>${project.title}</h3>
@@ -463,7 +463,7 @@ class ContentLoader {
         
         <div class="project-detail">
           <div class="project-detail-image">
-            <img src="${project.image}" alt="${projectTitle}">
+            <img src="${project.image}" alt="${projectTitle}" onerror="handleImageError(event)">
           </div>
           
           <div class="project-detail-content">
@@ -545,7 +545,7 @@ class ContentLoader {
       data.photos.forEach(photo => {
         html += `
           <div class="gallery-item" data-category="${photo.category}">
-            <img src="${photo.image}" alt="${photo.title}">
+            <img src="${photo.image}" alt="${photo.title}" onerror="handleImageError(event)">
             <div class="gallery-caption">
               <h3>${photo.title}</h3>
               <p>${photo.description}</p>
@@ -601,7 +601,7 @@ class ContentLoader {
         photos.forEach(photo => {
           html += `
             <div class="gallery-item" data-category="${photo.category || ''}">
-              <img src="${photo.image}" alt="${photo.title || 'Photo'}">
+              <img src="${photo.image}" alt="${photo.title || 'Photo'}" onerror="handleImageError(event)">
               <div class="gallery-caption">
                 <h3>${photo.title || 'Untitled'}</h3>
                 <p>${photo.description || ''}</p>
@@ -626,7 +626,7 @@ class ContentLoader {
         imdbData.forEach(item => {
           html += `
             <div class="media-item">
-              <img src="${item.image || 'assets/images/media/default-movie.jpg'}" alt="${item.title}">
+              <img src="${item.image || 'assets/images/media/default-movie.jpg'}" alt="${item.title}" onerror="handleImageError(event)">
               <h3>${item.title}</h3>
               <p>Rating: ${item.rating || '★★★☆☆'}</p>
             </div>
@@ -648,17 +648,17 @@ class ContentLoader {
           <div class="imdb-content">
             <div class="media-grid">
               <div class="media-item">
-                <img src="assets/images/media/movie1.jpg" alt="Movie">
+                <img src="assets/images/media/movie1.jpg" alt="Movie" onerror="handleImageError(event)">
                 <h3>Favorite Movie</h3>
                 <p>Rating: ★★★★★</p>
               </div>
               <div class="media-item">
-                <img src="assets/images/media/show1.jpg" alt="TV Show">
+                <img src="assets/images/media/show1.jpg" alt="TV Show" onerror="handleImageError(event)">
                 <h3>Current Show</h3>
                 <p>Rating: ★★★★☆</p>
               </div>
               <div class="media-item">
-                <img src="assets/images/media/movie2.jpg" alt="Movie">
+                <img src="assets/images/media/movie2.jpg" alt="Movie" onerror="handleImageError(event)">
                 <h3>Recent Watch</h3>
                 <p>Rating: ★★★☆☆</p>
               </div>
@@ -684,7 +684,7 @@ class ContentLoader {
         instaData.forEach(post => {
           html += `
             <div class="insta-item">
-              <img src="${post.image}" alt="Instagram post">
+              <img src="${post.image}" alt="Instagram post" onerror="handleImageError(event)">
               ${post.caption ? `<div class="insta-caption">${post.caption}</div>` : ''}
             </div>
           `;
@@ -705,16 +705,16 @@ class ContentLoader {
           <div class="instagram-feed">
             <div class="insta-grid">
               <div class="insta-item">
-                <img src="assets/images/social/insta1.jpg" alt="Instagram post">
+                <img src="assets/images/social/insta1.jpg" alt="Instagram post" onerror="handleImageError(event)">
               </div>
               <div class="insta-item">
-                <img src="assets/images/social/insta2.jpg" alt="Instagram post">
+                <img src="assets/images/social/insta2.jpg" alt="Instagram post" onerror="handleImageError(event)">
               </div>
               <div class="insta-item">
-                <img src="assets/images/social/insta3.jpg" alt="Instagram post">
+                <img src="assets/images/social/insta3.jpg" alt="Instagram post" onerror="handleImageError(event)">
               </div>
               <div class="insta-item">
-                <img src="assets/images/social/insta4.jpg" alt="Instagram post">
+                <img src="assets/images/social/insta4.jpg" alt="Instagram post" onerror="handleImageError(event)">
               </div>
             </div>
             <p class="external-link">
@@ -829,6 +829,15 @@ class ContentLoader {
       });
     }
   }
+}
+
+// Simple image error handler
+function handleImageError(event) {
+  console.warn(`Failed to load image: ${event.target.src}`);
+  // Replace with placeholder image
+  event.target.src = 'assets/images/placeholder.jpg';
+  // Remove onerror after it's been handled to prevent loops
+  event.target.onerror = null;
 }
 
 // Export the ContentLoader class

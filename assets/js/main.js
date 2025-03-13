@@ -42,13 +42,17 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         navMenu.classList.remove('active');
         const section = link.getAttribute('data-section');
-        
-        // First focus on the node, then show content with a delay
         if (window.focusOnNode) {
-          // Focus on node and wait for camera movement before showing content
-          window.focusOnNode(section, true); // The true parameter indicates it should show content after focusing
+          const nodeFound = window.focusOnNode(section, true);
+          if (!nodeFound) {
+            // Fallback if the corresponding node wasn't found: trigger nodeClick event
+            const clickEvent = new CustomEvent('nodeClick', {
+              detail: { id: section, showContent: true }
+            });
+            window.dispatchEvent(clickEvent);
+          }
         } else {
-          // Fallback - just show content directly if focusOnNode is not available
+          console.warn('focusOnNode not available, directly showing content');
           showContent(section);
         }
       });

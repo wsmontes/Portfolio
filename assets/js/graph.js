@@ -97,6 +97,10 @@
                     .onBackgroundClick(hidePanel)
                     .onEngineStop(() => {
                         hideLoadingScreen();
+                        // Use a slight delay to ensure nodes are positioned before calculating view
+                        setTimeout(() => {
+                            fitNodesToView(graph);
+                        }, 500);
                     });
                 
                 // Setup force physics for better node positioning
@@ -114,6 +118,36 @@
                         return 40; // Distance to items
                     }
                 });
+
+                // New: Update graph layout for better node distribution based on screen size
+                function updateGraphLayout() {
+                    if (!graph) return;
+                    if (window.innerWidth < 768) {
+                        graph.d3Force('charge').strength(-80);
+                        graph.d3Force('link').distance(link => {
+                            const isMain = link.source.id === 'center' && ['professional','repositories','personal'].includes(link.target.id);
+                            const isSub = ['professional','repositories','personal'].includes(link.target.id);
+                            return isMain ? 60 : isSub ? 50 : 30;
+                        });
+                    } else if (window.innerWidth < 992) {
+                        graph.d3Force('charge').strength(-100);
+                        graph.d3Force('link').distance(link => {
+                            const isMain = link.source.id === 'center' && ['professional','repositories','personal'].includes(link.target.id);
+                            const isSub = ['professional','repositories','personal'].includes(link.target.id);
+                            return isMain ? 70 : isSub ? 60 : 40;
+                        });
+                    } else {
+                        graph.d3Force('charge').strength(-120);
+                        graph.d3Force('link').distance(link => {
+                            const isMain = link.source.id === 'center' && ['professional','repositories','personal'].includes(link.target.id);
+                            const isSub = ['professional','repositories','personal'].includes(link.target.id);
+                            return isMain ? 80 : isSub ? 60 : 40;
+                        });
+                    }
+                    if (graph.refresh) graph.refresh();
+                }
+                window.addEventListener('resize', updateGraphLayout);
+                updateGraphLayout();
                 
                 // Add frame loop for animations
                 graph.onEngineTick(() => {
@@ -124,9 +158,37 @@
                 
                 // Mount to container
                 graph(graphElement);
-                
-                // Set initial camera position
-                graph.cameraPosition({ x: 0, y: 0, z: 220 }, { x: 0, y: 0, z: 0 }, 1000);
+
+                // Add initial inertial movement so the user sees interactive 3D motion
+                (function() {
+                    const duration = 4000; // Longer duration (4 seconds)
+                    const startTime = Date.now();
+                    const totalAngle = Math.PI * 1.5; // reduced from 2π for a more natural arc
+                    const radius = 280; // Increased initial distance
+
+                    function animate() {
+                        const elapsed = Date.now() - startTime;
+                        if (elapsed < duration) {
+                            const progress = elapsed / duration;
+                            // Use easing function for smoother motion
+                            const easedProgress = progress < 0.5 ? 2*progress*progress : -1+(4-2*progress)*progress;
+                            const angle = totalAngle * easedProgress;
+                            // Calculate camera's position along a circular path
+                            const newX = Math.sin(angle) * radius;
+                            const newZ = Math.cos(angle) * radius;
+                            const newY = Math.sin(angle * 0.5) * radius * 0.3; // Add gentle vertical motion
+                            graph.cameraPosition({ x: newX, y: newY, z: newZ }, { x: 0, y: 0, z: 0 }, 0);
+                            requestAnimationFrame(animate);
+                        } else {
+                            // After inertial movement, fit all nodes in view with a smooth transition
+                            fitNodesToView(graph);
+                        }
+                    }
+                    animate();
+                })();
+
+                // Set initial camera position (this will be overridden by the inertial movement)
+                // graph.cameraPosition({ x: 0, y: 0, z: 220 }, { x: 0, y: 0, z: 0 }, 1000);
                 
                 // Setup controls
                 setupControls();
@@ -468,6 +530,60 @@
             }
         }
         
+        // Function to fit all nodes in view
+        function fitNodesToView(graph) {
+            if (!graph || !graph.graphData) return;
+            
+            const graphData = graph.graphData();
+            
+            // Don't proceed if there are no nodes
+            if (!graphData.nodes || graphData.nodes.length === 0) return;
+            
+            // Calculate the bounding sphere of all nodes
+            let maxDistance = 0;
+            let maxX = 0, maxY = 0, maxZ = 0;
+            
+            graphData.nodes.forEach(node => {
+                if (node.x !== undefined && node.y !== undefined && node.z !== undefined) {
+                    // Track max distance from origin
+                    const distance = Math.sqrt(node.x * node.x + node.y * node.y + node.z * node.z);
+                    maxDistance = Math.max(maxDistance, distance);
+                    
+                    // Track max component values to determine aspect ratio
+                    maxX = Math.max(maxX, Math.abs(node.x));
+                    maxY = Math.max(maxY, Math.abs(node.y));
+                    maxZ = Math.max(maxZ, Math.abs(node.z));
+                }
+            });
+            
+            // Adjust for aspect ratio of the graph (nodes might be spread more in one direction)
+            const aspectRatio = Math.max(maxX / maxZ, maxZ / maxX, maxY / maxZ, maxZ / maxY, 1);
+            
+            // Add a generous margin (2x) to ensure all nodes are visible
+            maxDistance *= 2.0;
+            
+            // Adjust distance for screen aspect ratio
+            const containerRect = graphElement.getBoundingClientRect();
+            const screenRatio = containerRect.width / containerRect.height;
+            if (screenRatio < 1) {
+                // Taller than wide, adjust distance to fit vertical space
+                maxDistance *= (1.2 / screenRatio);
+            }
+            
+            // Smooth transition to the new position
+            graph.cameraPosition(
+                { x: 0, y: 0, z: maxDistance }, // Position camera at origin looking in
+                { x: 0, y: 0, z: 0 },          // Look at the center
+                3000,                          // Animation duration (3 seconds)
+                (p) => {                       // Easing function for smoother motion
+                    // Quadratic easing in and out
+                    return p < 0.5 ? 2*p*p : -1+(4-2*p)*p;
+                }
+            );
+            
+            console.log("Camera positioned to view all nodes at distance:", maxDistance);
+        }
+
         // Start initialization
         initGraph();
         
