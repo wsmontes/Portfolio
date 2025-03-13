@@ -29,6 +29,12 @@
         let lastViewportHeight = window.innerHeight;
         let lastOrientationAngle = window.orientation !== undefined ? window.orientation : 0;
         
+        // New variables for position auto-correction
+        let viewPositionTimer = null;
+        let suboptimalViewStartTime = null;
+        const POSITION_CHECK_INTERVAL = 1000; // Check every second
+        const SUBOPTIMAL_POSITION_THRESHOLD = 5000; // Auto-correct after 5 seconds
+        
         // Function to safely initialize when dependencies are available
         function checkDependenciesAndInit() {
             if (window.THREE && typeof ForceGraph3D === 'function') {
@@ -295,6 +301,9 @@
                 
                 // Initialize idle detection
                 setupIdleDetection();
+                
+                // Add position monitoring
+                setupPositionMonitoring();
                 
                 // Add frame loop for animations
                 graph.onEngineTick(() => {
@@ -567,6 +576,67 @@
             });
         }
         
+        // New function to monitor camera position
+        function setupPositionMonitoring() {
+            // Start the position check timer
+            startPositionCheckTimer();
+            
+            // Reset position timer on user interaction
+            ['mousemove', 'keydown', 'mousedown', 'touchstart', 'click'].forEach(event => {
+                document.addEventListener(event, () => {
+                    // Reset the suboptimal view timer when user interacts
+                    suboptimalViewStartTime = null;
+                });
+            });
+            
+            // Listen for graph interaction to reset suboptimal timer
+            if (graphElement) {
+                graphElement.addEventListener('mousedown', () => {
+                    suboptimalViewStartTime = null;
+                });
+                
+                graphElement.addEventListener('touchstart', () => {
+                    suboptimalViewStartTime = null;
+                });
+                
+                graphElement.addEventListener('wheel', () => {
+                    suboptimalViewStartTime = null;
+                });
+            }
+        }
+        
+        // Start the position check timer
+        function startPositionCheckTimer() {
+            clearInterval(viewPositionTimer);
+            
+            viewPositionTimer = setInterval(() => {
+                // Don't check if user is currently interacting or content panel is open
+                if (isUserInteracting || !contentPanel.classList.contains('hidden')) {
+                    suboptimalViewStartTime = null;
+                    return;
+                }
+                
+                // Check if view is too far off
+                const isSuboptimal = isViewSuboptimal();
+                
+                if (isSuboptimal) {
+                    // If this is the first detection of suboptimal view, record the time
+                    if (suboptimalViewStartTime === null) {
+                        suboptimalViewStartTime = Date.now();
+                    } 
+                    // If view has been suboptimal for more than the threshold, reposition
+                    else if ((Date.now() - suboptimalViewStartTime) > SUBOPTIMAL_POSITION_THRESHOLD) {
+                        console.log('View has been suboptimal for too long, auto-adjusting position');
+                        fitNodesToView(graph, 1500, true);
+                        suboptimalViewStartTime = null;
+                    }
+                } else {
+                    // Reset the timer if view is optimal
+                    suboptimalViewStartTime = null;
+                }
+            }, POSITION_CHECK_INTERVAL);
+        }
+        
         // Reset the idle timer
         function resetIdleTimer() {
             clearTimeout(idleTimer);
@@ -578,9 +648,12 @@
                     fitNodesToView(graph, 2000, true);
                 }
             }, IDLE_TIMEOUT);
+            
+            // Also reset the suboptimal view timer when there's user activity
+            suboptimalViewStartTime = null;
         }
         
-        // Check if the current view is suboptimal
+        // Enhanced view check with additional off-center detection
         function isViewSuboptimal() {
             if (!graph || !graph.graphData) return false;
             
@@ -606,7 +679,7 @@
             
             // Check if camera is too close or too far from optimal
             const distanceRatio = cameraDistance / optimalDistance;
-            if (distanceRatio < 0.6 || distanceRatio > 1.5) {
+            if (distanceRatio < 0.5 || distanceRatio > 1.8) {
                 return true;
             }
             
@@ -615,7 +688,9 @@
                 currentCameraPos.x * currentCameraPos.x + 
                 currentCameraPos.y * currentCameraPos.y
             );
-            if (offsetFromCenterLine > optimalDistance * 0.5) {
+            
+            // More strict limit for the position monitor (0.4 instead of 0.5)
+            if (offsetFromCenterLine > optimalDistance * 0.4) {
                 return true;
             }
             
