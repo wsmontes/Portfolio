@@ -92,6 +92,11 @@ html, body {
   z-index: 0;
   background: transparent;
   pointer-events: auto;
+  transition: opacity 0.3s ease-in-out;
+}
+
+body.resizing #graph-container {
+  opacity: 0.7;
 }
 
 [data-theme="dark"] #graph-container {
@@ -105,7 +110,7 @@ html, body {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: var(--background-color);
+  background-color: rgba(0, 0, 0, 0.8);
   background-image: radial-gradient(circle at center, rgba(74, 108, 247, 0.2) 0%, rgba(0, 0, 0, 0) 70%);
   display: flex;
   flex-direction: column;
@@ -113,6 +118,11 @@ html, body {
   justify-content: center;
   z-index: 1000;
   transition: opacity 0.5s ease;
+}
+
+.loading-screen.hidden {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .spinner {
@@ -946,9 +956,15 @@ footer {
   }
   
   .controls {
-    bottom: 10px;
-    right: 10px;
-    transform: scale(0.8);
+    bottom: 20px;
+    right: 20px;
+  }
+  
+  .content-panel {
+    width: 90%;
+    max-width: none;
+    height: 80%;
+    max-height: none;
   }
 }
 
@@ -967,5 +983,16 @@ footer {
   
   .section-title {
     font-size: 1.8rem;
+  }
+  
+  .controls {
+    bottom: 15px;
+    right: 15px;
+  }
+  
+  .controls button {
+    width: 35px;
+    height: 35px;
+    margin: 5px;
   }
 }

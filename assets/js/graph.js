@@ -21,6 +21,14 @@
         const CAMERA_ANIMATION_DURATION = 1000;
         const CONTENT_DELAY = 1000;
         
+        // Variables for idle detection and viewport checks
+        let idleTimer = null;
+        let isUserInteracting = false;
+        const IDLE_TIMEOUT = 30000; // 30 seconds before checking view
+        let lastViewportWidth = window.innerWidth;
+        let lastViewportHeight = window.innerHeight;
+        let lastOrientationAngle = window.orientation !== undefined ? window.orientation : 0;
+        
         // Function to safely initialize when dependencies are available
         function checkDependenciesAndInit() {
             if (window.THREE && typeof ForceGraph3D === 'function') {
@@ -125,65 +133,168 @@
                     .onBackgroundClick(hidePanel)
                     .onEngineStop(() => {
                         hideLoadingScreen();
-                        // Use a delay to ensure nodes are positioned before calculating view
-                        setTimeout(() => {
-                            fitNodesToView(graph);
-                        }, 1000); // Updated delay to 1000ms
+                        
+                        // Adjust camera position immediately when engine stops
+                        fitNodesToView(graph, 1500);
                     });
                 
-                // Setup force physics for better node positioning
-                graph.d3Force('charge').strength(-120);
-                graph.d3Force('link').distance(link => {
-                    // Adjust link distance based on node types
-                    const sourceIsCenter = link.source.id === 'center';
-                    const targetIsCategory = ['professional', 'repositories', 'personal'].includes(link.target.id);
-                    
-                    if (sourceIsCenter && targetIsCategory) {
-                        return 80; // Distance from center to main categories
-                    } else if (targetIsCategory) {
-                        return 60; // Distance to subcategories
-                    } else {
-                        return 40; // Distance to items
-                    }
-                });
+                // Setup force physics without direct d3 references
+                safelySetupForces(graph);
 
-                // New: Update graph layout for better node distribution based on screen size
+                // Enhanced: Update graph layout for better node distribution based on screen size
                 function updateGraphLayout() {
                     if (!graph) return;
-                    if (window.innerWidth < 768) {
-                        graph.d3Force('charge').strength(-80);
-                        graph.d3Force('link').distance(link => {
-                            const isMain = link.source.id === 'center' && ['professional','repositories','personal'].includes(link.target.id);
-                            const isSub = ['professional','repositories','personal'].includes(link.target.id);
-                            return isMain ? 60 : isSub ? 50 : 30;
-                        });
-                    } else if (window.innerWidth < 992) {
-                        graph.d3Force('charge').strength(-100);
-                        graph.d3Force('link').distance(link => {
-                            const isMain = link.source.id === 'center' && ['professional','repositories','personal'].includes(link.target.id);
-                            const isSub = ['professional','repositories','personal'].includes(link.target.id);
-                            return isMain ? 70 : isSub ? 60 : 40;
-                        });
-                    } else {
-                        graph.d3Force('charge').strength(-120);
-                        graph.d3Force('link').distance(link => {
-                            const isMain = link.source.id === 'center' && ['professional','repositories','personal'].includes(link.target.id);
-                            const isSub = ['professional','repositories','personal'].includes(link.target.id);
-                            return isMain ? 80 : isSub ? 60 : 40;
-                        });
+                    
+                    // Get current viewport dimensions
+                    const width = window.innerWidth;
+                    const height = window.innerHeight;
+                    const aspectRatio = width / height;
+                    
+                    // Safely update forces instead of accessing d3 directly
+                    try {
+                        // Safely set charge force strength
+                        const chargeForce = graph.d3Force('charge');
+                        if (chargeForce && chargeForce.strength) {
+                            if (width < 768) {
+                                chargeForce.strength(-80);
+                            } else if (width < 992) {
+                                chargeForce.strength(-100);
+                            } else {
+                                chargeForce.strength(-120);
+                            }
+                        }
+                        
+                        // Safely set link distance
+                        const linkForce = graph.d3Force('link');
+                        if (linkForce && linkForce.distance) {
+                            linkForce.distance(link => {
+                                const isMain = link.source.id === 'center' && ['professional','repositories','personal'].includes(link.target.id);
+                                const isSub = ['professional','repositories','personal'].includes(link.target.id);
+                                
+                                if (width < 768) {
+                                    return isMain ? 60 : isSub ? 50 : 30;
+                                } else if (width < 992) {
+                                    return isMain ? 70 : isSub ? 60 : 40;
+                                } else {
+                                    return isMain ? 80 : isSub ? 60 : 40;
+                                }
+                            });
+                        }
+                        
+                        // Safely set y force strength
+                        const yForce = graph.d3Force('y');
+                        if (yForce && yForce.strength) {
+                            if (width < 768 && aspectRatio < 1) {
+                                yForce.strength(0.05);
+                            } else if (width < 992) {
+                                yForce.strength(0.02);
+                            } else {
+                                yForce.strength(0.01);
+                            }
+                        }
+                    } catch (e) {
+                        console.warn('Error updating forces:', e);
                     }
+                    
                     if (graph.refresh) graph.refresh();
                 }
-                // Replace the resize listener with a debounced version to avoid rapid camera repositioning:
-                let resizeTimeout;
-                window.addEventListener('resize', () => {
-                    clearTimeout(resizeTimeout);
-                    resizeTimeout = setTimeout(() => {
+                
+                // Function to safely setup forces without direct d3 references
+                function safelySetupForces(graph) {
+                    if (!graph) return;
+                    
+                    try {
+                        // Use the graph's existing forces without referencing d3 directly
+                        
+                        // Adjust charge force - repels nodes from each other
+                        const chargeForce = graph.d3Force('charge'); 
+                        if (chargeForce && chargeForce.strength) {
+                            chargeForce.strength(-120);
+                        }
+                        
+                        // Adjust link distance based on node types
+                        const linkForce = graph.d3Force('link');
+                        if (linkForce && linkForce.distance) {
+                            linkForce.distance(link => {
+                                const sourceIsCenter = link.source.id === 'center';
+                                const targetIsCategory = ['professional', 'repositories', 'personal'].includes(link.target.id);
+                                
+                                if (sourceIsCenter && targetIsCategory) {
+                                    return 80; // Distance from center to main categories
+                                } else if (targetIsCategory) {
+                                    return 60; // Distance to subcategories
+                                } else {
+                                    return 40; // Distance to items
+                                }
+                            });
+                        }
+                    } catch (e) {
+                        console.warn('Error setting up forces:', e);
+                    }
+                }
+                
+                // Enhanced: Replace the resize listener with immediate response
+                function handleResize() {
+                    const currentWidth = window.innerWidth;
+                    const currentHeight = window.innerHeight;
+                    const orientationAngle = window.orientation !== undefined ? window.orientation : 0;
+                    
+                    // Only update if there's a significant size change or orientation change
+                    const sizeChanged = Math.abs(currentWidth - lastViewportWidth) > 50 || 
+                                      Math.abs(currentHeight - lastViewportHeight) > 50;
+                    const orientationChanged = lastOrientationAngle !== orientationAngle;
+                    
+                    if (sizeChanged || orientationChanged) {
+                        // Mark that we're starting a resize operation
+                        document.body.classList.add('resizing');
+                        
+                        // Update layout immediately
                         updateGraphLayout();
-                        fitNodesToView(graph);
-                    }, 200);
+                        
+                        // Calculate adaptive transition duration based on size change magnitude
+                        const changeMagnitude = Math.max(
+                            Math.abs(currentWidth - lastViewportWidth) / lastViewportWidth,
+                            Math.abs(currentHeight - lastViewportHeight) / lastViewportHeight
+                        );
+                        
+                        // Faster transitions for smaller changes
+                        const transitionDuration = orientationChanged ? 
+                            1500 : // Reduced from 2000ms for orientation changes
+                            Math.min(1500, Math.max(600, changeMagnitude * 2000)); // Reduced max duration from 2000ms to 1500ms
+                        
+                        // Update camera to fit all nodes with better X/Y positioning immediately
+                        fitNodesToView(graph, transitionDuration, false, true);
+                        
+                        // Remove resizing class immediately after transition starts
+                        document.body.classList.remove('resizing');
+                        
+                        // Store current dimensions for next comparison
+                        lastViewportWidth = currentWidth;
+                        lastViewportHeight = currentHeight;
+                        lastOrientationAngle = orientationAngle;
+                    }
+                }
+                
+                // Use the resize event with a reduced throttle for better responsiveness
+                let resizeThrottle;
+                window.addEventListener('resize', () => {
+                    if (!resizeThrottle) {
+                        resizeThrottle = setTimeout(() => {
+                            resizeThrottle = null;
+                            handleResize();
+                        }, 50); // Reduced from 100ms to 50ms for faster response
+                    }
                 });
+                
+                window.addEventListener('orientationchange', () => {
+                    // Special handler for orientation changes - reduced delay
+                    setTimeout(handleResize, 50); // Reduced from 100ms to 50ms
+                });
+                
                 updateGraphLayout();
+                
+                // Initialize idle detection
+                setupIdleDetection();
                 
                 // Add frame loop for animations
                 graph.onEngineTick(() => {
@@ -192,42 +303,42 @@
                     }
                 });
                 
-                // Mount to container
-                graph(graphElement);
-
-                // Add initial inertial movement so the user sees interactive 3D motion
-                (function() {
-                    const duration = 4000; // Longer duration (4 seconds)
-                    const startTime = Date.now();
-                    const totalAngle = Math.PI * 1.5; // reduced from 2π for a more natural arc
-                    const radius = 280; // Increased initial distance
-
-                    function animate() {
-                        const elapsed = Date.now() - startTime;
-                        if (elapsed < duration) {
-                            const progress = elapsed / duration;
-                            // Use easing function for smoother motion
-                            const easedProgress = progress < 0.5 ? 2*progress*progress : -1+(4-2*progress)*progress;
-                            const angle = totalAngle * easedProgress;
-                            // Calculate camera's position along a circular path
-                            const newX = Math.sin(angle) * radius;
-                            const newZ = Math.cos(angle) * radius;
-                            const newY = Math.sin(angle * 0.5) * radius * 0.3; // Add gentle vertical motion
-                            graph.cameraPosition({ x: newX, y: newY, z: newZ }, { x: 0, y: 0, z: 0 }, 0);
-                            requestAnimationFrame(animate);
-                        } else {
-                            // After inertial movement, fit all nodes in view with a smooth transition
-                            fitNodesToView(graph);
-                        }
-                    }
-                    animate();
-                })();
-
-                // Set initial camera position (this will be overridden by the inertial movement)
-                // graph.cameraPosition({ x: 0, y: 0, z: 220 }, { x: 0, y: 0, z: 0 }, 1000);
+                // CRITICAL: Immediate setup with no waiting
+                const forceStartupPriority = () => {
+                    // Mount to container without waiting
+                    graph(graphElement);
+                    
+                    // Safely setup forces
+                    safelySetupForces(graph);
+                    
+                    // Calculate graph metrics
+                    const graphCenter = calculateGraphCenter(graph.graphData().nodes);
+                    const optimalDistance = calculateOptimalCameraDistance();
+                    
+                    console.log("IMMEDIATE: Setting initial camera position");
+                    
+                    // Set camera position - keep duration for smooth movement
+                    graph.cameraPosition({ 
+                        x: graphCenter.x * 0.2, 
+                        y: graphCenter.y * 0.2, 
+                        z: optimalDistance 
+                    }, { x: graphCenter.x, y: graphCenter.y, z: 0 }, 1500);
+                    
+                    // Update layout with safe force checks
+                    updateGraphLayout();
+                    
+                    // Setup controls immediately
+                    setupControls();
+                    
+                    // Hide loading screen immediately
+                    hideLoadingScreen();
+                    
+                    // Emit graph loaded event with no delay
+                    window.dispatchEvent(new Event('graphLoaded'));
+                };
                 
-                // Setup controls
-                setupControls();
+                // Execute immediately
+                forceStartupPriority();
 
                 // Make focusOnNode function available globally
                 window.focusOnNode = (nodeId, showContentAfter = false) => {
@@ -264,18 +375,28 @@
                 
                 // Make resetGraphView function available globally
                 window.resetGraphView = () => {
+                    // Calculate center of graph nodes and optimal distance
+                    const graphCenter = calculateGraphCenter(graph.graphData().nodes);
+                    const optimalDistance = calculateOptimalCameraDistance();
+                    
                     graph.cameraPosition({ 
-                        x: 0, y: 0, z: 240 
-                    }, { x: 0, y: 0, z: 0 }, 800);
+                        x: graphCenter.x, 
+                        y: graphCenter.y, 
+                        z: optimalDistance 
+                    }, { x: graphCenter.x, y: graphCenter.y, z: 0 }, 800);
                     
                     // If there's a content panel open, hide it
                     hidePanel();
                 };
                 
-                // Emit graph loaded event after short delay to ensure rendering
-                setTimeout(() => {
-                    window.dispatchEvent(new Event('graphLoaded'));
-                }, 1000);
+                // Emit graph loaded event immediately and attach a handler for auto-adjustment
+                window.dispatchEvent(new Event('graphLoaded'));
+                
+                // Listen for the graphLoaded event with no delay in the handler
+                window.addEventListener('graphLoaded', () => {
+                    console.log("Graph loaded event received, adjusting view");
+                    fitNodesToView(graph, 1500, false, true);
+                }, { once: true });
                 
                 // Setup zoom control buttons
                 setupZoomControls(graph);
@@ -327,6 +448,9 @@
             if (zoomInBtn) {
                 zoomInBtn.addEventListener('click', () => {
                     if (!graph) return;
+                    isUserInteracting = true;
+                    resetIdleTimer();
+                    
                     const { x, y, z } = graph.cameraPosition();
                     const distance = Math.sqrt(x*x + y*y + z*z);
                     const scale = Math.max(0.8, distance > 30 ? 0.8 : 0.95);
@@ -342,6 +466,9 @@
             if (zoomOutBtn) {
                 zoomOutBtn.addEventListener('click', () => {
                     if (!graph) return;
+                    isUserInteracting = true;
+                    resetIdleTimer();
+                    
                     const { x, y, z } = graph.cameraPosition();
                     const distance = Math.sqrt(x*x + y*y + z*z);
                     const scale = Math.min(1.2, distance < 300 ? 1.2 : 1.05);
@@ -357,8 +484,12 @@
             if (resetCameraBtn) {
                 resetCameraBtn.addEventListener('click', () => {
                     if (!graph) return;
+                    isUserInteracting = true;
+                    resetIdleTimer();
+                    
+                    const optimalDistance = calculateOptimalCameraDistance();
                     graph.cameraPosition({ 
-                        x: 0, y: 0, z: 240 
+                        x: 0, y: 0, z: optimalDistance 
                     }, { x: 0, y: 0, z: 0 }, 800);
                 });
             }
@@ -368,8 +499,12 @@
                 resetViewBtn.addEventListener('click', e => {
                     e.preventDefault();
                     if (!graph) return;
+                    isUserInteracting = true;
+                    resetIdleTimer();
+                    
+                    const optimalDistance = calculateOptimalCameraDistance();
                     graph.cameraPosition({ 
-                        x: 0, y: 0, z: 240 
+                        x: 0, y: 0, z: optimalDistance 
                     }, { x: 0, y: 0, z: 0 }, 800);
                     
                     hidePanel();
@@ -381,6 +516,9 @@
                 navItems.forEach(item => {
                     item.addEventListener('click', function(e) {
                         e.preventDefault();
+                        isUserInteracting = true;
+                        resetIdleTimer();
+                        
                         const sectionId = this.getAttribute('data-section');
                         const node = NetworkData.nodes.find(n => n.id === sectionId);
                         if (node) handleNodeClick(node);
@@ -392,6 +530,134 @@
             if (closePanel) {
                 closePanel.addEventListener('click', hidePanel);
             }
+            
+            // Add graph interaction listeners to reset idle timer
+            graphElement.addEventListener('mousedown', () => {
+                isUserInteracting = true;
+                resetIdleTimer();
+            });
+            
+            graphElement.addEventListener('touchstart', () => {
+                isUserInteracting = true;
+                resetIdleTimer();
+            });
+            
+            graphElement.addEventListener('wheel', () => {
+                isUserInteracting = true;
+                resetIdleTimer();
+            });
+            
+            // Listen for interaction end
+            document.addEventListener('mouseup', () => {
+                isUserInteracting = false;
+            });
+            
+            document.addEventListener('touchend', () => {
+                isUserInteracting = false;
+            });
+        }
+
+        // Initialize idle detection
+        function setupIdleDetection() {
+            resetIdleTimer();
+            
+            // Listen for any user activity
+            ['mousemove', 'keydown', 'mousedown', 'touchstart', 'click'].forEach(event => {
+                document.addEventListener(event, resetIdleTimer);
+            });
+        }
+        
+        // Reset the idle timer
+        function resetIdleTimer() {
+            clearTimeout(idleTimer);
+            
+            idleTimer = setTimeout(() => {
+                // Only check if view needs adjustment when user is not actively interacting
+                if (!isUserInteracting && isViewSuboptimal()) {
+                    console.log('Idle detected, adjusting view for optimal visibility');
+                    fitNodesToView(graph, 2000, true);
+                }
+            }, IDLE_TIMEOUT);
+        }
+        
+        // Check if the current view is suboptimal
+        function isViewSuboptimal() {
+            if (!graph || !graph.graphData) return false;
+            
+            const graphData = graph.graphData();
+            if (!graphData.nodes || graphData.nodes.length === 0) return false;
+            
+            // Get current camera position and view parameters
+            const currentCameraPos = graph.cameraPosition();
+            const cameraDistance = Math.sqrt(
+                currentCameraPos.x * currentCameraPos.x + 
+                currentCameraPos.y * currentCameraPos.y + 
+                currentCameraPos.z * currentCameraPos.z
+            );
+            
+            // Calculate optimal distance
+            const optimalDistance = calculateOptimalCameraDistance();
+            
+            // Calculate how many nodes are visible
+            const renderer = graph.renderer();
+            const camera = graph.camera();
+            
+            if (!renderer || !camera) return false;
+            
+            // Check if camera is too close or too far from optimal
+            const distanceRatio = cameraDistance / optimalDistance;
+            if (distanceRatio < 0.6 || distanceRatio > 1.5) {
+                return true;
+            }
+            
+            // If camera position is too far from center line
+            const offsetFromCenterLine = Math.sqrt(
+                currentCameraPos.x * currentCameraPos.x + 
+                currentCameraPos.y * currentCameraPos.y
+            );
+            if (offsetFromCenterLine > optimalDistance * 0.5) {
+                return true;
+            }
+            
+            return false;
+        }
+        
+        // Calculate optimal camera distance based on viewport size
+        function calculateOptimalCameraDistance() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            const aspectRatio = width / height;
+            
+            // Base distance for various device sizes
+            let baseDistance;
+            
+            if (width <= 480) {
+                // Small mobile
+                baseDistance = 300;
+            } else if (width <= 768) {
+                // Mobile
+                baseDistance = 280;
+            } else if (width <= 992) {
+                // Tablet
+                baseDistance = 260;
+            } else if (width <= 1200) {
+                // Small desktop
+                baseDistance = 240;
+            } else {
+                // Large desktop
+                baseDistance = 220;
+            }
+            
+            // Adjust for viewport aspect ratio
+            if (aspectRatio < 1) {
+                // Portrait orientation needs more distance
+                baseDistance *= (1.2 / aspectRatio);
+            } else if (aspectRatio > 2) {
+                // Ultra-wide screens
+                baseDistance *= 0.9;
+            }
+            
+            return baseDistance;
         }
 
         /**
@@ -431,11 +697,18 @@
         function handleNodeHover(node) {
             // Change cursor
             graphElement.style.cursor = node ? 'pointer' : null;
+            
+            if (node) {
+                resetIdleTimer();
+            }
         }
         
         // Node click handler
         function handleNodeClick(node) {
             if (!node) return;
+            
+            isUserInteracting = true;
+            resetIdleTimer();
             
             // First focus on the node (camera movement)
             const nodeId = node.id;
@@ -459,13 +732,11 @@
             }, CONTENT_DELAY);
         }
         
-        // Loading screen functions
+        // Loading screen functions - no delay needed
         function hideLoadingScreen() {
             if (loadingScreen) {
                 loadingScreen.style.opacity = '0';
-                setTimeout(() => {
-                    loadingScreen.style.display = 'none';
-                }, 500);
+                loadingScreen.style.display = 'none';
             }
         }
         
@@ -566,64 +837,136 @@
             }
         }
         
-        // Function to fit all nodes in view
-        function fitNodesToView(graph) {
+        // Enhanced: Function to fit all nodes in view with improved X/Y positioning
+        function fitNodesToView(graph, duration = 1500, easeOnly = false, improveXY = false) {
+            // Reduced default duration for faster response
             if (!graph || !graph.graphData) return;
+            
+            console.log(`Fitting nodes to view: duration=${duration}, easeOnly=${easeOnly}, improveXY=${improveXY}`);
             
             const graphData = graph.graphData();
             
             // Don't proceed if there are no nodes
             if (!graphData.nodes || graphData.nodes.length === 0) return;
             
+            // Get current camera position
+            const currentPos = graph.cameraPosition();
+            
             // Calculate the bounding sphere of all nodes
             let maxDistance = 0;
             let maxX = 0, maxY = 0, maxZ = 0;
             
+            // Calculate graph center for better positioning
+            const graphCenter = calculateGraphCenter(graphData.nodes);
+            
             graphData.nodes.forEach(node => {
                 if (node.x !== undefined && node.y !== undefined && node.z !== undefined) {
-                    // Track max distance from origin
-                    const distance = Math.sqrt(node.x * node.x + node.y * node.y + node.z * node.z);
+                    // Track max distance from graph center
+                    const distX = node.x - graphCenter.x;
+                    const distY = node.y - graphCenter.y;
+                    const distZ = node.z;
+                    const distance = Math.sqrt(distX * distX + distY * distY + distZ * distZ);
                     maxDistance = Math.max(maxDistance, distance);
                     
                     // Track max component values to determine aspect ratio
-                    maxX = Math.max(maxX, Math.abs(node.x));
-                    maxY = Math.max(maxY, Math.abs(node.y));
-                    maxZ = Math.max(maxZ, Math.abs(node.z));
+                    maxX = Math.max(maxX, Math.abs(distX));
+                    maxY = Math.max(maxY, Math.abs(distY));
+                    maxZ = Math.max(maxZ, Math.abs(distZ));
                 }
             });
             
             // Adjust for aspect ratio of the graph (nodes might be spread more in one direction)
             const aspectRatio = Math.max(maxX / maxZ, maxZ / maxX, maxY / maxZ, maxZ / maxY, 1);
             
-            // Add a generous margin (2x) to ensure all nodes are visible
+            // Add margin to ensure all nodes are visible
             maxDistance *= 2.0;
             
-            // Adjust distance for screen aspect ratio
-            const containerRect = graphElement.getBoundingClientRect();
-            const screenRatio = containerRect.width / containerRect.height;
-            if (screenRatio < 1) {
-                // Taller than wide, adjust distance to fit vertical space
-                maxDistance *= (1.2 / screenRatio);
+            // Calculate optimal distance based on current viewport
+            const optimalDistance = calculateOptimalCameraDistance();
+            
+            // Use the greater of calculated distance or optimal distance
+            const finalDistance = Math.max(maxDistance, optimalDistance);
+            
+            let targetPos;
+            
+            // If easeOnly is true, use current camera direction but adjust distance
+            if (easeOnly) {
+                const currentDist = Math.hypot(currentPos.x, currentPos.y, currentPos.z);
+                targetPos = { 
+                    x: currentPos.x * (finalDistance / currentDist),
+                    y: currentPos.y * (finalDistance / currentDist),
+                    z: currentPos.z * (finalDistance / currentDist)
+                };
+            } 
+            // If improveXY is true, position camera to view from graph center angle
+            else if (improveXY) {
+                // Use the graph center X/Y position to improve camera angle
+                targetPos = { 
+                    x: graphCenter.x * 0.2, // Slightly offset from center
+                    y: graphCenter.y * 0.2, // Slightly offset from center
+                    z: finalDistance 
+                };
             }
+            // Default back to centered position
+            else {
+                targetPos = { 
+                    x: 0, 
+                    y: 0, 
+                    z: finalDistance 
+                };
+            }
+            
+            // Determine where to look at - either centered or at graph center
+            const lookAt = improveXY ? 
+                { x: graphCenter.x, y: graphCenter.y, z: 0 } : 
+                { x: 0, y: 0, z: 0 };
             
             // Smooth transition to the new position
             graph.cameraPosition(
-                { x: 0, y: 0, z: maxDistance }, // Position camera at origin looking in
-                { x: 0, y: 0, z: 0 },          // Look at the center
-                3000,                          // Animation duration (3 seconds)
-                (p) => {                       // Easing function for smoother motion
-                    // Quadratic easing in and out
-                    return p < 0.5 ? 2*p*p : -1+(4-2*p)*p;
+                targetPos,      // Position camera 
+                lookAt,         // Look at center point
+                duration,       // Animation duration
+                (p) => {        // Easing function for smoother motion
+                    // Improved cubic easing for more natural movement
+                    return p < 0.5 ? 4*p*p*p : 1-Math.pow(-2*p+2,3)/2;
                 }
             );
             
-            console.log("Camera positioned to view all nodes at distance:", maxDistance);
+            console.log("Camera positioned to view all nodes at distance:", finalDistance, 
+                       "looking at:", lookAt, "from position:", targetPos);
         }
 
-        // Start initialization
+        // Calculate center position of graph nodes (weighted by importance)
+        function calculateGraphCenter(nodes) {
+            if (!nodes || nodes.length === 0) return { x: 0, y: 0 };
+            
+            let totalWeight = 0;
+            let weightedX = 0;
+            let weightedY = 0;
+            
+            // Calculate weighted center based on node size/importance
+            nodes.forEach(node => {
+                if (node.x === undefined || node.y === undefined) return;
+                
+                // Use node size or value as weight, with a minimum weight of 1
+                const weight = (node.size || node.val || 1);
+                totalWeight += weight;
+                weightedX += node.x * weight;
+                weightedY += node.y * weight;
+            });
+            
+            // Return weighted center or default to origin
+            if (totalWeight > 0) {
+                return {
+                    x: weightedX / totalWeight,
+                    y: weightedY / totalWeight
+                };
+            }
+            
+            return { x: 0, y: 0 };
+        }
+
+        // Start initialization immediately
         checkDependenciesAndInit();
-        
-        // Fallback for loading screen
-        setTimeout(hideLoadingScreen, 12000); // Increased timeout for network data generation
     });
 })();
