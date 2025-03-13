@@ -64,7 +64,7 @@ class ContentLoader {
             this.renderPersonal(data, container);
             break;
           case 'about':
-            this.renderAbout(container);
+            this.renderAbout(data, container);
             break;
           case 'contact':
             this.renderContact(data, container);
@@ -102,16 +102,14 @@ class ContentLoader {
    */
   static async fetchContentData(contentType) {
     try {
-      // Map contentType to correct file path
       let path;
-      
       switch (contentType) {
         case 'repositories':
           path = 'data/projects.json';
           break;
         case 'about':
-          // About doesn't need external data
-          return {};
+          path = 'data/about.json';  // Updated to fetch about.json
+          break;
         // Handle only main categories, not edge nodes
         case 'professional':
         case 'personal':
@@ -141,37 +139,32 @@ class ContentLoader {
   
   /**
    * Render About Me content
+   * @param {Object} data - About data
    * @param {HTMLElement} container - Container element
    */
-  static renderAbout(container) {
+  static renderAbout(data, container) {
     let html = `
       <div class="section-content">
-        <h2 class="section-title">About Me</h2>
+        <h2 class="section-title">${data.title}</h2>
         <div class="about-content">
           <div class="about-image">
-            <img src="assets/images/profile.jpg" alt="Profile Picture" onerror="handleImageError(event)">
+            <img src="${data.profileImage}" alt="Profile Picture" onerror="handleImageError(event)">
           </div>
           <div class="about-text">
-            <p>Hello! I'm a full-stack developer passionate about creating interactive, engaging web applications. With experience in both front-end and back-end development, I enjoy bringing ideas to life through code.</p>
-            <p>I specialize in JavaScript frameworks like React and Vue, building responsive interfaces, and developing scalable back-end solutions with Node.js.</p>
+            <p>${data.introduction}</p>
+            <p>${data.bio}</p>
             <h3>Skills</h3>
             <div class="skills-container">
-              <span class="skill-tag">JavaScript</span>
-              <span class="skill-tag">React</span>
-              <span class="skill-tag">Node.js</span>
-              <span class="skill-tag">Vue.js</span>
-              <span class="skill-tag">HTML5/CSS3</span>
-              <span class="skill-tag">MongoDB</span>
-              <span class="skill-tag">SQL</span>
-              <span class="skill-tag">Git</span>
-              <span class="skill-tag">AWS</span>
-              <span class="skill-tag">Docker</span>
+              ${data.skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
+            </div>
+            <div class="contact-info">
+              <p>Email: <a href="mailto:${data.contact.email}">${data.contact.email}</a></p>
+              <p>LinkedIn: <a href="${data.contact.linkedin}" target="_blank">${data.contact.linkedin}</a></p>
             </div>
           </div>
         </div>
       </div>
     `;
-    
     container.innerHTML = html;
   }
   

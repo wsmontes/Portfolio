@@ -36,25 +36,13 @@ document.addEventListener('DOMContentLoaded', () => {
       navMenu.classList.toggle('active');
     });
     
-    // Navigation menu links
+    // Navigation menu links event listener - no fallback, assume node exists:
     navLinks.forEach(link => {
       link.addEventListener('click', (e) => {
         e.preventDefault();
         navMenu.classList.remove('active');
         const section = link.getAttribute('data-section');
-        if (window.focusOnNode) {
-          const nodeFound = window.focusOnNode(section, true);
-          if (!nodeFound) {
-            // Fallback if the corresponding node wasn't found: trigger nodeClick event
-            const clickEvent = new CustomEvent('nodeClick', {
-              detail: { id: section, showContent: true }
-            });
-            window.dispatchEvent(clickEvent);
-          }
-        } else {
-          console.warn('focusOnNode not available, directly showing content');
-          showContent(section);
-        }
+        window.focusOnNode(section, true);
       });
     });
     

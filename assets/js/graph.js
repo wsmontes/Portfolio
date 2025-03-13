@@ -19,7 +19,7 @@
         
         // Camera animation duration (ms)
         const CAMERA_ANIMATION_DURATION = 1000;
-        const CONTENT_DELAY = 800; // Slightly less than camera animation to feel responsive
+        const CONTENT_DELAY = 1000; // Slightly less than camera animation to feel responsive
         
         // Initialize the graph with dynamically generated network data
         async function initGraph() {
@@ -97,10 +97,10 @@
                     .onBackgroundClick(hidePanel)
                     .onEngineStop(() => {
                         hideLoadingScreen();
-                        // Use a slight delay to ensure nodes are positioned before calculating view
+                        // Use a delay to ensure nodes are positioned before calculating view
                         setTimeout(() => {
                             fitNodesToView(graph);
-                        }, 500);
+                        }, 1000); // Updated delay to 1000ms
                     });
                 
                 // Setup force physics for better node positioning
