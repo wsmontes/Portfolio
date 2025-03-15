@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interactive Portfolio Network</title>
     <meta name="description" content="Interactive 3D portfolio showcasing software development, IT skills, media work, and photography">
+    
+    <!-- Preconnect hints for faster loading -->
+    <link rel="preconnect" href="https://unpkg.com">
+    <link rel="preconnect" href="https://d3js.org">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    
     <link rel="stylesheet" href="assets/css/main.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" type="image/png" href="assets/images/favicon.png">
@@ -57,6 +63,9 @@
     <script>
         // Ensure we only have one THREE instance
         window.THREE = window.THREE || {};
+        
+        // Flag to indicate we're handling THREE globally
+        window.GLOBAL_THREE_HANDLED = true;
     </script>
     
     <!-- 2. Load THREE.js library -->
@@ -65,26 +74,63 @@
     <!-- 3. Initialize THREE.js and make it globally available -->
     <script src="assets/js/three-init.js"></script>
     
-    <!-- 4. Load 3D-force-graph which depends on THREE -->
-    <script src="https://unpkg.com/3d-force-graph@1.70.5/dist/3d-force-graph.min.js"></script>
+    <!-- 4. Fix for 3D-force-graph to use our THREE instance -->
+    <script>
+        // Store original THREE instance before 3D-force-graph loads
+        window.originalTHREE = window.THREE;
+        
+        // Function to restore our THREE instance if overwritten
+        function ensureGlobalTHREE() {
+            if (window.THREE !== window.originalTHREE) {
+                console.log('Restoring global THREE instance');
+                const newFeatures = Object.keys(window.THREE).filter(
+                    key => !window.originalTHREE[key]
+                );
+                
+                // Copy any new features to our original THREE
+                newFeatures.forEach(feature => {
+                    window.originalTHREE[feature] = window.THREE[feature];
+                });
+                
+                // Restore our original THREE
+                window.THREE = window.originalTHREE;
+            }
+        }
+    </script>
     
-    <!-- 5. Load baseline data and utilities -->
+    <!-- 5. Load d3-force for the collision detection -->
+    <script src="https://d3js.org/d3-dispatch.v2.min.js"></script>
+    <script src="https://d3js.org/d3-quadtree.v2.min.js"></script>
+    <script src="https://d3js.org/d3-timer.v2.min.js"></script>
+    <script src="https://d3js.org/d3-force.v2.min.js"></script>
+    
+    <!-- 6. Load 3D-force-graph which depends on THREE -->
+    <script src="https://unpkg.com/3d-force-graph@1.70.5/dist/3d-force-graph.min.js" onload="ensureGlobalTHREE()"></script>
+    
+    <!-- 7. Load baseline data and utilities -->
     <script src="assets/js/network-data.js"></script>
     <script src="assets/js/network-data-generator.js"></script>
     <script src="assets/js/frame-templates.js"></script>
     <script src="assets/js/content-loader.js"></script>
     <script src="assets/js/site-config.js"></script>
+    
+    <!-- 8. Load our custom graph layout before the graph initialization -->
+    <script src="assets/js/graph-layout.js"></script>
+    
+    <!-- 9. Load camera manager for improved view positioning -->
+    <script src="assets/js/camera-manager.js"></script>
+    
     <script src="assets/js/react-bridge.js"></script>
     <script src="assets/js/menu-color-manager.js"></script>
     
-    <!-- 6. Load dependent modules after THREE and data are available -->
+    <!-- 10. Load dependent modules after THREE and data are available -->
     <script src="assets/js/celestial-bodies.js"></script>
     <script src="assets/js/main.js"></script>
     
-    <!-- 7. Finally load the graph initialization -->
+    <!-- 11. Finally load the graph initialization -->
     <script src="assets/js/graph.js"></script>
     
-    <!-- 7. Improved React app loading with better fallback mechanism -->
+    <!-- 12. Improved React app loading with better fallback mechanism -->
     <script>
         // Flag to track React initialization status
         window.reactInitialized = false;

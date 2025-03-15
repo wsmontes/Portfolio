@@ -61,6 +61,7 @@
                 // Increased segments for even smoother appearance on larger nodes
                 const segments = node.id === 'center' ? 64 : 
                               ['professional', 'repositories', 'personal'].includes(node.id) ? 48 : 36;
+                // Use SphereGeometry (current name) instead of SphereBufferGeometry (deprecated)
                 geometryCache[geometryKey] = new THREE.SphereGeometry(size, segments, segments);
             }
             const geometry = geometryCache[geometryKey];

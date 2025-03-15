@@ -1267,3 +1267,250 @@ window.ContentLoader = ContentLoader;
 document.addEventListener('DOMContentLoaded', () => {
   console.log('Content Loader initialized');
 });
+
+/**
+ * Content loader and template manager for portfolio items
+ */
+(function() {
+    // ...existing code...
+    
+    // Add missing templates that were mentioned in the warnings
+    const templates = window.ContentTemplates = window.ContentTemplates || {};
+    
+    // Add publicationList template
+    templates.publicationList = function(data) {
+        const container = document.createElement('div');
+        container.className = 'publications-container';
+        
+        // Create header
+        const header = document.createElement('h2');
+        header.textContent = 'Publications';
+        container.appendChild(header);
+        
+        // Create introduction
+        const intro = document.createElement('p');
+        intro.className = 'publications-intro';
+        intro.textContent = 'A collection of my published works and research papers.';
+        container.appendChild(intro);
+        
+        // Create publications list
+        const list = document.createElement('div');
+        list.className = 'publications-list';
+        
+        // If we have actual data, use it; otherwise, use placeholder
+        const publications = data.items || data.publications || [];
+        
+        if (publications.length > 0) {
+            publications.forEach(pub => {
+                const item = document.createElement('div');
+                item.className = 'publication-item';
+                
+                const title = document.createElement('h3');
+                title.textContent = pub.title || 'Untitled Publication';
+                item.appendChild(title);
+                
+                if (pub.authors) {
+                    const authors = document.createElement('p');
+                    authors.className = 'pub-authors';
+                    authors.textContent = pub.authors;
+                    item.appendChild(authors);
+                }
+                
+                if (pub.journal || pub.date) {
+                    const details = document.createElement('p');
+                    details.className = 'pub-details';
+                    details.textContent = [pub.journal, pub.date].filter(Boolean).join(' - ');
+                    item.appendChild(details);
+                }
+                
+                if (pub.abstract) {
+                    const abstract = document.createElement('p');
+                    abstract.className = 'pub-abstract';
+                    abstract.textContent = pub.abstract;
+                    item.appendChild(abstract);
+                }
+                
+                if (pub.url) {
+                    const link = document.createElement('a');
+                    link.href = pub.url;
+                    link.className = 'pub-link';
+                    link.textContent = 'Read Publication';
+                    link.target = '_blank';
+                    item.appendChild(link);
+                }
+                
+                list.appendChild(item);
+            });
+        } else {
+            // Placeholder content
+            const placeholder = document.createElement('div');
+            placeholder.className = 'publication-item placeholder';
+            placeholder.innerHTML = `
+                <h3>Academic Research on Machine Learning</h3>
+                <p class="pub-authors">Wagner Montes, et al.</p>
+                <p class="pub-details">Journal of AI Research - 2023</p>
+                <p class="pub-abstract">This research explores novel approaches to neural network optimization for resource-constrained environments.</p>
+                <a href="#" class="pub-link">Read Publication</a>
+            `;
+            list.appendChild(placeholder);
+        }
+        
+        container.appendChild(list);
+        return container;
+    };
+    
+    // Add filmography template
+    templates.filmography = function(data) {
+        const container = document.createElement('div');
+        container.className = 'filmography-container';
+        
+        // Create header
+        const header = document.createElement('h2');
+        header.textContent = 'Filmography';
+        container.appendChild(header);
+        
+        // Create introduction
+        const intro = document.createElement('p');
+        intro.className = 'filmography-intro';
+        intro.textContent = 'A collection of my work in film and media production.';
+        container.appendChild(intro);
+        
+        // Create films list
+        const list = document.createElement('div');
+        list.className = 'films-list';
+        
+        // If we have actual data, use it; otherwise, use placeholder
+        const films = data.items || data.films || [];
+        
+        if (films.length > 0) {
+            films.forEach(film => {
+                const item = document.createElement('div');
+                item.className = 'film-item';
+                
+                const title = document.createElement('h3');
+                title.textContent = film.title || 'Untitled Film';
+                item.appendChild(title);
+                
+                if (film.role) {
+                    const role = document.createElement('p');
+                    role.className = 'film-role';
+                    role.textContent = film.role;
+                    item.appendChild(role);
+                }
+                
+                if (film.year) {
+                    const year = document.createElement('p');
+                    year.className = 'film-year';
+                    year.textContent = film.year;
+                    item.appendChild(year);
+                }
+                
+                if (film.description) {
+                    const description = document.createElement('p');
+                    description.className = 'film-description';
+                    description.textContent = film.description;
+                    item.appendChild(description);
+                }
+                
+                if (film.url) {
+                    const link = document.createElement('a');
+                    link.href = film.url;
+                    link.className = 'film-link';
+                    link.textContent = 'Watch Trailer';
+                    link.target = '_blank';
+                    item.appendChild(link);
+                }
+                
+                list.appendChild(item);
+            });
+        } else {
+            // Placeholder content
+            const placeholder = document.createElement('div');
+            placeholder.className = 'film-item placeholder';
+            placeholder.innerHTML = `
+                <h3>The Digital Frontier</h3>
+                <p class="film-role">Director / Producer</p>
+                <p class="film-year">2022</p>
+                <p class="film-description">A documentary exploring the intersection of technology and creativity in the modern era.</p>
+                <a href="#" class="film-link">Watch Trailer</a>
+            `;
+            list.appendChild(placeholder);
+        }
+        
+        container.appendChild(list);
+        return container;
+    };
+    
+    // Add assessment template
+    templates.assessment = function(data) {
+        const container = document.createElement('div');
+        container.className = 'assessment-container';
+        
+        // Create header
+        const header = document.createElement('h2');
+        header.textContent = data.title || 'Technology Assessment';
+        container.appendChild(header);
+        
+        // Create description
+        const description = document.createElement('div');
+        description.className = 'assessment-description';
+        description.innerHTML = data.description || 
+            '<p>A comprehensive analysis of technology requirements and solutions for optimizing business operations.</p>';
+        container.appendChild(description);
+        
+        // Create assessment sections
+        const sections = data.sections || [];
+        
+        if (sections.length > 0) {
+            sections.forEach(section => {
+                const sectionEl = document.createElement('div');
+                sectionEl.className = 'assessment-section';
+                
+                const sectionTitle = document.createElement('h3');
+                sectionTitle.textContent = section.title || 'Untitled Section';
+                sectionEl.appendChild(sectionTitle);
+                
+                if (section.content) {
+                    const content = document.createElement('div');
+                    content.className = 'section-content';
+                    content.innerHTML = section.content;
+                    sectionEl.appendChild(content);
+                }
+                
+                container.appendChild(sectionEl);
+            });
+        } else {
+            // Placeholder content
+            const placeholder = document.createElement('div');
+            placeholder.className = 'assessment-section placeholder';
+            placeholder.innerHTML = `
+                <h3>Infrastructure Analysis</h3>
+                <div class="section-content">
+                    <p>Our assessment identified several key areas for optimization in your current infrastructure:</p>
+                    <ul>
+                        <li>Server virtualization opportunities</li>
+                        <li>Network redundancy improvements</li>
+                        <li>Cloud integration pathways</li>
+                        <li>Security posture enhancements</li>
+                    </ul>
+                    <p>These improvements could result in a 25% reduction in operational costs while improving service reliability.</p>
+                </div>
+            `;
+            container.appendChild(placeholder);
+        }
+        
+        // Add call to action
+        const cta = document.createElement('div');
+        cta.className = 'assessment-cta';
+        cta.innerHTML = `
+            <h3>Request a Custom Assessment</h3>
+            <p>Interested in a personalized technology evaluation for your organization?</p>
+            <a href="#contact" class="cta-button">Contact Us</a>
+        `;
+        container.appendChild(cta);
+        
+        return container;
+    };
+    
+    // ...existing code...
+})();

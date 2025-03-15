@@ -35,6 +35,42 @@
         const POSITION_CHECK_INTERVAL = 1000; // Check every second
         const SUBOPTIMAL_POSITION_THRESHOLD = 5000; // Auto-correct after 5 seconds
         
+        // Create basic Three.js object for node when celestial-bodies.js isn't loaded
+        function createBasicNode(node) {
+            // Determine node size - doubled the base size again
+            const size = node.size || (node.val || 100) / 3; // Doubled from 50 to 100
+            
+            // Determine node color based on type
+            let color;
+            
+            // Main categories with distinct colors
+            if (node.id === 'center') color = '#ffd700';  // Gold for center
+            else if (node.id === 'professional') color = '#2563eb';  // Blue
+            else if (node.id === 'repositories') color = '#16a34a';  // Green
+            else if (node.id === 'personal') color = '#db2777';  // Pink
+            
+            // Sub-nodes with lighter colors
+            else if (node.parentId === 'professional') color = '#4a90e2';  // Lighter blue
+            else if (node.parentId === 'repositories') color = '#2ecc71';  // Lighter green
+            else if (node.parentId === 'personal') color = '#ff6b81';  // Lighter pink
+            else color = '#94a3b8';  // Default gray
+            
+            // Create mesh with appropriate segments for quality
+            const segments = 
+                node.id === 'center' ? 32 : 
+                ['professional', 'repositories', 'personal'].includes(node.id) ? 24 : 16;
+                
+            const geometry = new THREE.SphereGeometry(size, segments, segments);
+            const material = new THREE.MeshPhongMaterial({ 
+                color: color,
+                shininess: 80,
+                transparent: true,
+                opacity: 0.9
+            });
+            
+            return new THREE.Mesh(geometry, material);
+        }
+
         // Function to safely initialize when dependencies are available
         function checkDependenciesAndInit() {
             if (window.THREE && typeof ForceGraph3D === 'function') {
@@ -413,42 +449,6 @@
                 console.error('Error initializing graph:', error);
                 hideLoadingScreen();
             }
-        }
-        
-        // Create basic Three.js object for node when celestial-bodies.js isn't loaded
-        function createBasicNode(node) {
-            // Determine node size - doubled the base size again
-            const size = node.size || (node.val || 100) / 3; // Doubled from 50 to 100
-            
-            // Determine node color based on type
-            let color;
-            
-            // Main categories with distinct colors
-            if (node.id === 'center') color = '#ffd700';  // Gold for center
-            else if (node.id === 'professional') color = '#2563eb';  // Blue
-            else if (node.id === 'repositories') color = '#16a34a';  // Green
-            else if (node.id === 'personal') color = '#db2777';  // Pink
-            
-            // Sub-nodes with lighter colors
-            else if (node.parentId === 'professional') color = '#4a90e2';  // Lighter blue
-            else if (node.parentId === 'repositories') color = '#2ecc71';  // Lighter green
-            else if (node.parentId === 'personal') color = '#ff6b81';  // Lighter pink
-            else color = '#94a3b8';  // Default gray
-            
-            // Create mesh with appropriate segments for quality
-            const segments = 
-                node.id === 'center' ? 32 : 
-                ['professional', 'repositories', 'personal'].includes(node.id) ? 24 : 16;
-                
-            const geometry = new THREE.SphereGeometry(size, segments, segments);
-            const material = new THREE.MeshPhongMaterial({ 
-                color: color,
-                shininess: 80,
-                transparent: true,
-                opacity: 0.9
-            });
-            
-            return new THREE.Mesh(geometry, material);
         }
         
         // Setup camera/zoom controls
@@ -1045,3 +1045,267 @@
         checkDependenciesAndInit();
     });
 })();
+
+/**
+ * Graph Initialization and Configuration
+ * Implements the 3D force-directed graph visualization
+ */
+
+// Initialize variables
+let Graph = null;
+let graphData = null;
+
+// Helper functions for the external graph initialization
+function getNodeColor(node) {
+    // Main categories with distinct colors
+    if (node.id === 'center') return '#ffd700';  // Gold for center
+    else if (node.id === 'professional') return '#2563eb';  // Blue
+    else if (node.id === 'repositories') return '#16a34a';  // Green
+    else if (node.id === 'personal') return '#db2777';  // Pink
+    
+    // Sub-nodes with lighter colors
+    else if (node.parentId === 'professional') return '#4a90e2';  // Lighter blue
+    else if (node.parentId === 'repositories') return '#2ecc71';  // Lighter green
+    else if (node.parentId === 'personal') return '#ff6b81';  // Lighter pink
+    else return '#94a3b8';  // Default gray
+}
+
+function getLinkWidth(link) {
+    // You can customize this based on link properties
+    return link.value || 1;
+}
+
+function getLinkColor(link) {
+    // You can customize this based on link properties
+    return '#ffffff30';
+}
+
+function createNodeObject(node) {
+    // Determine node size based on visualization settings or defaults
+    const size = node.visualization?.size || node.size || 3;
+    
+    // Get appropriate color
+    const color = node.color || getNodeColor(node);
+    
+    // Set quality level based on node importance
+    const segments = 
+        node.id === 'center' ? 32 : 
+        ['professional', 'repositories', 'personal'].includes(node.id) ? 24 : 16;
+    
+    // Create sphere with modern naming (fix deprecated SphereBufferGeometry)
+    const geometry = new THREE.SphereGeometry(size, segments, segments);
+    const material = new THREE.MeshPhongMaterial({
+        color: color,
+        shininess: 80,
+        transparent: true,
+        opacity: 0.9
+    });
+    
+    return new THREE.Mesh(geometry, material);
+}
+
+// Initialize the graph when document is ready
+document.addEventListener('DOMContentLoaded', function() {
+    const graphContainer = document.getElementById('graph-container');
+    
+    // Wait for network data to be available (assuming it's set by network-data.js)
+    if (typeof NetworkData !== 'undefined') {
+        initializeGraph(NetworkData);
+    } else {
+        console.error('Network data not available');
+    }
+});
+
+/**
+ * Initialize the 3D force graph with the provided data
+ * @param {Object} data - The graph data containing nodes and links
+ */
+function initializeGraph(data) {
+    // Create a copy of the data to avoid modifying the original
+    graphData = JSON.parse(JSON.stringify(data));
+    
+    // Find the center node
+    const centerNode = graphData.nodes.find(node => node.id === 'center');
+    
+    // Initialize node positions using our custom layout
+    if (typeof GraphLayout !== 'undefined') {
+        GraphLayout.initializePositions(graphData.nodes, graphData.links, centerNode);
+    }
+    
+    // Create the 3D force graph
+    Graph = ForceGraph3D({ extraRenderers: [] })(document.getElementById('graph-container'))
+        .graphData(graphData)
+        .nodeLabel(node => node.name)
+        .nodeColor(node => node.color || getNodeColor(node))
+        .nodeVal(node => node.visualization?.val || 15)
+        .nodeThreeObject(node => createNodeObject(node))
+        .linkWidth(link => getLinkWidth(link))
+        .linkColor(link => getLinkColor(link))
+        .linkOpacity(0.5)
+        .linkDirectionalParticles(4)
+        .linkDirectionalParticleWidth(2)
+        .linkDirectionalParticleSpeed(0.005)
+        .onNodeClick(handleNodeClick)
+        .onBackgroundClick(handleBackgroundClick);
+    
+    // Apply custom force configuration
+    if (typeof GraphLayout !== 'undefined') {
+        GraphLayout.applyForceConfiguration(Graph);
+    }
+    
+    // Make graph globally available
+    window.Graph = Graph;
+    
+    // Calculate initial distance and set camera position
+    const initialDistance = 1500; // Temporary initial position
+    Graph.cameraPosition({ x: 0, y: 0, z: initialDistance }, { x: 0, y: 0, z: 0 }, 0);
+    
+    // Set up controls for zoom and camera
+    setupGraphControls();
+    
+    // Set up viewport observer to maintain proper view on resize
+    if (window.CameraManager) {
+        window.CameraManager.setupViewportObserver(Graph);
+    }
+    
+    // Hide loading screen after a brief delay
+    setTimeout(() => {
+        document.querySelector('.loading-screen').classList.add('fade-out');
+        
+        // Use camera manager to position camera after force simulation has settled
+        setTimeout(() => {
+            document.querySelector('.loading-screen').style.display = 'none';
+            
+            // Position camera to view all nodes
+            if (window.CameraManager) {
+                window.CameraManager.fitAllNodes(Graph, 1000);
+            }
+        }, 500);
+    }, 1000);
+    
+    // Define global functions for other components to use
+    window.focusOnNode = (nodeId, showContentAfter) => {
+        if (window.CameraManager) {
+            const success = window.CameraManager.focusOnNode(Graph, nodeId, 1000);
+            
+            if (success && showContentAfter) {
+                setTimeout(() => {
+                    const event = new CustomEvent('nodeClick', {
+                        detail: { id: nodeId, showContent: true }
+                    });
+                    window.dispatchEvent(event);
+                }, 1000);
+            }
+            return success;
+        }
+        return false;
+    };
+    
+    window.resetGraphView = () => {
+        if (window.CameraManager) {
+            window.CameraManager.resetToHomeView(Graph, 800);
+        }
+        
+        // If there's a content panel open, hide it
+        const contentPanel = document.getElementById('content-panel');
+        if (contentPanel) {
+            contentPanel.classList.add('hidden');
+        }
+    };
+    
+    // Emit graph loaded event
+    window.dispatchEvent(new Event('graphLoaded'));
+}
+
+/**
+ * Handle node click event
+ * @param {Object} node - Clicked node
+ */
+function handleNodeClick(node) {
+    if (!node) return;
+    
+    // Use CameraManager to focus on node if available
+    if (window.CameraManager) {
+        window.CameraManager.focusOnNode(Graph, node, 1000);
+    }
+    
+    // Dispatch event to show content after camera movement
+    setTimeout(() => {
+        const event = new CustomEvent('nodeClick', {
+            detail: { id: node.id, showContent: true }
+        });
+        window.dispatchEvent(event);
+    }, 1000);
+}
+
+/**
+ * Handle background click event
+ */
+function handleBackgroundClick() {
+    // Reset camera to home view using CameraManager
+    if (window.CameraManager) {
+        window.CameraManager.resetToHomeView(Graph, 800);
+    }
+    
+    // Hide content panel
+    const contentPanel = document.getElementById('content-panel');
+    if (contentPanel) {
+        contentPanel.classList.add('hidden');
+    }
+}
+
+/**
+ * Set up graph controls for zoom and camera
+ */
+function setupGraphControls() {
+    const zoomInBtn = document.getElementById('zoom-in');
+    const zoomOutBtn = document.getElementById('zoom-out');
+    const resetCameraBtn = document.getElementById('reset-camera');
+    const resetViewBtn = document.getElementById('resetView');
+    
+    if (zoomInBtn) {
+        zoomInBtn.addEventListener('click', () => {
+            const { x, y, z } = Graph.cameraPosition();
+            const distance = Math.sqrt(x*x + y*y + z*z);
+            const scale = 0.8;
+            Graph.cameraPosition({
+                x: x * scale, y: y * scale, z: z * scale
+            }, undefined, 300);
+        });
+    }
+    
+    if (zoomOutBtn) {
+        zoomOutBtn.addEventListener('click', () => {
+            const { x, y, z } = Graph.cameraPosition();
+            const scale = 1.25;
+            Graph.cameraPosition({
+                x: x * scale, y: y * scale, z: z * scale
+            }, undefined, 300);
+        });
+    }
+    
+    if (resetCameraBtn) {
+        resetCameraBtn.addEventListener('click', () => {
+            if (window.CameraManager) {
+                window.CameraManager.resetToHomeView(Graph, 800);
+            }
+        });
+    }
+    
+    if (resetViewBtn) {
+        resetViewBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (window.CameraManager) {
+                window.CameraManager.resetToHomeView(Graph, 800);
+            }
+            
+            // Hide content panel
+            const contentPanel = document.getElementById('content-panel');
+            if (contentPanel) {
+                contentPanel.classList.add('hidden');
+            }
+        });
+    }
+}
+
+// ... existing code ...

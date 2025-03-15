@@ -151,13 +151,33 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
     
-    // Reset view button
+    // Reset view button with improved camera management
     document.getElementById('resetView').addEventListener('click', (e) => {
       e.preventDefault();
-      if (window.resetGraphView) {
+      
+      // Use CameraManager if available for better view fitting
+      if (window.CameraManager && window.Graph) {
+        window.CameraManager.resetToHomeView(window.Graph, 800);
+      } else if (window.resetGraphView) {
         window.resetGraphView();
       }
     });
+    
+    // Listen for graph loaded event to position camera optimally
+    window.addEventListener('graphLoaded', () => {
+      console.log("Graph loaded event received");
+      
+      // Use CameraManager for optimal initial viewing
+      if (window.CameraManager && window.Graph) {
+        // Short delay to let force simulation start
+        setTimeout(() => {
+          window.CameraManager.fitAllNodes(window.Graph, 1000);
+        }, 100);
+      }
+      
+      // Hide loading screen
+      document.querySelector('.loading-screen').classList.add('hidden');
+    }, { once: true });
   }
   
   /**
@@ -178,4 +198,14 @@ document.addEventListener('DOMContentLoaded', () => {
       contentInner.innerHTML = '<p class="error">Content loading system is unavailable. Check console for details.</p>';
     }
   }
+  
+  // Update window.resetGraphView usage to be more immediate
+  window.addEventListener('graphLoaded', () => {
+    console.log("Graph loaded event received, adjusting view immediately");
+    if (window.Graph && typeof ensureAllNodesVisible === 'function') {
+        ensureAllNodesVisible(window.Graph, 0);
+    } else if (typeof fitNodesToView === 'function' && window.Graph) {
+        fitNodesToView(window.Graph, 0, false, true);
+    }
+  }, { once: true });
 });
