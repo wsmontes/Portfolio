@@ -31,23 +31,28 @@ class ContentLoader {
         return null;
       }
       
-      // Render based on node group
-      switch (nodeData.group) {
-        case 'main':
-          this.renderCenterNode(content, container);
-          break;
-        case 'category':
-          this.renderCategoryNode(nodeId, content, container);
-          break;
-        case 'subcategory':
-        case 'cluster':
-          this.renderSubcategoryNode(nodeId, nodeData, content, container, unifiedData);
-          break;
-        case 'item':
-          this.renderItemNode(nodeId, nodeData, content, container, unifiedData);
-          break;
-        default:
-          container.innerHTML = `<p class="error">Unknown node group: ${nodeData.group}</p>`;
+      // Try to render using templates first
+      const useTemplateSuccess = this.renderWithTemplate(nodeId, nodeData, content, container, unifiedData);
+      
+      if (!useTemplateSuccess) {
+        // Fallback to old rendering logic
+        switch (nodeData.group) {
+          case 'main':
+            this.renderCenterNode(content, container);
+            break;
+          case 'category':
+            this.renderCategoryNode(nodeId, content, container);
+            break;
+          case 'subcategory':
+          case 'cluster':
+            this.renderSubcategoryNode(nodeId, nodeData, content, container, unifiedData);
+            break;
+          case 'item':
+            this.renderItemNode(nodeId, nodeData, content, container, unifiedData);
+            break;
+          default:
+            container.innerHTML = `<p class="error">Unknown node group: ${nodeData.group}</p>`;
+        }
       }
       
       return nodeData;
@@ -601,6 +606,8 @@ class ContentLoader {
       aboutContent.style.flexDirection = 'row';
       aboutContent.style.gap = '2rem';
       aboutContent.style.alignItems = 'flex-start';
+      aboutContent.style.maxHeight = '70vh';
+      aboutContent.style.overflowY = 'auto';
       
       const aboutImage = aboutContent.querySelector('.about-image');
       if (aboutImage) {
@@ -864,6 +871,246 @@ class ContentLoader {
         });
       });
     });
+  }
+
+  /**
+   * Render node content using the specified template
+   * @param {string} nodeId - Node ID
+   * @param {Object} nodeData - Node data
+   * @param {Object} content - Node content
+   * @param {HTMLElement} container - Container element
+   * @param {Object} unifiedData - Complete unified data
+   * @returns {boolean} - Success status
+   */
+  static renderWithTemplate(nodeId, nodeData, content, container, unifiedData) {
+    // Check if a template is specified
+    const templateName = content.template || this.getDefaultTemplate(nodeId, nodeData.group);
+    
+    // Check if the template exists
+    if (!window.FrameTemplates || !window.FrameTemplates[templateName]) {
+      console.warn(`Template "${templateName}" not found, using default rendering for ${nodeId}`);
+      return false;
+    }
+    
+    try {
+      // Prepare data for the template based on template type
+      const templateData = this.prepareTemplateData(templateName, nodeId, nodeData, content, unifiedData);
+      
+      // Apply the template
+      const html = window.FrameTemplates[templateName](templateData);
+      container.innerHTML = html;
+      
+      // Initialize interactive elements if needed
+      this.initializeTemplateElements(templateName, container);
+      
+      return true;
+    } catch (error) {
+      console.error(`Error applying template "${templateName}" for ${nodeId}:`, error);
+      return false;
+    }
+  }
+  
+  /**
+   * Determine default template based on node ID and group
+   * @param {string} nodeId - Node ID
+   * @param {string} group - Node group
+   * @returns {string} - Template name
+   */
+  static getDefaultTemplate(nodeId, group) {
+    switch (nodeId) {
+      case 'about': return 'aboutMe';
+      case 'contact': return 'contact';
+      case 'professional': return 'standard';
+      case 'repositories': return 'projectList';
+      case 'personal': return 'gallery';
+      default:
+        if (group === 'cluster' && ['javascript', 'python', 'ai_ml'].includes(nodeId)) {
+          return 'projectList';
+        } else if (nodeId === 'photography') {
+          return 'gallery';
+        }
+        return 'standard';
+    }
+  }
+  
+  /**
+   * Prepare data for the template based on template type
+   * @param {string} templateName - Template name
+   * @param {string} nodeId - Node ID
+   * @param {Object} nodeData - Node data
+   * @param {Object} content - Node content
+   * @param {Object} unifiedData - Complete unified data
+   * @returns {Object} - Template data
+   */
+  static prepareTemplateData(templateName, nodeId, nodeData, content, unifiedData) {
+    switch (templateName) {
+      case 'aboutMe':
+        return {
+          title: content.title || nodeData.name,
+          profileImage: content.profileImage || '',
+          introduction: content.introduction || '',
+          bio: content.bio || '',
+          skills: content.skills || [],
+          contact: content.contact || {}
+        };
+        
+      case 'gallery':
+        return {
+          title: content.title || nodeData.name,
+          intro: content.intro || nodeData.description || '',
+          categories: content.categories || [],
+          items: this.getGalleryItems(nodeId, content, unifiedData)
+        };
+        
+      case 'projectList':
+        return {
+          title: content.title || nodeData.name,
+          intro: content.intro || nodeData.description || '',
+          filterCategories: [
+            { id: 'web', name: 'Web Apps' },
+            { id: 'mobile', name: 'Mobile Apps' },
+            { id: 'data', name: 'Data Projects' },
+            { id: 'ai', name: 'AI Projects' }
+          ],
+          projects: this.getProjectsForNode(nodeId, content, unifiedData)
+        };
+        
+      case 'contact':
+        return {
+          title: content.title || nodeData.name,
+          contactInfo: content.contactInfo || [],
+          socialLinks: content.socialLinks || []
+        };
+        
+      case 'standard':
+      default:
+        return {
+          title: content.title || nodeData.name,
+          intro: content.intro || nodeData.description || '',
+          content: this.getStandardContent(nodeId, content, unifiedData)
+        };
+    }
+  }
+  
+  /**
+   * Get gallery items based on node ID
+   * @param {string} nodeId - Node ID
+   * @param {Object} content - Node content
+   * @param {Object} unifiedData - Complete unified data
+   * @returns {Array} - Gallery items
+   */
+  static getGalleryItems(nodeId, content, unifiedData) {
+    // For a photography node, return photos
+    if (nodeId === 'photography' || nodeId === 'personal') {
+      return content.photos || [];
+    }
+    
+    // For other node types with gallery template, check if there's an items array
+    return content.items || [];
+  }
+  
+  /**
+   * Get projects for the given node
+   * @param {string} nodeId - Node ID
+   * @param {Object} content - Node content
+   * @param {Object} unifiedData - Complete unified data
+   * @returns {Array} - Project items
+   */
+  static getProjectsForNode(nodeId, content, unifiedData) {
+    // If the node is repositories, return all projects
+    if (nodeId === 'repositories') {
+      return content.projects || [];
+    }
+    
+    // If we have a repos category and a filterValue, filter the projects
+    const reposCategory = unifiedData.graphConfig.categories.find(c => c.id === 'repositories');
+    if (reposCategory && reposCategory.content && reposCategory.content.projects) {
+      const allProjects = reposCategory.content.projects;
+      
+      // If this node has a filterValue, use it to filter projects
+      if (content.filterValue) {
+        const filterValue = content.filterValue;
+        
+        return allProjects.filter(project => {
+          if (!project.technologies) return false;
+          
+          if (Array.isArray(filterValue)) {
+            // Multiple filter values
+            return filterValue.some(filter => 
+              project.technologies.some(tech => 
+                tech.toLowerCase().includes(filter.toLowerCase())
+              )
+            );
+          } else {
+            // Single filter value
+            return project.technologies.some(tech => 
+              tech.toLowerCase().includes(filterValue.toLowerCase())
+            );
+          }
+        });
+      }
+    }
+    
+    return content.projects || [];
+  }
+  
+  /**
+   * Get content HTML for standard template
+   * @param {string} nodeId - Node ID
+   * @param {Object} content - Node content
+   * @param {Object} unifiedData - Complete unified data
+   * @returns {string} - HTML content
+   */
+  static getStandardContent(nodeId, content, unifiedData) {
+    let html = '';
+    
+    // Professional experience cards
+    if (nodeId === 'professional' && content.experiences) {
+      html = `<div class="professional-content">`;
+      
+      content.experiences.forEach(exp => {
+        html += `
+          <div class="card">
+            <h3><i class="${exp.icon}"></i> ${exp.title}</h3>
+            <p>${exp.description}</p>
+            <div class="date-range">${exp.dateRange}</div>
+            <a href="${exp.detailsLink}" class="btn primary"><i class="fas fa-external-link-alt"></i> View Details</a>
+          </div>
+        `;
+      });
+      
+      html += `</div>`;
+    }
+    
+    return html;
+  }
+  
+  /**
+   * Initialize interactive elements in templates
+   * @param {string} templateName - Template name
+   * @param {HTMLElement} container - Container element
+   */
+  static initializeTemplateElements(templateName, container) {
+    switch (templateName) {
+      case 'gallery':
+        this.initPhotoFilters(container);
+        break;
+        
+      case 'projectList':
+        this.initProjectFilters(container);
+        break;
+        
+      case 'contact':
+        const form = container.querySelector('.contact-form');
+        if (form) {
+          form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            alert('This is a demo form. In a real application, this would send your message.');
+            form.reset();
+          });
+        }
+        break;
+    }
   }
 }
 

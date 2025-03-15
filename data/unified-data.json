@@ -29,6 +29,7 @@
         "fixedPosition": true
       },
       "content": {
+        "template": "standard",
         "title": "Interactive Portfolio",
         "intro": "Welcome to my interactive portfolio visualization. Click on nodes to explore different sections.",
         "sections": [
@@ -53,6 +54,7 @@
           "rotationSpeed": 0.01
         },
         "content": {
+          "template": "standard",
           "title": "Professional Experience",
           "intro": "My career journey and professional achievements.",
           "experiences": [
@@ -159,6 +161,7 @@
           "rotationSpeed": 0.008
         },
         "content": {
+          "template": "projectList",
           "title": "Code Repositories",
           "intro": "Explore my programming projects and repositories.",
           "projects": [
@@ -351,6 +354,7 @@
           "rotationSpeed": 0.012
         },
         "content": {
+          "template": "gallery",
           "title": "Personal Universe",
           "intro": "Explore my personal interests, hobbies, and creative pursuits.",
           "categories": [
@@ -473,6 +477,7 @@
           "rotationSpeed": 0.011
         },
         "content": {
+          "template": "aboutMe",
           "title": "About Me",
           "profileImage": "assets/images/wagner.jpeg",
           "introduction": "Hi, I'm a software developer and creative technologist.",
@@ -497,6 +502,7 @@
           "rotationSpeed": 0.013
         },
         "content": {
+          "template": "contact",
           "title": "Contact Me",
           "intro": "I'm always open to new opportunities and collaborations.",
           "contactInfo": [
