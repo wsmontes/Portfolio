@@ -18,6 +18,15 @@ document.addEventListener('DOMContentLoaded', () => {
    */
   async function init() {
     try {
+      console.log('Initializing main application...');
+      
+      // Check if React bridge is available
+      if (window.createContentFrame) {
+        console.log('React bridge functions detected during initialization');
+      } else {
+        console.warn('React bridge functions not available during initialization');
+      }
+      
       // Load data and update navigation menu
       await updateNavigationMenu();
       
@@ -41,6 +50,15 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         }
       });
+      
+      // Listen for React becoming available after initialization
+      if (!window.reactInitialized) {
+        document.addEventListener('reactAppReady', () => {
+          console.log('React became available after initialization');
+        });
+      }
+      
+      console.log('Main application initialized successfully');
     } catch (error) {
       console.error('Initialization error:', error);
       // Even without fallbacks, still set up event listeners
@@ -141,27 +159,17 @@ document.addEventListener('DOMContentLoaded', () => {
    * @param {string} section - Section ID to load
    */
   function showContent(section) {
-    // Check if React ContentFrame is available
-    if (window.createContentFrame) {
+    console.log(`Attempting to show content for: ${section}`);
+    
+    // Use React ContentFrame to display content
+    if (typeof window.createContentFrame === 'function') {
+      console.log(`Using React ContentFrame for: ${section}`);
       window.createContentFrame(section);
     } else {
-      // Fallback to direct content loading if React is not available
-      loadLegacyContent(section);
+      console.error('React ContentFrame function is not available');
+      // If React isn't available for some unexpected reason, at least show an error message
+      contentPanel.classList.remove('hidden');
+      contentInner.innerHTML = '<p class="error">Content loading system is unavailable. Check console for details.</p>';
     }
-  }
-  
-  /**
-   * Load content for a specific section (fallback method)
-   * @param {string} section - Section ID to load
-   */
-  function loadLegacyContent(section) {
-    // Show the content panel
-    contentPanel.classList.remove('hidden');
-    
-    // Show loading state
-    contentInner.innerHTML = '<div class="spinner"></div><p>Loading content...</p>';
-    
-    // Load the content
-    ContentLoader.loadContent(section, contentInner);
   }
 });
