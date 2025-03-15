@@ -135,7 +135,67 @@
               "description": "Consulted on the Algar Telecom Vid+ project, providing process mapping, project scope definition, and stakeholder training for a Video on Demand platform."
             }
           ]
-        }
+        },
+        "children": [
+          {
+            "id": "academic_publications",
+            "name": "Academic & Publications",
+            "description": "My education and academic publications",
+            "group": "subgroup",
+            "visualization": {
+              "val": 40,
+              "mass": 40,
+              "size": 8,
+              "texture": "assets/images/textures/book.jpg",
+              "rotationSpeed": 0.01
+            },
+            "content": {
+              "template": "educationPublicationsList",
+              "title": "Academic & Publications",
+              "educations": [
+                {
+                  "institution": "The University of British Columbia",
+                  "degree": "Key Capabilities in Data Science & Computer Science",
+                  "dateRange": "2021 - 2022",
+                  "skills": [
+                    "Machine Learning",
+                    "Artificial Intelligence (AI)",
+                    "Data Science",
+                    "Natural Language Processing (NLP)",
+                    "Business Analysis"
+                  ],
+                  "icon": "fas fa-graduation-cap"
+                },
+                {
+                  "institution": "USP - Universidade de São Paulo",
+                  "degree": "Master's Degree, Computer Software and Media Applications",
+                  "dateRange": "2011 - 2014",
+                  "icon": "fas fa-graduation-cap"
+                },
+                {
+                  "institution": "USP - Universidade de São Paulo",
+                  "degree": "Communication, Mass Communication/Media Studies",
+                  "dateRange": "2004 - 2010",
+                  "icon": "fas fa-graduation-cap"
+                }
+              ],
+              "publications": [
+                {
+                  "title": "Over the top: O consumo audiovisual em softwares culturais: O video sob demanda e suas implicações no futuro da televisão",
+                  "format": "Paperback",
+                  "publicationDate": "Aug. 4 2015",
+                  "publisher": "Novas Edições Acadêmicas",
+                  "pages": "104 pages",
+                  "language": "Portuguese",
+                  "isbn10": "3639832027",
+                  "isbn13": "978-3639832020",
+                  "dimensions": "15.01 x 0.61 x 22 cm",
+                  "description": "An analysis of how new media and the internet subvert geographic barriers, transforming audiovisual consumption and redefining the user experience with software."
+                }
+              ]
+            }
+          }
+        ]
       },
       {
         "id": "repositories",
@@ -310,7 +370,61 @@
               "caption": "Sunset view"
             }
           ]
-        }
+        },
+        "children": [
+          {
+            "id": "filmography",
+            "name": "Filmography",
+            "description": "My film and media credits",
+            "group": "subgroup",
+            "visualization": {
+              "val": 48,
+              "mass": 45,
+              "size": 8,
+              "texture": "assets/images/textures/film.jpg",
+              "rotationSpeed": 0.012
+            },
+            "content": {
+              "template": "filmography",
+              "title": "Filmography",
+              "intro": "Explore my media credits and film work as a cinematographer, assistant camera, and producer.",
+              "credits": [
+                {
+                  "title": "Hard Labor",
+                  "year": "2011",
+                  "role": "Assistant Camera",
+                  "department": "Camera and Electrical Department",
+                  "rating": "6.6"
+                },
+                {
+                  "title": "Pé de Pera",
+                  "year": "2012",
+                  "role": "Still Photographer / Co-Executive Producer",
+                  "department": "Camera and Electrical Department / Producer"
+                },
+                {
+                  "title": "Hauling",
+                  "year": "2010",
+                  "role": "Still Photographer",
+                  "department": "Camera and Electrical Department",
+                  "rating": "6.8"
+                },
+                {
+                  "title": "Danças",
+                  "year": "2009",
+                  "role": "Cinematographer",
+                  "department": "Cinematography"
+                },
+                {
+                  "title": "Jennifer",
+                  "year": "2011",
+                  "role": "Co-Cinematographer",
+                  "department": "Cinematography"
+                }
+              ]
+            }
+          }
+        ]
       },
       {
         "id": "contact",
