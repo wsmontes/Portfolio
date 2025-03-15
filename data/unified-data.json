@@ -2,7 +2,7 @@
   "siteConfig": {
     "title": "Wagner Montes Portfolio",
     "shortTitle": "Wagner Montes Portfolio",
-    "metaDescription": "Interactive 3D portfolio showcasing software development, IT skills, media work, and photography",
+    "metaDescription": "Interactive 3D portfolio showcasing business analysis, digital transformation, AI solutions, IT project management, open source contributions, public sector expertise, and academic achievements.",
     "favicon": "assets/images/favicon.png",
     "logo": {
       "text": "Wagner Montes",
@@ -56,31 +56,49 @@
         "content": {
           "template": "standard",
           "title": "Professional Experience",
-          "intro": "My career journey and professional achievements.",
+          "intro": "My career journey and professional achievements as a Business Analyst, Product Developer, and Solution Architect.",
           "experiences": [
             {
-              "title": "Senior Developer",
-              "company": "Tech Corporation",
-              "dateRange": "2018-Present",
-              "description": "Leading development of enterprise applications with focus on scalability and performance.",
-              "icon": "fas fa-laptop-code",
-              "detailsLink": "#"
+              "title": "Business System Analyst",
+              "company": "ICBC",
+              "dateRange": "Jan 2025 - Present",
+              "description": "Contract full-time role in Victoria, BC, focusing on business systems analysis and process optimization for the Insurance Corporation of British Columbia."
             },
             {
-              "title": "Web Developer",
-              "company": "Digital Agency",
-              "dateRange": "2015-2018",
-              "description": "Created responsive web applications for clients across various industries.",
-              "icon": "fas fa-code",
-              "detailsLink": "#"
+              "title": "Consultant - AI Solution",
+              "company": "Lotier International",
+              "dateRange": "May 2021 - Present",
+              "description": "Part-time role delivering AI solution consulting, data modeling, process mapping, and product development support."
             },
             {
-              "title": "Education",
-              "institution": "University of Technology",
-              "dateRange": "2011-2015",
-              "description": "Bachelor's degree in Computer Science with focus on software engineering.",
-              "icon": "fas fa-graduation-cap",
-              "detailsLink": "#"
+              "title": "Senior Consultant / Consultant",
+              "company": "CGI",
+              "dateRange": "Apr 2022 - Jan 2025",
+              "description": "Led data analysis, process modeling, and business system development for BC government projects across initiatives such as MEDIS LTC, MHSU, AIMS, HCC, PCD, ALR, and IDAM AM."
+            },
+            {
+              "title": "Technical Business Analyst",
+              "company": "PARC Systems Inc",
+              "dateRange": "Nov 2019 - Mar 2022",
+              "description": "Drove technical business analysis, data transformation, and process improvement across public sector projects including MALS 2, Attorney General/RoadSafetyBC, WRHA, and more."
+            },
+            {
+              "title": "CS Associate Senior",
+              "company": "Abebooks, an Amazon Company",
+              "dateRange": "May 2019 - Sep 2019",
+              "description": "Supported data analysis and business process enhancements within a dynamic digital media environment."
+            },
+            {
+              "title": "Business Analyst",
+              "company": "Canux Corporation",
+              "dateRange": "Oct 2019 - Dec 2019",
+              "description": "Developed a comprehensive 5-year business plan for a construction company transitioning to bespoke furniture manufacturing."
+            },
+            {
+              "title": "Business Analyst (Consultant)",
+              "company": "Lotier International",
+              "dateRange": "Nov 2016 - Jul 2017",
+              "description": "Consulted on the Algar Telecom Vid+ project, providing process mapping, project scope definition, and stakeholder training for a Video on Demand platform."
             }
           ]
         },
@@ -101,7 +119,7 @@
               "template": "standard",
               "title": "LinkedIn Profile",
               "description": "Connect with me on LinkedIn to see my professional experience and skills.",
-              "url": "https://www.linkedin.com/",
+              "url": "https://www.linkedin.com/in/wsmontes",
               "urlText": "View LinkedIn Profile",
               "icon": "fab fa-linkedin"
             }
@@ -121,7 +139,7 @@
             "content": {
               "template": "standard",
               "title": "Curriculum Vitae",
-              "description": "My detailed work history and professional qualifications.",
+              "description": "Download my detailed work history and professional qualifications.",
               "url": "#",
               "urlText": "Download CV",
               "icon": "fas fa-file-alt"
@@ -129,8 +147,8 @@
           },
           {
             "id": "academic",
-            "name": "Academic",
-            "description": "Research and studies",
+            "name": "Academic Background",
+            "description": "My educational qualifications and research work.",
             "group": "subcategory",
             "visualization": {
               "val": 18,
@@ -140,13 +158,35 @@
               "rotationSpeed": 0.018
             },
             "content": {
-              "template": "standard",
+              "template": "educationList",
               "title": "Academic Background",
-              "description": "My educational qualifications and research work.",
-              "institution": "University of Technology",
-              "degree": "Bachelor of Computer Science",
-              "graduationYear": "2015",
-              "icon": "fas fa-graduation-cap"
+              "educations": [
+                {
+                  "institution": "The University of British Columbia",
+                  "degree": "Key Capabilities in Data Science & Computer Science",
+                  "dateRange": "2021 - 2022",
+                  "skills": [
+                    "Machine Learning",
+                    "Artificial Intelligence (AI)",
+                    "Data Science",
+                    "Natural Language Processing (NLP)",
+                    "Business Analysis"
+                  ],
+                  "icon": "fas fa-graduation-cap"
+                },
+                {
+                  "institution": "USP - Universidade de São Paulo",
+                  "degree": "Master's Degree, Computer Software and Media Applications",
+                  "dateRange": "2011 - 2014",
+                  "icon": "fas fa-graduation-cap"
+                },
+                {
+                  "institution": "USP - Universidade de São Paulo",
+                  "degree": "Communication, Mass Communication/Media Studies",
+                  "dateRange": "2004 - 2010",
+                  "icon": "fas fa-graduation-cap"
+                }
+              ]
             }
           }
         ]
@@ -166,47 +206,97 @@
         "content": {
           "template": "projectList",
           "title": "Code Repositories",
-          "intro": "Explore my programming projects and repositories.",
+          "intro": "Explore my programming projects and repositories from GitHub. Below are individual projects with details extracted from each repository page.",
           "projects": [
             {
-              "id": "techbr",
+              "id": "TechBR",
               "title": "TechBR Website",
-              "description": "Company website for TechBR organization with interactive features.",
-              "image": "assets/images/projects/project1.jpg",
-              "technologies": ["JavaScript", "HTML5", "CSS3", "React"],
+              "description": "Responsive website for TechBR showcasing interactive design and company information.",
+              "technologies": ["HTML", "CSS", "JavaScript"],
               "category": "web",
-              "liveUrl": "https://example.com/techbr",
-              "githubUrl": "https://github.com/example/techbr"
+              "liveUrl": "#",
+              "githubUrl": "https://github.com/wsmontes/TechBR"
             },
             {
-              "id": "text_to_speech",
-              "title": "Text-to-Speech Module",
-              "description": "Advanced voice synthesis application with multiple language support.",
-              "image": "assets/images/projects/project2.jpg",
-              "technologies": ["JavaScript", "Web Speech API", "Node.js"],
+              "id": "TTS-Chrome-Extension",
+              "title": "Text-to-Speech Chrome Extension",
+              "description": "A Chrome extension that converts selected text to speech using the Web Speech API.",
+              "technologies": ["JavaScript", "Chrome Extension API", "HTML", "CSS"],
               "category": "web",
-              "liveUrl": "https://example.com/text-to-speech",
-              "githubUrl": "https://github.com/example/text-to-speech"
+              "liveUrl": "#",
+              "githubUrl": "https://github.com/wsmontes/Text-to-Speech-Chrome-Extension"
             },
             {
-              "id": "data_visualizer",
-              "title": "Data Visualization Tool",
-              "description": "Interactive tool for visualizing complex datasets with customizable charts.",
-              "image": "assets/images/projects/project3.jpg",
-              "technologies": ["Python", "Matplotlib", "Pandas", "Jupyter"],
+              "id": "Excel-To-Graph",
+              "title": "Excel To Graph",
+              "description": "A tool that converts Excel data into interactive graphs and visualizations.",
+              "technologies": ["Python", "Pandas", "Matplotlib", "Excel"],
               "category": "data",
-              "liveUrl": "https://example.com/data-viz",
-              "githubUrl": "https://github.com/example/data-viz"
+              "liveUrl": "#",
+              "githubUrl": "https://github.com/wsmontes/Excel-To-Graph"
             },
             {
-              "id": "ml_classifier",
-              "title": "ML Image Classifier",
-              "description": "Machine learning model for image classification using TensorFlow.",
-              "image": "assets/images/projects/project4.jpg",
-              "technologies": ["Python", "TensorFlow", "Machine Learning", "Computer Vision"],
+              "id": "Visual-Detector",
+              "title": "Visual Detector",
+              "description": "A computer vision project for detecting objects in images using machine learning techniques.",
+              "technologies": ["Python", "OpenCV", "TensorFlow"],
               "category": "ai",
-              "liveUrl": "https://example.com/ml-classifier",
-              "githubUrl": "https://github.com/example/ml-classifier"
+              "liveUrl": "#",
+              "githubUrl": "https://github.com/wsmontes/Visual-Detector"
+            },
+            {
+              "id": "Summarize-It",
+              "title": "Summarize It",
+              "description": "A tool for automatic text summarization using natural language processing algorithms.",
+              "technologies": ["Python", "NLP", "Machine Learning"],
+              "category": "ai",
+              "liveUrl": "#",
+              "githubUrl": "https://github.com/wsmontes/Summarize-It"
+            },
+            {
+              "id": "Notary",
+              "title": "Notary",
+              "description": "An application for digital note-taking and document management with an emphasis on security and verification.",
+              "technologies": ["JavaScript", "Node.js", "Express"],
+              "category": "web",
+              "liveUrl": "#",
+              "githubUrl": "https://github.com/wsmontes/Notary"
+            },
+            {
+              "id": "Table-Exporter",
+              "title": "Table Exporter",
+              "description": "A utility to export HTML tables into formats like CSV, Excel, and JSON.",
+              "technologies": ["JavaScript", "HTML", "CSS"],
+              "category": "web",
+              "liveUrl": "#",
+              "githubUrl": "https://github.com/wsmontes/Table-Exporter"
+            },
+            {
+              "id": "Visual-Detector-App",
+              "title": "Visual Detector App",
+              "description": "A standalone application for real-time object detection, building on the Visual Detector project.",
+              "technologies": ["Python", "OpenCV", "Tkinter"],
+              "category": "ai",
+              "liveUrl": "#",
+              "githubUrl": "https://github.com/wsmontes/Visual-Detector-App"
+            },
+            {
+              "id": "WawaChat-Mac",
+              "title": "WawaChat for Mac",
+              "description": "A chat application for macOS focused on usability and sleek design.",
+              "technologies": ["Swift", "macOS", "Cocoa"],
+              "category": "app",
+              "liveUrl": "#",
+              "githubUrl": "https://github.com/wsmontes/WawaChat-Mac"
+            },
+            {
+              "id": "Ant-Simulator",
+              "title": "Ant Simulator",
+              "description": "A simulation tool for ant colony behavior illustrating swarm intelligence through interactive visualizations.",
+              "technologies": ["JavaScript", "Canvas", "HTML", "CSS"],
+              "category": "simulation",
+              "liveUrl": "#",
+              "githubUrl": "https://github.com/wsmontes/Ant-Simulator"
             }
           ]
         },
@@ -232,9 +322,9 @@
             },
             "children": [
               {
-                "id": "techbr",
-                "name": "TechBR",
-                "description": "TechBR Group Website",
+                "id": "interactive_portfolio_js",
+                "name": "Interactive Portfolio (JS)",
+                "description": "JavaScript implementation of my interactive portfolio.",
                 "group": "item",
                 "visualization": {
                   "val": 12,
@@ -244,25 +334,8 @@
                   "rotationSpeed": 0.05
                 },
                 "content": {
-                  "title": "TechBR Website",
-                  "projectId": "techbr"
-                }
-              },
-              {
-                "id": "text_to_speech",
-                "name": "Text-to-Speech",
-                "description": "Voice synthesis module",
-                "group": "item",
-                "visualization": {
-                  "val": 12,
-                  "mass": 2,
-                  "size": 1.4,
-                  "texture": "assets/images/textures/asteroid2.jpg",
-                  "rotationSpeed": 0.06
-                },
-                "content": {
-                  "title": "Text-to-Speech Module",
-                  "projectId": "text_to_speech"
+                  "title": "Interactive Portfolio (JS)",
+                  "projectId": "TechBR"
                 }
               }
             ]
@@ -288,9 +361,9 @@
             },
             "children": [
               {
-                "id": "data_visualizer",
-                "name": "Data Visualizer",
-                "description": "Data visualization tool",
+                "id": "ai_ml_experiments_py",
+                "name": "AI & ML Experiments (Python)",
+                "description": "Machine learning and generative AI projects using Python.",
                 "group": "item",
                 "visualization": {
                   "val": 12,
@@ -300,47 +373,8 @@
                   "rotationSpeed": 0.055
                 },
                 "content": {
-                  "title": "Data Visualization Tool",
-                  "projectId": "data_visualizer"
-                }
-              }
-            ]
-          },
-          {
-            "id": "ai_ml",
-            "name": "AI & ML",
-            "description": "Artificial Intelligence projects",
-            "group": "cluster",
-            "visualization": {
-              "val": 24,
-              "mass": 22,
-              "size": 4.6,
-              "texture": "assets/images/textures/asteroid_purple.jpg",
-              "rotationSpeed": 0.022
-            },
-            "content": {
-              "template": "projectList",
-              "title": "AI & Machine Learning Projects",
-              "description": "Projects focused on artificial intelligence and machine learning.",
-              "filterType": "technology",
-              "filterValue": ["ai", "ml", "machine learning", "tensorflow"]
-            },
-            "children": [
-              {
-                "id": "ml_classifier",
-                "name": "ML Classifier",
-                "description": "Image classification model",
-                "group": "item",
-                "visualization": {
-                  "val": 12,
-                  "mass": 2,
-                  "size": 1.5,
-                  "texture": "assets/images/textures/asteroid4.jpg",
-                  "rotationSpeed": 0.054
-                },
-                "content": {
-                  "title": "ML Image Classifier",
-                  "projectId": "ml_classifier"
+                  "title": "AI & ML Experiments (Python)",
+                  "projectId": "ai_ml_experiments"
                 }
               }
             ]
@@ -364,10 +398,10 @@
           "title": "Personal Universe",
           "intro": "Explore my personal interests, hobbies, and creative pursuits.",
           "categories": [
-            {"id": "all", "name": "All Photos"},
-            {"id": "nature", "name": "Nature"},
-            {"id": "urban", "name": "Urban"},
-            {"id": "portrait", "name": "Portraits"}
+            { "id": "all", "name": "All Photos" },
+            { "id": "nature", "name": "Nature" },
+            { "id": "urban", "name": "Urban" },
+            { "id": "portrait", "name": "Portraits" }
           ],
           "photos": [
             {
@@ -391,14 +425,9 @@
           ],
           "imdb": [
             {
-              "title": "Favorite Movie",
-              "rating": "★★★★★",
-              "image": "assets/images/media/movie1.jpg"
-            },
-            {
-              "title": "Current TV Show",
-              "rating": "★★★★☆",
-              "image": "assets/images/media/show1.jpg"
+              "title": "IMDB Profile",
+              "description": "View my filmography and media projects on IMDb.",
+              "url": "https://www.imdb.com/name/nm9506783/"
             }
           ],
           "instagram": [
@@ -436,9 +465,9 @@
             }
           },
           {
-            "id": "imdb",
+            "id": "imdb_gallery",
             "name": "IMDB",
-            "description": "Entertainment database",
+            "description": "Media and filmography",
             "group": "subcategory",
             "visualization": {
               "val": 16,
@@ -449,12 +478,13 @@
             },
             "content": {
               "template": "gallery",
-              "title": "Movies & Shows",
-              "description": "My favorite films and TV series."
+              "title": "IMDB Profile",
+              "description": "Check out my media credits and filmography on IMDb.",
+              "url": "https://www.imdb.com/name/nm9506783/"
             }
           },
           {
-            "id": "instagram",
+            "id": "instagram_gallery",
             "name": "Instagram",
             "description": "Visual transmission station",
             "group": "subcategory",
@@ -489,13 +519,175 @@
           "template": "aboutMe",
           "title": "About Me",
           "profileImage": "assets/images/wagner.jpeg",
-          "introduction": "Hi, I'm a software developer and creative technologist.",
-          "bio": "I specialize in building interactive web applications and data visualizations. With over 5 years of experience in software development, I enjoy combining technical skills with creative approaches to solve complex problems.",
-          "skills": ["JavaScript", "React", "Python", "Three.js", "Data Visualization", "UX Design"],
+          "introduction": "Hi, I'm Wagner Montes – a hybrid IT professional specializing in business analysis, product development, and AI solutions.",
+          "bio": "I bring a blend of business analysis expertise, product development experience, and hands-on coding skills to drive digital transformation and process improvement. With significant roles at ICBC, Lotier International, CGI, and PARC Systems, I've led complex projects in government, telecommunications, and healthcare. My active GitHub contributions demonstrate deep technical engagement in AI, ML, and interactive projects, while my IMDb credits underscore my involvement in digital media and creative productions.",
+          "skills": [
+            "Business Analysis",
+            "Product Development",
+            "Solution Architecture",
+            "Digital Transformation",
+            "AI & Generative Models",
+            "Process Modeling",
+            "Data Analysis",
+            "Automation"
+          ],
           "contact": {
             "email": "contact@example.com",
-            "linkedin": "https://linkedin.com/in/example"
+            "linkedin": "https://www.linkedin.com/in/wsmontes"
           }
+        }
+      },
+      {
+        "id": "publications",
+        "name": "Publications",
+        "description": "Academic and professional publications",
+        "group": "category",
+        "visualization": {
+          "val": 50,
+          "mass": 50,
+          "size": 9,
+          "texture": "assets/images/textures/book.jpg",
+          "rotationSpeed": 0.012
+        },
+        "content": {
+          "template": "publicationList",
+          "title": "Publications",
+          "intro": "Explore my academic and professional publications.",
+          "publications": [
+            {
+              "title": "Over the top: O consumo audiovisual em softwares culturais: O video sob demanda e suas implicações no futuro da televisão",
+              "format": "Paperback",
+              "publicationDate": "Aug. 4 2015",
+              "publisher": "Novas Edições Acadêmicas",
+              "pages": "104 pages",
+              "language": "Portuguese",
+              "isbn10": "3639832027",
+              "isbn13": "978-3639832020",
+              "dimensions": "15.01 x 0.61 x 22 cm",
+              "description": "An analysis of how new media and the internet subvert geographic barriers, transforming audiovisual consumption and redefining the user experience with software."
+            }
+          ]
+        }
+      },
+      {
+        "id": "filmography",
+        "name": "Filmography",
+        "description": "Media and film credits from IMDb",
+        "group": "category",
+        "visualization": {
+          "val": 48,
+          "mass": 45,
+          "size": 8,
+          "texture": "assets/images/textures/film.jpg",
+          "rotationSpeed": 0.012
+        },
+        "content": {
+          "template": "filmography",
+          "title": "Filmography",
+          "intro": "Explore my media credits and film work as a cinematographer, assistant camera, and producer.",
+          "credits": [
+            {
+              "title": "Hard Labor",
+              "year": "2011",
+              "role": "Assistant Camera",
+              "department": "Camera and Electrical Department",
+              "rating": "6.6"
+            },
+            {
+              "title": "Pé de Pera",
+              "year": "2012",
+              "role": "Still Photographer / Co-Executive Producer",
+              "department": "Camera and Electrical Department / Producer"
+            },
+            {
+              "title": "Hauling",
+              "year": "2010",
+              "role": "Still Photographer",
+              "department": "Camera and Electrical Department",
+              "rating": "6.8"
+            },
+            {
+              "title": "Danças",
+              "year": "2009",
+              "role": "Cinematographer",
+              "department": "Cinematography"
+            },
+            {
+              "title": "Jennifer",
+              "year": "2011",
+              "role": "Co-Cinematographer",
+              "department": "Cinematography"
+            }
+          ]
+        }
+      },
+      {
+        "id": "rfq",
+        "name": "RFQ Assessment",
+        "description": "Detailed candidate assessment for Senior Business Analyst Services",
+        "group": "category",
+        "visualization": {
+          "val": 50,
+          "mass": 50,
+          "size": 8,
+          "texture": "assets/images/textures/grey-planet.jpg",
+          "rotationSpeed": 0.01
+        },
+        "content": {
+          "template": "assessment",
+          "title": "RFQ Assessment - Senior Business Analyst Services",
+          "intro": "This section summarizes my extensive BA experience, public sector expertise, and technical proficiencies as required by RFQ 24-208.",
+          "assessment": [
+            {
+              "section": "Candidate Suitability",
+              "points": [
+                "Over 5 years (69 months) of Business Analyst experience in senior roles at CGI and technical roles at PARC Systems.",
+                "Extensive public sector experience with BC Government ministries and projects (MEDIS LTC, MHSU, AIMS, HCC, PCD, ALR, IDAM AM).",
+                "Expertise in creating and maintaining project artefacts (scope documents, flow diagrams, test plans, communication plans) using tools such as Microsoft Office, Excel, Visio, Mural, Miro, Figma, and Adobe Photoshop.",
+                "Skilled at managing multiple concurrent projects and initiatives in consultancy and in-house roles.",
+                "Proficient in developing and executing UAT processes using Excel, JIRA, and manual QA methods.",
+                "Experienced in hosting and facilitating information gathering sessions with diverse stakeholders.",
+                "Hands-on with distributed cloud initiatives (IaaS, PaaS, SaaS) and data migration projects using platforms like Microsoft Azure, AWS, and Atlassian Confluence.",
+                "Comfortable with ServiceNow-like tools such as JIRA, DevOps, and Salesforce.",
+                "Familiar with municipal permitting processes and legal obligations for records management."
+              ]
+            },
+            {
+              "section": "Project References",
+              "references": [
+                {
+                  "contactName": "Samuel Ramos",
+                  "title": "Project Manager",
+                  "phone": "250 884 8279",
+                  "client": "Ministry of Health (through CGI)",
+                  "projectName": "MEDIS – Long-Term Care",
+                  "dateRange": "2024-07 - Current",
+                  "role": "Senior Business Analyst (Consultant)",
+                  "description": "Served as the primary form developer and technical reference for business requirements and data modeling in a complex digital transformation project."
+                },
+                {
+                  "contactName": "Kyle Arctander",
+                  "title": "CTO at PARC Systems",
+                  "phone": "250 888 7212 / 250 544 2169",
+                  "client": "Ministry of Agriculture (through PARC Systems)",
+                  "projectName": "MALS 2 (Ministry of Agriculture Licence System)",
+                  "dateRange": "03/2020 – 03/2021",
+                  "role": "Business Analyst",
+                  "description": "Supported requirement gathering, solution development, and QA processes for a cloud-based licence management system."
+                },
+                {
+                  "contactName": "Ducan Yuill",
+                  "title": "Stakeholder at WRHA",
+                  "phone": "204-787-5691",
+                  "client": "Winnipeg Regional Health Authority",
+                  "projectName": "Invoice Data Collection System",
+                  "dateRange": "Jan. 2021 – Oct. 2021",
+                  "role": "Business Analyst / Automation Developer",
+                  "description": "Managed implementation and upgrade of an automated invoice processing system, delivering workflows, validation interfaces, and comprehensive test processes."
+                }
+              ]
+            }
+          ]
         }
       },
       {
@@ -521,7 +713,7 @@
             },
             {
               "icon": "fas fa-map-marker-alt",
-              "value": "New York, NY"
+              "value": "Victoria, BC, Canada"
             },
             {
               "icon": "fas fa-phone",
@@ -531,11 +723,15 @@
           "socialLinks": [
             {
               "icon": "fab fa-linkedin",
-              "url": "https://linkedin.com/in/example"
+              "url": "https://www.linkedin.com/in/wsmontes"
             },
             {
               "icon": "fab fa-github",
-              "url": "https://github.com/example"
+              "url": "https://github.com/wsmontes"
+            },
+            {
+              "icon": "fab fa-imdb",
+              "url": "https://www.imdb.com/name/nm9506783/"
             },
             {
               "icon": "fab fa-twitter",
