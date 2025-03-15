@@ -1,7 +1,7 @@
 {
   "siteConfig": {
     "title": "Wagner Montes Portfolio",
-    "shortTitle": "Wagner Montes",
+    "shortTitle": "Wagner Montes Portfolio",
     "metaDescription": "Interactive 3D portfolio showcasing software development, IT skills, media work, and photography",
     "favicon": "assets/images/favicon.png",
     "logo": {
@@ -474,7 +474,7 @@
         },
         "content": {
           "title": "About Me",
-          "profileImage": "assets/images/profile.jpg",
+          "profileImage": "assets/images/wagner.jpeg",
           "introduction": "Hi, I'm a software developer and creative technologist.",
           "bio": "I specialize in building interactive web applications and data visualizations. With over 5 years of experience in software development, I enjoy combining technical skills with creative approaches to solve complex problems.",
           "skills": ["JavaScript", "React", "Python", "Three.js", "Data Visualization", "UX Design"],

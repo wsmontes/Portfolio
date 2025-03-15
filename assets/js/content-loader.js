@@ -573,7 +573,7 @@ class ContentLoader {
     let html = `
       <div class="section-content">
         <h2 class="section-title">${data.title}</h2>
-        <div class="about-content">
+        <div class="about-content horizontal-layout">
           <div class="about-image">
             <img src="${data.profileImage}" alt="Profile Picture" onerror="handleImageError(event)">
           </div>
@@ -593,6 +593,33 @@ class ContentLoader {
       </div>
     `;
     container.innerHTML = html;
+    
+    // Add inline styles for horizontal layout if not already in CSS
+    const aboutContent = container.querySelector('.about-content.horizontal-layout');
+    if (aboutContent) {
+      aboutContent.style.display = 'flex';
+      aboutContent.style.flexDirection = 'row';
+      aboutContent.style.gap = '2rem';
+      aboutContent.style.alignItems = 'flex-start';
+      
+      const aboutImage = aboutContent.querySelector('.about-image');
+      if (aboutImage) {
+        aboutImage.style.flex = '0 0 30%';
+        aboutImage.style.maxWidth = '300px';
+        
+        const img = aboutImage.querySelector('img');
+        if (img) {
+          img.style.width = '100%';
+          img.style.borderRadius = '8px';
+          img.style.boxShadow = '0 4px 10px rgba(0,0,0,0.2)';
+        }
+      }
+      
+      const aboutText = aboutContent.querySelector('.about-text');
+      if (aboutText) {
+        aboutText.style.flex = '1';
+      }
+    }
   }
   
   /**
