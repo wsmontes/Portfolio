@@ -1,17 +1,70 @@
 /**
  * Content Loader
- * Dynamically loads content from JSON files and populates templates
+ * Dynamically loads content from unified JSON data source
  */
 
-// Class for handling content loading and rendering
 class ContentLoader {
   /**
-   * Load content from a JSON file and populate the template
-   * @param {string} contentType - Type of content (professional, repositories, personal, contact)
+   * Load content from the unified data source
+   * @param {string} nodeId - Node ID to load content for
    * @param {HTMLElement} container - Container element to populate
    * @returns {Promise} - Promise resolved when content is loaded
    */
-  static async loadContent(contentType, container) {
+  static async loadContent(nodeId, container) {
+    try {
+      // Get the unified data
+      const unifiedData = await this.getUnifiedData();
+      
+      // Find the node in the unified data structure
+      const nodeData = this.findNodeInUnifiedData(unifiedData, nodeId);
+      
+      if (!nodeData) {
+        // If node not found in unified data, fall back to the old method
+        return this.legacyLoadContent(nodeId, container);
+      }
+      
+      // Get content from the node data
+      const content = nodeData.content;
+      
+      if (!content) {
+        container.innerHTML = `<p class="error">No content found for ${nodeId}</p>`;
+        return null;
+      }
+      
+      // Render based on node group
+      switch (nodeData.group) {
+        case 'main':
+          this.renderCenterNode(content, container);
+          break;
+        case 'category':
+          this.renderCategoryNode(nodeId, content, container);
+          break;
+        case 'subcategory':
+        case 'cluster':
+          this.renderSubcategoryNode(nodeId, nodeData, content, container, unifiedData);
+          break;
+        case 'item':
+          this.renderItemNode(nodeId, nodeData, content, container, unifiedData);
+          break;
+        default:
+          container.innerHTML = `<p class="error">Unknown node group: ${nodeData.group}</p>`;
+      }
+      
+      return nodeData;
+    } catch (error) {
+      console.error(`Error loading content for ${nodeId}:`, error);
+      // Fall back to the legacy method if unified data fails
+      return this.legacyLoadContent(nodeId, container);
+    }
+  }
+  
+  /**
+   * Legacy content loading method (for backward compatibility)
+   * @param {string} contentType - Type of content
+   * @param {HTMLElement} container - Container element
+   * @returns {Promise} - Promise resolved when content is loaded
+   */
+  static async legacyLoadContent(contentType, container) {
     try {
       // Handle edge nodes by checking for parent relationship
       // First get info about the node to determine if it's an edge node
@@ -96,11 +149,517 @@ class ContentLoader {
   }
   
   /**
-   * Fetch content data from JSON file
-   * @param {string} contentType - Type of content
-   * @returns {Promise<Object>} - Promise resolved with content data
+   * Fetch the unified data JSON
+   * @returns {Promise<Object>} - Unified data object
    */
+  static async getUnifiedData() {
+    // Check if data is already cached
+    if (window._unifiedDataCache) {
+      return window._unifiedDataCache;
+    }
+    
+    // Fetch the unified data
+    try {
+      const response = await fetch('data/unified-data.json');
+      if (!response.ok) {
+        throw new Error(`Failed to load unified data: ${response.status}`);
+      }
+      
+      const unifiedData = await response.json();
+      // Cache the data to prevent repeated fetches
+      window._unifiedDataCache = unifiedData;
+      return unifiedData;
+    } catch (error) {
+      console.error("Error fetching unified data:", error);
+      throw error;
+    }
+  }
+  
+  /**
+   * Find a node in the unified data structure by ID
+   * @param {Object} unifiedData - Unified data object
+   * @param {string} nodeId - Node ID to find
+   * @returns {Object|null} - Node data or null if not found
+   */
+  static findNodeInUnifiedData(unifiedData, nodeId) {
+    if (!unifiedData || !unifiedData.graphConfig) {
+      return null;
+    }
+    
+    // Check if it's the center node
+    if (unifiedData.graphConfig.centerNode.id === nodeId) {
+      return unifiedData.graphConfig.centerNode;
+    }
+    
+    // Check categories
+    for (const category of unifiedData.graphConfig.categories) {
+      if (category.id === nodeId) {
+        return category;
+      }
+      
+      // Check children of this category
+      if (Array.isArray(category.children)) {
+        const childNode = this.findNodeInChildren(category.children, nodeId);
+        if (childNode) {
+          return childNode;
+        }
+      }
+    }
+    
+    return null;
+  }
+  
+  /**
+   * Recursively search for a node in children array
+   * @param {Array} children - Array of child nodes
+   * @param {string} nodeId - Node ID to find
+   * @returns {Object|null} - Node data or null if not found
+   */
+  static findNodeInChildren(children, nodeId) {
+    for (const child of children) {
+      if (child.id === nodeId) {
+        return child;
+      }
+      
+      if (Array.isArray(child.children)) {
+        const foundInGrandchildren = this.findNodeInChildren(child.children, nodeId);
+        if (foundInGrandchildren) {
+          return foundInGrandchildren;
+        }
+      }
+    }
+    
+    return null;
+  }
+  
+  /**
+   * Render center node (portfolio hub)
+   * @param {Object} content - Node content
+   * @param {HTMLElement} container - Container element
+   */
+  static renderCenterNode(content, container) {
+    let html = `
+      <div class="section-content">
+        <h2 class="section-title">${content.title}</h2>
+        <p class="section-intro">${content.intro}</p>
+        <div class="navigation-help">
+    `;
+    
+    // Add sections if available
+    if (Array.isArray(content.sections)) {
+      content.sections.forEach(section => {
+        html += `
+          <div class="help-section">
+            <h3>${section.title}</h3>
+            <p>${section.text}</p>
+          </div>
+        `;
+      });
+    }
+    
+    html += `</div></div>`;
+    container.innerHTML = html;
+  }
+  
+  /**
+   * Render category node (main sections)
+   * @param {string} nodeId - Node ID
+   * @param {Object} content - Node content
+   * @param {HTMLElement} container - Container element
+   */
+  static renderCategoryNode(nodeId, content, container) {
+    switch (nodeId) {
+      case 'professional':
+        this.renderProfessional(content, container);
+        break;
+      case 'repositories':
+        this.renderProjects(content, container);
+        break;
+      case 'personal':
+        this.renderPersonal(content, container);
+        break;
+      case 'about':
+        this.renderAbout(content, container);
+        break;
+      case 'contact':
+        this.renderContact(content, container);
+        break;
+      default:
+        // Generic category rendering
+        let html = `
+          <div class="section-content">
+            <h2 class="section-title">${content.title}</h2>
+            <p class="section-intro">${content.intro || ''}</p>
+            <div class="generic-content">
+              <p>${content.description || 'No additional content available.'}</p>
+            </div>
+          </div>
+        `;
+        container.innerHTML = html;
+    }
+  }
+  
+  /**
+   * Render subcategory or cluster node
+   * @param {string} nodeId - Node ID
+   * @param {Object} nodeData - Complete node data
+   * @param {Object} content - Node content
+   * @param {HTMLElement} container - Container element
+   * @param {Object} unifiedData - Complete unified data
+   */
+  static renderSubcategoryNode(nodeId, nodeData, content, container, unifiedData) {
+    // Find parent category to determine rendering strategy
+    const parentId = nodeData.parentId;
+    
+    if (parentId === 'professional') {
+      this.renderProfessionalSubcategory(nodeId, nodeData, content, container);
+    } else if (parentId === 'repositories') {
+      this.renderRepositoryCluster(nodeId, nodeData, content, container, unifiedData);
+    } else if (parentId === 'personal') {
+      this.renderPersonalSubcategory(nodeId, nodeData, content, container, unifiedData);
+    } else {
+      // Generic subcategory rendering
+      let html = `
+        <div class="section-content">
+          <h2 class="section-title">${content.title || nodeData.name}</h2>
+          <p class="section-description">${content.description || nodeData.description}</p>
+          <div class="node-info">
+            <h3>Category</h3>
+            <p>${parentId || 'Unknown'}</p>
+          </div>
+        </div>
+      `;
+      container.innerHTML = html;
+    }
+  }
+  
+  /**
+   * Render professional subcategory (LinkedIn, CV, Academic)
+   * @param {string} nodeId - Node ID
+   * @param {Object} nodeData - Node data
+   * @param {Object} content - Node content
+   * @param {HTMLElement} container - Container element
+   */
+  static renderProfessionalSubcategory(nodeId, nodeData, content, container) {
+    let html = `
+      <div class="section-content">
+        <h2 class="section-title">${content.title || nodeData.name}</h2>
+        <div class="detail-view">
+          <div class="card detail-card">
+            <p>${content.description || nodeData.description}</p>
+            ${content.icon ? `<i class="${content.icon} detail-icon"></i>` : ''}
+            ${content.institution ? `<p><strong>${content.institution}</strong></p>` : ''}
+            ${content.degree ? `<p>${content.degree}</p>` : ''}
+            ${content.graduationYear ? `<p>Class of ${content.graduationYear}</p>` : ''}
+            ${content.url ? `<a href="${content.url}" target="_blank" class="btn primary">
+              <i class="fas fa-external-link-alt"></i> ${content.urlText || 'View Details'}
+            </a>` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+    container.innerHTML = html;
+  }
+  
+  /**
+   * Render repository cluster (JavaScript, Python, AI/ML)
+   * @param {string} nodeId - Node ID
+   * @param {Object} nodeData - Node data
+   * @param {Object} content - Node content
+   * @param {HTMLElement} container - Container element
+   * @param {Object} unifiedData - Complete unified data
+   */
+  static renderRepositoryCluster(nodeId, nodeData, content, container, unifiedData) {
+    // Get parent category to access all projects
+    const parentCategory = unifiedData.graphConfig.categories.find(c => c.id === 'repositories');
+    if (!parentCategory || !parentCategory.content || !parentCategory.content.projects) {
+      container.innerHTML = `
+        <div class="section-content">
+          <h2 class="section-title">${content.title || nodeData.name}</h2>
+          <p class="error">No project data available.</p>
+        </div>
+      `;
+      return;
+    }
+    
+    // Get all projects
+    const allProjects = parentCategory.content.projects;
+    
+    // Filter projects by technology
+    const filterValue = content.filterValue;
+    const filteredProjects = allProjects.filter(project => {
+      if (!project.technologies) return false;
+      
+      if (Array.isArray(filterValue)) {
+        // Multiple filter values
+        return filterValue.some(filter => 
+          project.technologies.some(tech => 
+            tech.toLowerCase().includes(filter.toLowerCase())
+          )
+        );
+      } else {
+        // Single filter value
+        return project.technologies.some(tech => 
+          tech.toLowerCase().includes(filterValue.toLowerCase())
+        );
+      }
+    });
+    
+    let html = `
+      <div class="section-content">
+        <h2 class="section-title">${content.title || nodeData.name}</h2>
+        <p class="section-description">${content.description || nodeData.description}</p>
+        <div class="projects-grid">
+    `;
+    
+    if (filteredProjects.length === 0) {
+      html += `<p class="empty-state">No ${nodeData.name} projects available.</p>`;
+    } else {
+      filteredProjects.forEach(project => {
+        html += `
+          <div class="project-card">
+            <div class="project-image">
+              <img src="${project.image}" alt="${project.title}" onerror="handleImageError(event)">
+            </div>
+            <div class="project-details">
+              <h3>${project.title}</h3>
+              <p>${project.description}</p>
+              <div class="technologies">
+                ${project.technologies.map(tech => `<span class="tech-tag">${tech}</span>`).join('')}
+              </div>
+              <div class="project-links">
+                <a href="${project.liveUrl}" target="_blank" class="btn primary"><i class="fas fa-external-link-alt"></i> View Live</a>
+                <a href="${project.githubUrl}" target="_blank" class="btn secondary"><i class="fab fa-github"></i> GitHub</a>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+    }
+    
+    html += `</div></div>`;
+    container.innerHTML = html;
+  }
+  
+  /**
+   * Render personal subcategory (Photography, IMDB, Instagram)
+   * @param {string} nodeId - Node ID
+   * @param {Object} nodeData - Node data
+   * @param {Object} content - Node content
+   * @param {HTMLElement} container - Container element
+   * @param {Object} unifiedData - Complete unified data
+   */
+  static renderPersonalSubcategory(nodeId, nodeData, content, container, unifiedData) {
+    // Get parent category to access all personal data
+    const parentCategory = unifiedData.graphConfig.categories.find(c => c.id === 'personal');
+    if (!parentCategory || !parentCategory.content) {
+      container.innerHTML = `
+        <div class="section-content">
+          <h2 class="section-title">${content.title || nodeData.name}</h2>
+          <p class="error">No personal data available.</p>
+        </div>
+      `;
+      return;
+    }
+    
+    const parentContent = parentCategory.content;
+    
+    let html = `
+      <div class="section-content">
+        <h2 class="section-title">${content.title || nodeData.name}</h2>
+        <p class="section-description">${content.description || nodeData.description}</p>
+    `;
+    
+    if (nodeId === 'photography' && Array.isArray(parentContent.photos)) {
+      // Show photo gallery with filters
+      const categories = parentContent.categories || [];
+      
+      if (categories.length > 0) {
+        html += `<div class="photo-filters">`;
+        categories.forEach((category, index) => {
+          const activeClass = index === 0 ? 'active' : '';
+          html += `<button class="filter-btn ${activeClass}" data-filter="${category.id}">${category.name}</button>`;
+        });
+        html += `</div>`;
+      }
+      
+      html += `<div class="gallery">`;
+      
+      if (parentContent.photos.length === 0) {
+        html += `<p class="empty-state">No photos available.</p>`;
+      } else {
+        parentContent.photos.forEach(photo => {
+          html += `
+            <div class="gallery-item" data-category="${photo.category || ''}">
+              <img src="${photo.image}" alt="${photo.title || 'Photo'}" onerror="handleImageError(event)">
+              <div class="gallery-caption">
+                <h3>${photo.title || 'Untitled'}</h3>
+                <p>${photo.description || ''}</p>
+              </div>
+            </div>
+          `;
+        });
+      }
+      
+      html += `</div>`;
+      
+    } else if (nodeId === 'imdb' && Array.isArray(parentContent.imdb)) {
+      // Show IMDB content
+      html += `
+        <div class="imdb-content">
+          <div class="media-grid">
+      `;
+      
+      parentContent.imdb.forEach(item => {
+        html += `
+          <div class="media-item">
+            <img src="${item.image || 'assets/images/media/default-movie.jpg'}" alt="${item.title}" onerror="handleImageError(event)">
+            <h3>${item.title}</h3>
+            <p>Rating: ${item.rating || '★★★☆☆'}</p>
+          </div>
+        `;
+      });
+      
+      html += `
+          </div>
+          <p class="external-link">
+            <a href="https://www.imdb.com/" target="_blank" class="btn primary">
+              <i class="fas fa-external-link-alt"></i> View IMDB Profile
+            </a>
+          </p>
+        </div>
+      `;
+      
+    } else if (nodeId === 'instagram' && Array.isArray(parentContent.instagram)) {
+      // Show Instagram content
+      html += `
+        <div class="instagram-feed">
+          <div class="insta-grid">
+      `;
+      
+      parentContent.instagram.forEach(post => {
+        html += `
+          <div class="insta-item">
+            <img src="${post.image}" alt="Instagram post" onerror="handleImageError(event)">
+            ${post.caption ? `<div class="insta-caption">${post.caption}</div>` : ''}
+          </div>
+        `;
+      });
+      
+      html += `
+          </div>
+          <p class="external-link">
+            <a href="https://www.instagram.com/" target="_blank" class="btn primary">
+              <i class="fab fa-instagram"></i> Follow on Instagram
+            </a>
+          </p>
+        </div>
+      `;
+    } else {
+      // Generic rendering
+      html += `<p class="empty-state">No specific content available for ${nodeData.name}.</p>`;
+    }
+    
+    html += `</div>`;
+    container.innerHTML = html;
+    
+    // Initialize filters if needed
+    if (nodeId === 'photography') {
+      this.initPhotoFilters(container);
+    }
+  }
+  
+  /**
+   * Render item node (individual projects)
+   * @param {string} nodeId - Node ID
+   * @param {Object} nodeData - Node data
+   * @param {Object} content - Node content
+   * @param {HTMLElement} container - Container element
+   * @param {Object} unifiedData - Complete unified data
+   */
+  static renderItemNode(nodeId, nodeData, content, container, unifiedData) {
+    // Get project ID from content or use node ID
+    const projectId = content.projectId || nodeId;
+    
+    // Find the project in repositories content
+    const reposCategory = unifiedData.graphConfig.categories.find(c => c.id === 'repositories');
+    
+    if (!reposCategory || !reposCategory.content || !reposCategory.content.projects) {
+      container.innerHTML = `
+        <div class="section-content">
+          <h2 class="section-title">${content.title || nodeData.name}</h2>
+          <p class="error">Project data not available.</p>
+        </div>
+      `;
+      return;
+    }
+    
+    // Find the specific project
+    const project = reposCategory.content.projects.find(p => p.id === projectId);
+    
+    if (!project) {
+      container.innerHTML = `
+        <div class="section-content">
+          <h2 class="section-title">${content.title || nodeData.name}</h2>
+          <p class="error">Project '${projectId}' not found in the data.</p>
+        </div>
+      `;
+      return;
+    }
+    
+    // Render project detail
+    const html = `
+      <div class="section-content">
+        <h2 class="section-title">${project.title}</h2>
+        
+        <div class="project-detail">
+          <div class="project-detail-image">
+            <img src="${project.image}" alt="${project.title}" onerror="handleImageError(event)">
+          </div>
+          
+          <div class="project-detail-content">
+            <div class="project-description">
+              <h3>Overview</h3>
+              <p>${project.description}</p>
+            </div>
+            
+            <div class="project-technologies">
+              <h3>Technologies Used</h3>
+              <div class="technologies">
+                ${project.technologies.map(tech => `<span class="tech-tag">${tech}</span>`).join('')}
+              </div>
+            </div>
+            
+            <div class="project-actions">
+              ${project.liveUrl ? `<a href="${project.liveUrl}" target="_blank" class="btn primary"><i class="fas fa-external-link-alt"></i> View Live</a>` : ''}
+              ${project.githubUrl ? `<a href="${project.githubUrl}" target="_blank" class="btn secondary"><i class="fab fa-github"></i> View Source</a>` : ''}
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    container.innerHTML = html;
+  }
+  
+  // Legacy fetch function - maintained for backward compatibility
   static async fetchContentData(contentType) {
+    // Try to use unified data first
+    try {
+      const unifiedData = await this.getUnifiedData();
+      
+      // Find the category in unified data
+      const category = unifiedData.graphConfig.categories.find(c => c.id === contentType);
+      
+      if (category && category.content) {
+        console.log(`Using unified data for ${contentType}`);
+        return category.content;
+      }
+    } catch (error) {
+      console.warn(`Could not load ${contentType} from unified data, falling back to separate JSON:`, error);
+    }
+    
+    // Fall back to separate JSON files
     try {
       let path;
       switch (contentType) {
@@ -108,16 +667,14 @@ class ContentLoader {
           path = 'data/projects.json';
           break;
         case 'about':
-          path = 'data/about.json';  // Updated to fetch about.json
+          path = 'data/about.json';
           break;
-        // Handle only main categories, not edge nodes
         case 'professional':
         case 'personal':
         case 'contact':
           path = `data/${contentType}.json`;
           break;
         default:
-          // For any unknown content type (including edge nodes), throw an error
           throw new Error(`No data file for content type: ${contentType}`);
       }
         

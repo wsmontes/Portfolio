@@ -1,0 +1,520 @@
+{
+  "graphConfig": {
+    "centerNode": {
+      "id": "center",
+      "name": "Portfolio",
+      "description": "Explore my interactive portfolio system",
+      "group": "main",
+      "visualization": {
+        "val": 80,
+        "mass": 200,
+        "size": 18,
+        "texture": "assets/images/textures/sun.jpg",
+        "emissive": true,
+        "rotationSpeed": 0.003,
+        "fixedPosition": true
+      },
+      "content": {
+        "title": "Interactive Portfolio",
+        "intro": "Welcome to my interactive portfolio visualization. Click on nodes to explore different sections.",
+        "sections": [
+          {
+            "title": "How to Navigate",
+            "text": "Click on the colored planets to explore main categories. Click on smaller objects to see specific projects or details."
+          }
+        ]
+      }
+    },
+    "categories": [
+      {
+        "id": "professional",
+        "name": "Professional Experience",
+        "description": "My professional journey",
+        "group": "category",
+        "visualization": {
+          "val": 64,
+          "mass": 80,
+          "size": 11.4,
+          "texture": "assets/images/textures/blue-planet.jpg",
+          "rotationSpeed": 0.01
+        },
+        "content": {
+          "title": "Professional Experience",
+          "intro": "My career journey and professional achievements.",
+          "experiences": [
+            {
+              "title": "Senior Developer",
+              "company": "Tech Corporation",
+              "dateRange": "2018-Present",
+              "description": "Leading development of enterprise applications with focus on scalability and performance.",
+              "icon": "fas fa-laptop-code",
+              "detailsLink": "#"
+            },
+            {
+              "title": "Web Developer",
+              "company": "Digital Agency",
+              "dateRange": "2015-2018",
+              "description": "Created responsive web applications for clients across various industries.",
+              "icon": "fas fa-code",
+              "detailsLink": "#"
+            },
+            {
+              "title": "Education",
+              "institution": "University of Technology",
+              "dateRange": "2011-2015",
+              "description": "Bachelor's degree in Computer Science with focus on software engineering.",
+              "icon": "fas fa-graduation-cap",
+              "detailsLink": "#"
+            }
+          ]
+        },
+        "children": [
+          {
+            "id": "linkedin",
+            "name": "LinkedIn",
+            "description": "Professional networking profile",
+            "group": "subcategory",
+            "visualization": {
+              "val": 30,
+              "mass": 16,
+              "size": 4.4,
+              "texture": "assets/images/textures/moon1.jpg",
+              "rotationSpeed": 0.02
+            },
+            "content": {
+              "title": "LinkedIn Profile",
+              "description": "Connect with me on LinkedIn to see my professional experience and skills.",
+              "url": "https://www.linkedin.com/",
+              "urlText": "View LinkedIn Profile",
+              "icon": "fab fa-linkedin"
+            }
+          },
+          {
+            "id": "cv",
+            "name": "Curriculum Vitae",
+            "description": "Professional work history",
+            "group": "subcategory",
+            "visualization": {
+              "val": 20,
+              "mass": 10,
+              "size": 3.0,
+              "texture": "assets/images/textures/moon2.jpg",
+              "rotationSpeed": 0.015
+            },
+            "content": {
+              "title": "Curriculum Vitae",
+              "description": "My detailed work history and professional qualifications.",
+              "url": "#",
+              "urlText": "Download CV",
+              "icon": "fas fa-file-alt"
+            }
+          },
+          {
+            "id": "academic",
+            "name": "Academic",
+            "description": "Research and studies",
+            "group": "subcategory",
+            "visualization": {
+              "val": 18,
+              "mass": 8,
+              "size": 2.8,
+              "texture": "assets/images/textures/moon3.jpg",
+              "rotationSpeed": 0.018
+            },
+            "content": {
+              "title": "Academic Background",
+              "description": "My educational qualifications and research work.",
+              "institution": "University of Technology",
+              "degree": "Bachelor of Computer Science",
+              "graduationYear": "2015",
+              "icon": "fas fa-graduation-cap"
+            }
+          }
+        ]
+      },
+      {
+        "id": "repositories",
+        "name": "Code Repositories",
+        "description": "My software development projects",
+        "group": "category",
+        "visualization": {
+          "val": 70,
+          "mass": 90,
+          "size": 12.6,
+          "texture": "assets/images/textures/green-planet.jpg",
+          "rotationSpeed": 0.008
+        },
+        "content": {
+          "title": "Code Repositories",
+          "intro": "Explore my programming projects and repositories.",
+          "projects": [
+            {
+              "id": "techbr",
+              "title": "TechBR Website",
+              "description": "Company website for TechBR organization with interactive features.",
+              "image": "assets/images/projects/project1.jpg",
+              "technologies": ["JavaScript", "HTML5", "CSS3", "React"],
+              "category": "web",
+              "liveUrl": "https://example.com/techbr",
+              "githubUrl": "https://github.com/example/techbr"
+            },
+            {
+              "id": "text_to_speech",
+              "title": "Text-to-Speech Module",
+              "description": "Advanced voice synthesis application with multiple language support.",
+              "image": "assets/images/projects/project2.jpg",
+              "technologies": ["JavaScript", "Web Speech API", "Node.js"],
+              "category": "web",
+              "liveUrl": "https://example.com/text-to-speech",
+              "githubUrl": "https://github.com/example/text-to-speech"
+            },
+            {
+              "id": "data_visualizer",
+              "title": "Data Visualization Tool",
+              "description": "Interactive tool for visualizing complex datasets with customizable charts.",
+              "image": "assets/images/projects/project3.jpg",
+              "technologies": ["Python", "Matplotlib", "Pandas", "Jupyter"],
+              "category": "data",
+              "liveUrl": "https://example.com/data-viz",
+              "githubUrl": "https://github.com/example/data-viz"
+            },
+            {
+              "id": "ml_classifier",
+              "title": "ML Image Classifier",
+              "description": "Machine learning model for image classification using TensorFlow.",
+              "image": "assets/images/projects/project4.jpg",
+              "technologies": ["Python", "TensorFlow", "Machine Learning", "Computer Vision"],
+              "category": "ai",
+              "liveUrl": "https://example.com/ml-classifier",
+              "githubUrl": "https://github.com/example/ml-classifier"
+            }
+          ]
+        },
+        "children": [
+          {
+            "id": "javascript",
+            "name": "JavaScript",
+            "description": "JavaScript projects",
+            "group": "cluster",
+            "visualization": {
+              "val": 24,
+              "mass": 20,
+              "size": 4.4,
+              "texture": "assets/images/textures/asteroid_yellow.jpg",
+              "rotationSpeed": 0.03
+            },
+            "content": {
+              "title": "JavaScript Projects",
+              "description": "Projects built with JavaScript and related technologies.",
+              "filterType": "technology",
+              "filterValue": "javascript"
+            },
+            "children": [
+              {
+                "id": "techbr",
+                "name": "TechBR",
+                "description": "TechBR Group Website",
+                "group": "item",
+                "visualization": {
+                  "val": 12,
+                  "mass": 2,
+                  "size": 1.6,
+                  "texture": "assets/images/textures/asteroid1.jpg",
+                  "rotationSpeed": 0.05
+                },
+                "content": {
+                  "title": "TechBR Website",
+                  "projectId": "techbr"
+                }
+              },
+              {
+                "id": "text_to_speech",
+                "name": "Text-to-Speech",
+                "description": "Voice synthesis module",
+                "group": "item",
+                "visualization": {
+                  "val": 12,
+                  "mass": 2,
+                  "size": 1.4,
+                  "texture": "assets/images/textures/asteroid2.jpg",
+                  "rotationSpeed": 0.06
+                },
+                "content": {
+                  "title": "Text-to-Speech Module",
+                  "projectId": "text_to_speech"
+                }
+              }
+            ]
+          },
+          {
+            "id": "python",
+            "name": "Python",
+            "description": "Python projects",
+            "group": "cluster",
+            "visualization": {
+              "val": 24,
+              "mass": 20,
+              "size": 4.4,
+              "texture": "assets/images/textures/asteroid_blue.jpg",
+              "rotationSpeed": 0.025
+            },
+            "content": {
+              "title": "Python Projects",
+              "description": "Projects built with Python and related technologies.",
+              "filterType": "technology",
+              "filterValue": "python"
+            },
+            "children": [
+              {
+                "id": "data_visualizer",
+                "name": "Data Visualizer",
+                "description": "Data visualization tool",
+                "group": "item",
+                "visualization": {
+                  "val": 12,
+                  "mass": 2,
+                  "size": 1.5,
+                  "texture": "assets/images/textures/asteroid3.jpg",
+                  "rotationSpeed": 0.055
+                },
+                "content": {
+                  "title": "Data Visualization Tool",
+                  "projectId": "data_visualizer"
+                }
+              }
+            ]
+          },
+          {
+            "id": "ai_ml",
+            "name": "AI & ML",
+            "description": "Artificial Intelligence projects",
+            "group": "cluster",
+            "visualization": {
+              "val": 24,
+              "mass": 22,
+              "size": 4.6,
+              "texture": "assets/images/textures/asteroid_purple.jpg",
+              "rotationSpeed": 0.022
+            },
+            "content": {
+              "title": "AI & Machine Learning Projects",
+              "description": "Projects focused on artificial intelligence and machine learning.",
+              "filterType": "technology",
+              "filterValue": ["ai", "ml", "machine learning", "tensorflow"]
+            },
+            "children": [
+              {
+                "id": "ml_classifier",
+                "name": "ML Classifier",
+                "description": "Image classification model",
+                "group": "item",
+                "visualization": {
+                  "val": 12,
+                  "mass": 2,
+                  "size": 1.5,
+                  "texture": "assets/images/textures/asteroid4.jpg",
+                  "rotationSpeed": 0.054
+                },
+                "content": {
+                  "title": "ML Image Classifier",
+                  "projectId": "ml_classifier"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "personal",
+        "name": "Personal Universe",
+        "description": "Personal interests and activities",
+        "group": "category",
+        "visualization": {
+          "val": 60,
+          "mass": 70,
+          "size": 10.4,
+          "texture": "assets/images/textures/red-planet.jpg",
+          "rotationSpeed": 0.012
+        },
+        "content": {
+          "title": "Personal Universe",
+          "intro": "Explore my personal interests, hobbies, and creative pursuits.",
+          "categories": [
+            {"id": "all", "name": "All Photos"},
+            {"id": "nature", "name": "Nature"},
+            {"id": "urban", "name": "Urban"},
+            {"id": "portrait", "name": "Portraits"}
+          ],
+          "photos": [
+            {
+              "title": "Mountain View",
+              "description": "Sunrise over the mountains",
+              "image": "assets/images/photos/photo1.jpg",
+              "category": "nature"
+            },
+            {
+              "title": "City Lights",
+              "description": "Night cityscape with illuminated buildings",
+              "image": "assets/images/photos/photo2.jpg",
+              "category": "urban"
+            },
+            {
+              "title": "Portrait Study",
+              "description": "Creative portrait photography experiment",
+              "image": "assets/images/photos/photo3.jpg",
+              "category": "portrait"
+            }
+          ],
+          "imdb": [
+            {
+              "title": "Favorite Movie",
+              "rating": "★★★★★",
+              "image": "assets/images/media/movie1.jpg"
+            },
+            {
+              "title": "Current TV Show",
+              "rating": "★★★★☆",
+              "image": "assets/images/media/show1.jpg"
+            }
+          ],
+          "instagram": [
+            {
+              "image": "assets/images/social/insta1.jpg",
+              "caption": "Weekend adventure"
+            },
+            {
+              "image": "assets/images/social/insta2.jpg",
+              "caption": "Coffee and coding"
+            },
+            {
+              "image": "assets/images/social/insta3.jpg",
+              "caption": "Sunset view"
+            }
+          ]
+        },
+        "children": [
+          {
+            "id": "photography",
+            "name": "Photography",
+            "description": "Image collection",
+            "group": "subcategory",
+            "visualization": {
+              "val": 18,
+              "mass": 12,
+              "size": 3.4,
+              "texture": "assets/images/textures/moon_rocky.jpg",
+              "rotationSpeed": 0.017
+            },
+            "content": {
+              "title": "Photography",
+              "description": "A collection of my photography work."
+            }
+          },
+          {
+            "id": "imdb",
+            "name": "IMDB",
+            "description": "Entertainment database",
+            "group": "subcategory",
+            "visualization": {
+              "val": 16,
+              "mass": 8,
+              "size": 2.8,
+              "texture": "assets/images/textures/moon_crater.jpg",
+              "rotationSpeed": 0.022
+            },
+            "content": {
+              "title": "Movies & Shows",
+              "description": "My favorite films and TV series."
+            }
+          },
+          {
+            "id": "instagram",
+            "name": "Instagram",
+            "description": "Visual transmission station",
+            "group": "subcategory",
+            "visualization": {
+              "val": 14,
+              "mass": 6,
+              "size": 2.4,
+              "texture": "assets/images/textures/moon_smooth.jpg",
+              "rotationSpeed": 0.02
+            },
+            "content": {
+              "title": "Instagram Feed",
+              "description": "Recent moments from my Instagram account."
+            }
+          }
+        ]
+      },
+      {
+        "id": "about",
+        "name": "About Me",
+        "description": "Learn more about me",
+        "group": "category",
+        "visualization": {
+          "val": 55,
+          "mass": 60,
+          "size": 9.2,
+          "texture": "assets/images/textures/purple-planet.jpg",
+          "rotationSpeed": 0.011
+        },
+        "content": {
+          "title": "About Me",
+          "profileImage": "assets/images/profile.jpg",
+          "introduction": "Hi, I'm a software developer and creative technologist.",
+          "bio": "I specialize in building interactive web applications and data visualizations. With over 5 years of experience in software development, I enjoy combining technical skills with creative approaches to solve complex problems.",
+          "skills": ["JavaScript", "React", "Python", "Three.js", "Data Visualization", "UX Design"],
+          "contact": {
+            "email": "contact@example.com",
+            "linkedin": "https://linkedin.com/in/example"
+          }
+        }
+      },
+      {
+        "id": "contact",
+        "name": "Contact",
+        "description": "Get in touch",
+        "group": "category",
+        "visualization": {
+          "val": 52,
+          "mass": 55,
+          "size": 8.8,
+          "texture": "assets/images/textures/yellow-planet.jpg",
+          "rotationSpeed": 0.013
+        },
+        "content": {
+          "title": "Contact Me",
+          "intro": "I'm always open to new opportunities and collaborations.",
+          "contactInfo": [
+            {
+              "icon": "fas fa-envelope",
+              "value": "contact@example.com"
+            },
+            {
+              "icon": "fas fa-map-marker-alt",
+              "value": "New York, NY"
+            },
+            {
+              "icon": "fas fa-phone",
+              "value": "+1 (555) 123-4567"
+            }
+          ],
+          "socialLinks": [
+            {
+              "icon": "fab fa-linkedin",
+              "url": "https://linkedin.com/in/example"
+            },
+            {
+              "icon": "fab fa-github",
+              "url": "https://github.com/example"
+            },
+            {
+              "icon": "fab fa-twitter",
+              "url": "https://twitter.com/example"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
