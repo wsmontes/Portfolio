@@ -10,7 +10,10 @@
     },
     "theme": {
       "primaryColor": "#4a6cf7",
-      "accentColor": "#7c3aed"
+      "accentColor": "#7c3aed",
+      "textColor": "#f1f5f9",
+      "backgroundColor": "#000",
+      "cardBackground": "rgba(30, 41, 59, 0.85)"
     }
   },
   "graphConfig": {
@@ -24,9 +27,13 @@
         "mass": 200,
         "size": 18,
         "texture": "assets/images/textures/sun.jpg",
+        "color": "#ffffff",
         "emissive": true,
+        "emissiveColor": "#ffcc00",
+        "emissiveIntensity": 0.5,
         "rotationSpeed": 0.003,
-        "fixedPosition": true
+        "fixedPosition": true,
+        "initialPosition": {"x": 0, "y": 0, "z": 0}
       },
       "content": {
         "template": "standard",
@@ -51,7 +58,11 @@
           "mass": 80,
           "size": 11.4,
           "texture": "assets/images/textures/blue-planet.jpg",
-          "rotationSpeed": 0.01
+          "color": "#3a82f7",
+          "rotationSpeed": 0.01,
+          "orbitRadius": 100,
+          "orbitSpeed": 0.005,
+          "orbitAngleOffset": 0
         },
         "content": {
           "template": "standard",
@@ -108,12 +119,17 @@
             "name": "LinkedIn",
             "description": "Professional networking profile",
             "group": "subcategory",
+            "parentId": "professional",
             "visualization": {
               "val": 30,
               "mass": 16,
               "size": 4.4,
               "texture": "assets/images/textures/moon1.jpg",
-              "rotationSpeed": 0.02
+              "color": "#0077b5",
+              "rotationSpeed": 0.02,
+              "orbitRadius": 30,
+              "orbitSpeed": 0.01,
+              "orbitAngleOffset": 0.5
             },
             "content": {
               "template": "standard",
@@ -129,12 +145,17 @@
             "name": "Curriculum Vitae",
             "description": "Professional work history",
             "group": "subcategory",
+            "parentId": "professional",
             "visualization": {
               "val": 20,
               "mass": 10,
               "size": 3.0,
               "texture": "assets/images/textures/moon2.jpg",
-              "rotationSpeed": 0.015
+              "color": "#444444",
+              "rotationSpeed": 0.015,
+              "orbitRadius": 25,
+              "orbitSpeed": 0.008,
+              "orbitAngleOffset": 1.2
             },
             "content": {
               "template": "standard",
@@ -143,167 +164,6 @@
               "url": "#",
               "urlText": "Download CV",
               "icon": "fas fa-file-alt"
-            }
-          },
-          {
-            "id": "academic",
-            "name": "Academic Background",
-            "description": "My educational qualifications and research work.",
-            "group": "subcategory",
-            "visualization": {
-              "val": 18,
-              "mass": 8,
-              "size": 2.8,
-              "texture": "assets/images/textures/moon3.jpg",
-              "rotationSpeed": 0.018
-            },
-            "content": {
-              "template": "educationList",
-              "title": "Academic Background",
-              "educations": [
-                {
-                  "institution": "The University of British Columbia",
-                  "degree": "Key Capabilities in Data Science & Computer Science",
-                  "dateRange": "2021 - 2022",
-                  "skills": [
-                    "Machine Learning",
-                    "Artificial Intelligence (AI)",
-                    "Data Science",
-                    "Natural Language Processing (NLP)",
-                    "Business Analysis"
-                  ],
-                  "icon": "fas fa-graduation-cap"
-                },
-                {
-                  "institution": "USP - Universidade de São Paulo",
-                  "degree": "Master's Degree, Computer Software and Media Applications",
-                  "dateRange": "2011 - 2014",
-                  "icon": "fas fa-graduation-cap"
-                },
-                {
-                  "institution": "USP - Universidade de São Paulo",
-                  "degree": "Communication, Mass Communication/Media Studies",
-                  "dateRange": "2004 - 2010",
-                  "icon": "fas fa-graduation-cap"
-                }
-              ]
-            }
-          },
-          {
-            "id": "icbc_experience",
-            "name": "ICBC",
-            "description": "Experience at Insurance Corporation of British Columbia",
-            "group": "experience",
-            "visualization": {
-              "val": 26,
-              "mass": 14,
-              "size": 3.8,
-              "texture": "assets/images/textures/company1.jpg",
-              "rotationSpeed": 0.019
-            },
-            "content": {
-              "template": "experienceDetail",
-              "title": "ICBC Experience",
-              "company": "Insurance Corporation of British Columbia",
-              "position": "Business System Analyst",
-              "dateRange": "Jan 2025 - Present",
-              "description": "Contract full-time role focusing on business systems analysis and process optimization.",
-              "highlights": [
-                "Business systems analysis",
-                "Process optimization",
-                "Requirements gathering",
-                "Stakeholder management"
-              ]
-            }
-          },
-          {
-            "id": "cgi_experience",
-            "name": "CGI",
-            "description": "Experience at CGI",
-            "group": "experience",
-            "visualization": {
-              "val": 24,
-              "mass": 13,
-              "size": 3.6,
-              "texture": "assets/images/textures/company2.jpg",
-              "rotationSpeed": 0.021
-            },
-            "content": {
-              "template": "experienceDetail",
-              "title": "CGI Experience",
-              "company": "CGI",
-              "position": "Senior Consultant / Consultant",
-              "dateRange": "Apr 2022 - Jan 2025",
-              "description": "Led data analysis, process modeling, and business system development for BC government projects.",
-              "projects": [
-                "MEDIS LTC",
-                "MHSU",
-                "AIMS",
-                "HCC",
-                "PCD",
-                "ALR",
-                "IDAM AM"
-              ]
-            }
-          },
-          {
-            "id": "parc_experience",
-            "name": "PARC Systems",
-            "description": "Experience at PARC Systems Inc",
-            "group": "experience",
-            "visualization": {
-              "val": 22,
-              "mass": 12,
-              "size": 3.4,
-              "texture": "assets/images/textures/company3.jpg",
-              "rotationSpeed": 0.022
-            },
-            "content": {
-              "template": "experienceDetail",
-              "title": "PARC Systems Experience",
-              "company": "PARC Systems Inc",
-              "position": "Technical Business Analyst",
-              "dateRange": "Nov 2019 - Mar 2022",
-              "description": "Drove technical business analysis, data transformation, and process improvement across public sector projects.",
-              "projects": [
-                "MALS 2",
-                "Attorney General/RoadSafetyBC",
-                "WRHA",
-                "Health Data Migration"
-              ]
-            }
-          },
-          {
-            "id": "publications",
-            "parentId": "professional",
-            "name": "Publications",
-            "description": "Academic and professional publications",
-            "group": "category",
-            "visualization": {
-              "val": 50,
-              "mass": 50,
-              "size": 9,
-              "texture": "assets/images/textures/book.jpg",
-              "rotationSpeed": 0.012
-            },
-            "content": {
-              "template": "publicationList",
-              "title": "Publications",
-              "intro": "Explore my academic and professional publications.",
-              "publications": [
-                {
-                  "title": "Over the top: O consumo audiovisual em softwares culturais: O video sob demanda e suas implicações no futuro da televisão",
-                  "format": "Paperback",
-                  "publicationDate": "Aug. 4 2015",
-                  "publisher": "Novas Edições Acadêmicas",
-                  "pages": "104 pages",
-                  "language": "Portuguese",
-                  "isbn10": "3639832027",
-                  "isbn13": "978-3639832020",
-                  "dimensions": "15.01 x 0.61 x 22 cm",
-                  "description": "An analysis of how new media and the internet subvert geographic barriers, transforming audiovisual consumption and redefining the user experience with software."
-                }
-              ]
             }
           }
         ]
@@ -318,7 +178,11 @@
           "mass": 90,
           "size": 12.6,
           "texture": "assets/images/textures/green-planet.jpg",
-          "rotationSpeed": 0.008
+          "color": "#00ff00",
+          "rotationSpeed": 0.008,
+          "orbitRadius": 150,
+          "orbitSpeed": 0.004,
+          "orbitAngleOffset": 0
         },
         "content": {
           "template": "projectList",
@@ -428,7 +292,11 @@
               "mass": 20,
               "size": 4.4,
               "texture": "assets/images/textures/asteroid_yellow.jpg",
-              "rotationSpeed": 0.03
+              "color": "#f7df1e",
+              "rotationSpeed": 0.03,
+              "orbitRadius": 50,
+              "orbitSpeed": 0.01,
+              "orbitAngleOffset": 0
             },
             "content": {
               "template": "projectList",
@@ -448,7 +316,11 @@
                   "mass": 2,
                   "size": 1.6,
                   "texture": "assets/images/textures/asteroid1.jpg",
-                  "rotationSpeed": 0.05
+                  "color": "#f7df1e",
+                  "rotationSpeed": 0.05,
+                  "orbitRadius": 10,
+                  "orbitSpeed": 0.02,
+                  "orbitAngleOffset": 1.2
                 },
                 "content": {
                   "title": "Interactive Portfolio (JS)",
@@ -465,7 +337,11 @@
                   "mass": 2.5,
                   "size": 1.7,
                   "texture": "assets/images/textures/asteroid2.jpg",
-                  "rotationSpeed": 0.048
+                  "color": "#f7df1e",
+                  "rotationSpeed": 0.048,
+                  "orbitRadius": 12,
+                  "orbitSpeed": 0.018,
+                  "orbitAngleOffset": 0.8
                 },
                 "content": {
                   "title": "Text-to-Speech Chrome Extension",
@@ -482,7 +358,11 @@
                   "mass": 2.2,
                   "size": 1.5,
                   "texture": "assets/images/textures/asteroid4.jpg",
-                  "rotationSpeed": 0.052
+                  "color": "#f7df1e",
+                  "rotationSpeed": 0.052,
+                  "orbitRadius": 11,
+                  "orbitSpeed": 0.016,
+                  "orbitAngleOffset": 0.6
                 },
                 "content": {
                   "title": "Table Exporter",
@@ -501,7 +381,11 @@
               "mass": 20,
               "size": 4.4,
               "texture": "assets/images/textures/asteroid_blue.jpg",
-              "rotationSpeed": 0.025
+              "color": "#306998",
+              "rotationSpeed": 0.025,
+              "orbitRadius": 50,
+              "orbitSpeed": 0.01,
+              "orbitAngleOffset": 0
             },
             "content": {
               "template": "projectList",
@@ -521,7 +405,11 @@
                   "mass": 2,
                   "size": 1.5,
                   "texture": "assets/images/textures/asteroid3.jpg",
-                  "rotationSpeed": 0.055
+                  "color": "#306998",
+                  "rotationSpeed": 0.055,
+                  "orbitRadius": 10,
+                  "orbitSpeed": 0.02,
+                  "orbitAngleOffset": 1.2
                 },
                 "content": {
                   "title": "AI & ML Experiments (Python)",
@@ -538,7 +426,11 @@
                   "mass": 2.3,
                   "size": 1.6,
                   "texture": "assets/images/textures/asteroid5.jpg",
-                  "rotationSpeed": 0.05
+                  "color": "#306998",
+                  "rotationSpeed": 0.05,
+                  "orbitRadius": 11,
+                  "orbitSpeed": 0.018,
+                  "orbitAngleOffset": 0.8
                 },
                 "content": {
                   "title": "Excel To Graph",
@@ -555,7 +447,11 @@
                   "mass": 2.2,
                   "size": 1.55,
                   "texture": "assets/images/textures/asteroid6.jpg",
-                  "rotationSpeed": 0.051
+                  "color": "#306998",
+                  "rotationSpeed": 0.051,
+                  "orbitRadius": 10.5,
+                  "orbitSpeed": 0.016,
+                  "orbitAngleOffset": 0.6
                 },
                 "content": {
                   "title": "Summarize It",
@@ -574,7 +470,11 @@
               "mass": 18,
               "size": 4.0,
               "texture": "assets/images/textures/asteroid_orange.jpg",
-              "rotationSpeed": 0.028
+              "color": "#f05138",
+              "rotationSpeed": 0.028,
+              "orbitRadius": 45,
+              "orbitSpeed": 0.01,
+              "orbitAngleOffset": 0
             },
             "content": {
               "template": "projectList",
@@ -594,7 +494,11 @@
                   "mass": 2,
                   "size": 1.5,
                   "texture": "assets/images/textures/asteroid7.jpg",
-                  "rotationSpeed": 0.053
+                  "color": "#f05138",
+                  "rotationSpeed": 0.053,
+                  "orbitRadius": 10,
+                  "orbitSpeed": 0.02,
+                  "orbitAngleOffset": 1.2
                 },
                 "content": {
                   "title": "WawaChat for Mac",
@@ -615,7 +519,11 @@
           "mass": 70,
           "size": 10.4,
           "texture": "assets/images/textures/red-planet.jpg",
-          "rotationSpeed": 0.012
+          "color": "#ff0000",
+          "rotationSpeed": 0.012,
+          "orbitRadius": 140,
+          "orbitSpeed": 0.004,
+          "orbitAngleOffset": 0
         },
         "content": {
           "template": "gallery",
@@ -680,7 +588,11 @@
               "mass": 12,
               "size": 3.4,
               "texture": "assets/images/textures/moon_rocky.jpg",
-              "rotationSpeed": 0.017
+              "color": "#888888",
+              "rotationSpeed": 0.017,
+              "orbitRadius": 20,
+              "orbitSpeed": 0.01,
+              "orbitAngleOffset": 0
             },
             "content": {
               "template": "gallery",
@@ -698,7 +610,11 @@
                   "mass": 3,
                   "size": 1.8,
                   "texture": "assets/images/textures/nature.jpg",
-                  "rotationSpeed": 0.04
+                  "color": "#888888",
+                  "rotationSpeed": 0.04,
+                  "orbitRadius": 10,
+                  "orbitSpeed": 0.02,
+                  "orbitAngleOffset": 1.2
                 },
                 "content": {
                   "template": "gallery",
@@ -717,7 +633,11 @@
                   "mass": 2.8,
                   "size": 1.7,
                   "texture": "assets/images/textures/urban.jpg",
-                  "rotationSpeed": 0.042
+                  "color": "#888888",
+                  "rotationSpeed": 0.042,
+                  "orbitRadius": 9,
+                  "orbitSpeed": 0.018,
+                  "orbitAngleOffset": 0.8
                 },
                 "content": {
                   "template": "gallery",
@@ -738,7 +658,11 @@
               "mass": 8,
               "size": 2.8,
               "texture": "assets/images/textures/moon_crater.jpg",
-              "rotationSpeed": 0.022
+              "color": "#888888",
+              "rotationSpeed": 0.022,
+              "orbitRadius": 8,
+              "orbitSpeed": 0.016,
+              "orbitAngleOffset": 0.6
             },
             "content": {
               "template": "gallery",
@@ -757,7 +681,11 @@
               "mass": 6,
               "size": 2.4,
               "texture": "assets/images/textures/moon_smooth.jpg",
-              "rotationSpeed": 0.02
+              "color": "#888888",
+              "rotationSpeed": 0.02,
+              "orbitRadius": 7,
+              "orbitSpeed": 0.014,
+              "orbitAngleOffset": 0.4
             },
             "content": {
               "template": "gallery",
@@ -775,7 +703,11 @@
               "mass": 9,
               "size": 3.0,
               "texture": "assets/images/textures/hobbies.jpg",
-              "rotationSpeed": 0.023
+              "color": "#888888",
+              "rotationSpeed": 0.023,
+              "orbitRadius": 10,
+              "orbitSpeed": 0.02,
+              "orbitAngleOffset": 0
             },
             "content": {
               "template": "standard",
@@ -807,7 +739,6 @@
           },
           {
             "id": "filmography",
-            "parentId": "personal",
             "name": "Filmography",
             "description": "Media and film credits from IMDb",
             "group": "category",
@@ -816,7 +747,11 @@
               "mass": 45,
               "size": 8,
               "texture": "assets/images/textures/film.jpg",
-              "rotationSpeed": 0.012
+              "color": "#888888",
+              "rotationSpeed": 0.012,
+              "orbitRadius": 100,
+              "orbitSpeed": 0.004,
+              "orbitAngleOffset": 0
             },
             "content": {
               "template": "filmography",
@@ -870,7 +805,11 @@
           "mass": 60,
           "size": 9.2,
           "texture": "assets/images/textures/purple-planet.jpg",
-          "rotationSpeed": 0.011
+          "color": "#800080",
+          "rotationSpeed": 0.011,
+          "orbitRadius": 120,
+          "orbitSpeed": 0.004,
+          "orbitAngleOffset": 0
         },
         "content": {
           "template": "aboutMe",
@@ -896,7 +835,6 @@
         "children": [
           {
             "id": "contact",
-            "parentId": "about",
             "name": "Contact",
             "description": "Get in touch",
             "group": "category",
@@ -905,7 +843,11 @@
               "mass": 55,
               "size": 8.8,
               "texture": "assets/images/textures/yellow-planet.jpg",
-              "rotationSpeed": 0.013
+              "color": "#ffff00",
+              "rotationSpeed": 0.013,
+              "orbitRadius": 110,
+              "orbitSpeed": 0.004,
+              "orbitAngleOffset": 0
             },
             "content": {
               "template": "contact",
@@ -937,7 +879,11 @@
                   "mass": 8,
                   "size": 2.5,
                   "texture": "assets/images/textures/linkedin.jpg",
-                  "rotationSpeed": 0.02
+                  "color": "#0077b5",
+                  "rotationSpeed": 0.02,
+                  "orbitRadius": 15,
+                  "orbitSpeed": 0.01,
+                  "orbitAngleOffset": 0
                 },
                 "content": {
                   "template": "link",
@@ -957,7 +903,11 @@
                   "mass": 7,
                   "size": 2.3,
                   "texture": "assets/images/textures/github.jpg",
-                  "rotationSpeed": 0.025
+                  "color": "#333333",
+                  "rotationSpeed": 0.025,
+                  "orbitRadius": 14,
+                  "orbitSpeed": 0.01,
+                  "orbitAngleOffset": 0
                 },
                 "content": {
                   "template": "link",
@@ -977,7 +927,11 @@
                   "mass": 6,
                   "size": 2.1,
                   "texture": "assets/images/textures/imdb.jpg",
-                  "rotationSpeed": 0.022
+                  "color": "#f5c518",
+                  "rotationSpeed": 0.022,
+                  "orbitRadius": 13,
+                  "orbitSpeed": 0.01,
+                  "orbitAngleOffset": 0
                 },
                 "content": {
                   "template": "link",
@@ -997,7 +951,11 @@
                   "mass": 5,
                   "size": 1.9,
                   "texture": "assets/images/textures/email.jpg",
-                  "rotationSpeed": 0.018
+                  "color": "#d44638",
+                  "rotationSpeed": 0.018,
+                  "orbitRadius": 12,
+                  "orbitSpeed": 0.01,
+                  "orbitAngleOffset": 0
                 },
                 "content": {
                   "template": "link",
