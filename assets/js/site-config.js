@@ -86,10 +86,56 @@ class SiteConfigLoader {
       }
     }
     
+    // Apply navbar styling based on theme colors
+    this.applyNavbarStyling(config);
+    
+    // Apply menu colors if networkData is available
+    this.applyMenuColorsFromNetwork();
+    
     // Dispatch event to indicate config is applied
     window.dispatchEvent(new CustomEvent('siteConfigApplied', { 
       detail: { config } 
     }));
+  }
+  
+  /**
+   * Apply navbar styling based on theme colors
+   * @param {Object} config - Site configuration
+   */
+  static applyNavbarStyling(config) {
+    const navbar = document.querySelector('.navbar');
+    if (!navbar) return;
+    
+    // Keep navbar fully transparent without any borders
+    if (config.theme) {
+      if (config.theme.primaryColor) {
+        // Remove any existing border that might be set from elsewhere
+        navbar.style.borderBottom = 'none';
+        
+        // Add subtle text glow for menu items based on theme color
+        const menuItems = navbar.querySelectorAll('.nav-menu li a');
+        menuItems.forEach(item => {
+          item.style.textShadow = `0 0 10px ${config.theme.primaryColor}33`;
+        });
+      }
+    }
+  }
+  
+  /**
+   * Apply menu colors from network data
+   */
+  static applyMenuColorsFromNetwork() {
+    // If the menu color manager and network data are available, apply colors
+    if (window.applyMenuColors && window.networkData) {
+      window.applyMenuColors(window.networkData);
+    } else {
+      // If not immediately available, wait for graph loaded event
+      window.addEventListener('graphLoaded', () => {
+        if (window.applyMenuColors && window.networkData) {
+          window.applyMenuColors(window.networkData);
+        }
+      });
+    }
   }
 }
 

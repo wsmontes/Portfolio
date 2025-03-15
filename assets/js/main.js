@@ -102,6 +102,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     console.log('Navigation menu updated with data from unified source');
+    
+    // Apply menu colors if available
+    if (window.applyMenuColors && window.networkData) {
+      window.applyMenuColors(window.networkData);
+    }
+    
     return true;
   }
   

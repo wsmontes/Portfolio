@@ -69,6 +69,7 @@
     <script src="assets/js/content-loader.js"></script>
     <script src="assets/js/site-config.js"></script>
     <script src="assets/js/react-bridge.js"></script>
+    <script src="assets/js/menu-color-manager.js"></script>
     
     <!-- 5. Load dependent modules after THREE and data are available -->
     <script src="assets/js/celestial-bodies.js"></script>
@@ -78,6 +79,42 @@
     <script src="assets/js/graph.js"></script>
     
     <!-- 7. Load the React app (make sure the path is correct) -->
-    <script src="build/static/js/main.js"></script>
+    <!-- Check if build folder exists and has the correct structure -->
+    <script>
+        // Detect if the React app script fails to load
+        function handleReactLoadError() {
+            console.warn('Failed to load React app script. Falling back to standard content rendering.');
+            document.dispatchEvent(new Event('reactLoadFailed'));
+        }
+    </script>
+    <script src="build/static/js/main.js" onerror="handleReactLoadError()"></script>
+    
+    <!-- Fallback for development environments that might use a different path -->
+    <script>
+        // Check if React initialized, if not try alternative paths
+        setTimeout(function() {
+            if (!window.reactInitialized) {
+                console.log('Trying alternative React script paths...');
+                const paths = [
+                    'src/build/static/js/main.js',
+                    'dist/static/js/main.js',
+                    'static/js/main.js'
+                ];
+                
+                function tryLoadScript(index) {
+                    if (index >= paths.length) return;
+                    
+                    const script = document.createElement('script');
+                    script.src = paths[index];
+                    script.onerror = function() {
+                        tryLoadScript(index + 1);
+                    };
+                    document.body.appendChild(script);
+                }
+                
+                tryLoadScript(0);
+            }
+        }, 1000);
+    </script>
 </body>
 </html>

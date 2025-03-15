@@ -132,12 +132,22 @@ class NetworkDataGenerator {
     };
     
     // Add optional properties
-    if (visualization.emissive) node.emissive = visualization.emissive;
+    if (visualization.emissive) {
+      node.emissive = visualization.emissive;
+      // Store color separately for easier access by other components
+      node.color = visualization.emissive;
+    }
+    
+    if (visualization.color) {
+      node.color = visualization.color;
+    }
+    
     if (visualization.fixedPosition) {
       node.fx = 0; 
       node.fy = 0; 
       node.fz = 0;
     }
+    
     if (nodeData.parentId) node.parentId = nodeData.parentId;
     
     return node;

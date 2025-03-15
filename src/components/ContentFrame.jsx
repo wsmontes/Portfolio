@@ -5,16 +5,16 @@ const ContentFrame = ({ nodeId, onClose }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const [contentLoaded, setContentLoaded] = useState(false);
+  const [frameTitle, setFrameTitle] = useState('Content'); // Default title
   const contentContainerRef = useRef(null);
   
-  // Single useEffect for handling frame appearance and content loading
+  // First useEffect to handle frame visibility and content loading
   useEffect(() => {
     console.log("ContentFrame mounted for:", nodeId);
     const handleEsc = event => { if (event.key === 'Escape') triggerClose(); };
     window.addEventListener('keydown', handleEsc);
     
     // First show the frame with the loading indicator
-    // Small delay needed for the CSS transition to work properly
     const showFrameTimeout = setTimeout(() => setIsVisible(true), 10);
     
     // Then load the content
@@ -32,19 +32,16 @@ const ContentFrame = ({ nodeId, onClose }) => {
         
         window.ContentLoader.loadContent(nodeId, contentContainerRef.current)
           .then((result) => {
-            // Log the data returned from the content loader
             console.log(`Content loaded for ${nodeId}:`, result);
-            
-            // Only mark content as loaded after the frame is fully visible
             setTimeout(() => {
               setContentLoaded(true);
-            }, 300); // Wait for frame animation to complete
+            }, 300);
           })
           .catch((error) => {
             console.error(`Failed to load content for ${nodeId}:`, error);
             setContentLoaded(true);
           });
-      }, 300); // Wait for frame animation to start
+      }, 300);
       
       return () => {
         window.removeEventListener('keydown', handleEsc);
@@ -61,6 +58,23 @@ const ContentFrame = ({ nodeId, onClose }) => {
     };
   }, [nodeId]);
 
+  // Second useEffect to load the title from the unified data
+  useEffect(() => {
+    if (!nodeId || !window.ContentLoader) return;
+
+    // Get title from unified data
+    window.ContentLoader.getUnifiedData().then(unifiedData => {
+      const nodeData = window.ContentLoader.findNodeInUnifiedData(unifiedData, nodeId);
+      if (nodeData) {
+        // First try content.title, then fall back to node name
+        const title = nodeData.content?.title || nodeData.name || 'Content';
+        setFrameTitle(title);
+      }
+    }).catch(error => {
+      console.error("Error fetching title data:", error);
+    });
+  }, [nodeId]);
+
   const triggerClose = () => {
     if (isClosing) return;
     setIsClosing(true);
@@ -72,18 +86,6 @@ const ContentFrame = ({ nodeId, onClose }) => {
     
     // Animation duration for smoother exit
     setTimeout(() => { onClose(); }, 400);
-  };
-
-  // Determine frame title based on node ID
-  const getFrameTitle = () => {
-    switch(nodeId) {
-      case 'professional': return 'Professional Experience';
-      case 'repositories': return 'Code Repositories';
-      case 'personal': return 'Personal Projects';
-      case 'about': return 'About Me';
-      case 'contact': return 'Contact';
-      default: return 'Content';
-    }
   };
 
   // Render appropriate content
@@ -118,7 +120,7 @@ const ContentFrame = ({ nodeId, onClose }) => {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="frame-header">
-          <h2>{getFrameTitle()}</h2>
+          <h2>{frameTitle}</h2>
           <button className="close-button" onClick={triggerClose} aria-label="Close">
             <span aria-hidden="true">×</span>
           </button>

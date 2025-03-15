@@ -32,3 +32,24 @@
   // Start checking for THREE
   checkThreeAvailability();
 })();
+
+/**
+ * THREE.js Initialization
+ * Sets up THREE globally to avoid multiple instances
+ */
+
+// Make sure THREE is available globally
+window.THREE = THREE;
+
+console.log("THREE.js initialized globally");
+
+// Optionally detect multiple instances
+const originalWarn = console.warn;
+console.warn = function() {
+  const args = Array.from(arguments);
+  if (args[0] && typeof args[0] === 'string' && 
+      args[0].includes('Multiple instances of Three.js')) {
+    console.error('THREE.js multiple instances detected. This can cause serious issues. Please check imports.');
+  }
+  originalWarn.apply(console, args);
+};
