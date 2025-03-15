@@ -176,8 +176,13 @@
                     .onEngineStop(() => {
                         hideLoadingScreen();
                         
-                        // Adjust camera position immediately when engine stops
-                        fitNodesToView(graph, 1500);
+                        // Use CameraManager for initial view
+                        if (window.CameraManager) {
+                            window.CameraManager.fitAllNodes(graph, 1500);
+                        } else {
+                            // Fallback to built-in function
+                            fitNodesToView(graph, 1500);
+                        }
                     });
                 
                 // Setup force physics without direct d3 references
@@ -387,6 +392,24 @@
 
                 // Make focusOnNode function available globally
                 window.focusOnNode = (nodeId, showContentAfter = false) => {
+                    // Use CameraManager if available
+                    if (window.CameraManager) {
+                        const success = window.CameraManager.focusOnNode(graph, nodeId, CAMERA_ANIMATION_DURATION);
+                        
+                        // If showContentAfter is true, dispatch the nodeClick event after camera movement
+                        if (success && showContentAfter) {
+                            setTimeout(() => {
+                                const clickEvent = new CustomEvent('nodeClick', {
+                                    detail: { id: nodeId, showContent: true }
+                                });
+                                window.dispatchEvent(clickEvent);
+                            }, CONTENT_DELAY);
+                        }
+                        
+                        return success;
+                    }
+                    
+                    // Fallback implementation
                     const nodes = graph.graphData().nodes;
                     const node = nodes.find(n => n.id === nodeId);
                     
@@ -420,15 +443,20 @@
                 
                 // Make resetGraphView function available globally
                 window.resetGraphView = () => {
-                    // Calculate center of graph nodes and optimal distance
-                    const graphCenter = calculateGraphCenter(graph.graphData().nodes);
-                    const optimalDistance = calculateOptimalCameraDistance();
-                    
-                    graph.cameraPosition({ 
-                        x: graphCenter.x, 
-                        y: graphCenter.y, 
-                        z: optimalDistance 
-                    }, { x: graphCenter.x, y: graphCenter.y, z: 0 }, 800);
+                    // Use CameraManager if available
+                    if (window.CameraManager) {
+                        window.CameraManager.resetToHomeView(graph, 800);
+                    } else {
+                        // Calculate center of graph nodes and optimal distance
+                        const graphCenter = calculateGraphCenter(graph.graphData().nodes);
+                        const optimalDistance = calculateOptimalCameraDistance();
+                        
+                        graph.cameraPosition({ 
+                            x: graphCenter.x, 
+                            y: graphCenter.y, 
+                            z: optimalDistance 
+                        }, { x: graphCenter.x, y: graphCenter.y, z: 0 }, 800);
+                    }
                     
                     // If there's a content panel open, hide it
                     hidePanel();
@@ -914,7 +942,12 @@
         
         // Enhanced: Function to fit all nodes in view with improved X/Y positioning
         function fitNodesToView(graph, duration = 1500, easeOnly = false, improveXY = false) {
-            // Reduced default duration for faster response
+            // Use CameraManager if available for better camera positioning
+            if (window.CameraManager) {
+                return window.CameraManager.fitAllNodes(graph, duration, easeOnly);
+            }
+            
+            // Fallback implementation if CameraManager is not available
             if (!graph || !graph.graphData) return;
             
             console.log(`Fitting nodes to view: duration=${duration}, easeOnly=${easeOnly}, improveXY=${improveXY}`);

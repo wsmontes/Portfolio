@@ -19,8 +19,8 @@
   "graphConfig": {
     "centerNode": {
       "id": "center",
-      "name": "Portfolio",
-      "description": "Explore my interactive portfolio system",
+      "name": "About Me",
+      "description": "Introduction to my portfolio",
       "group": "main",
       "visualization": {
         "val": 80,
@@ -36,9 +36,25 @@
         "initialPosition": {"x": 0, "y": 0, "z": 0}
       },
       "content": {
-        "template": "standard",
-        "title": "Interactive Portfolio",
-        "intro": "Welcome to my interactive portfolio visualization. Click on nodes to explore different sections.",
+        "template": "aboutMe",
+        "title": "Wagner Montes",
+        "profileImage": "assets/images/wagner.jpeg",
+        "introduction": "Hi, I'm Wagner Montes – a hybrid IT professional specializing in business analysis, product development, and AI solutions.",
+        "bio": "I bring a blend of business analysis expertise, product development experience, and hands-on coding skills to drive digital transformation and process improvement. With significant roles at ICBC, Lotier International, CGI, and PARC Systems, I've led complex projects in government, telecommunications, and healthcare. My active GitHub contributions demonstrate deep technical engagement in AI, ML, and interactive projects, while my IMDb credits underscore my involvement in digital media and creative productions.",
+        "skills": [
+          "Business Analysis",
+          "Product Development",
+          "Solution Architecture",
+          "Digital Transformation",
+          "AI & Generative Models",
+          "Process Modeling",
+          "Data Analysis",
+          "Automation"
+        ],
+        "contact": {
+          "email": "contact@example.com",
+          "linkedin": "https://www.linkedin.com/in/wsmontes"
+        },
         "sections": [
           {
             "title": "How to Navigate",
@@ -796,176 +812,136 @@
         ]
       },
       {
-        "id": "about",
-        "name": "About Me",
-        "description": "Learn more about me",
+        "id": "contact",
+        "name": "Contact",
+        "description": "Get in touch",
         "group": "category",
         "visualization": {
-          "val": 55,
-          "mass": 60,
-          "size": 9.2,
-          "texture": "assets/images/textures/purple-planet.jpg",
-          "color": "#800080",
-          "rotationSpeed": 0.011,
-          "orbitRadius": 120,
+          "val": 52,
+          "mass": 55,
+          "size": 8.8,
+          "texture": "assets/images/textures/yellow-planet.jpg",
+          "color": "#ffff00",
+          "rotationSpeed": 0.013,
+          "orbitRadius": 110,
           "orbitSpeed": 0.004,
           "orbitAngleOffset": 0
         },
         "content": {
-          "template": "aboutMe",
-          "title": "About Me",
-          "profileImage": "assets/images/wagner.jpeg",
-          "introduction": "Hi, I'm Wagner Montes – a hybrid IT professional specializing in business analysis, product development, and AI solutions.",
-          "bio": "I bring a blend of business analysis expertise, product development experience, and hands-on coding skills to drive digital transformation and process improvement. With significant roles at ICBC, Lotier International, CGI, and PARC Systems, I've led complex projects in government, telecommunications, and healthcare. My active GitHub contributions demonstrate deep technical engagement in AI, ML, and interactive projects, while my IMDb credits underscore my involvement in digital media and creative productions.",
-          "skills": [
-            "Business Analysis",
-            "Product Development",
-            "Solution Architecture",
-            "Digital Transformation",
-            "AI & Generative Models",
-            "Process Modeling",
-            "Data Analysis",
-            "Automation"
-          ],
-          "contact": {
-            "email": "contact@example.com",
-            "linkedin": "https://www.linkedin.com/in/wsmontes"
-          }
+          "template": "contact",
+          "title": "Contact Me",
+          "intro": "I'm always open to new opportunities and collaborations.",
+          "contactInfo": [
+            {
+              "icon": "fas fa-envelope",
+              "value": "wsmontes@gmail.com"
+            },
+            {
+              "icon": "fas fa-map-marker-alt",
+              "value": "Victoria, BC, Canada"
+            },
+            {
+              "icon": "fas fa-phone",
+              "value": "+1 (250) 893-8338"
+            }
+          ]
         },
         "children": [
           {
-            "id": "contact",
-            "name": "Contact",
-            "description": "Get in touch",
-            "group": "category",
+            "id": "linkedin_contact",
+            "name": "LinkedIn",
+            "description": "Professional profile",
+            "group": "social",
             "visualization": {
-              "val": 52,
-              "mass": 55,
-              "size": 8.8,
-              "texture": "assets/images/textures/yellow-planet.jpg",
-              "color": "#ffff00",
-              "rotationSpeed": 0.013,
-              "orbitRadius": 110,
-              "orbitSpeed": 0.004,
+              "val": 20,
+              "mass": 8,
+              "size": 2.5,
+              "texture": "assets/images/textures/linkedin.jpg",
+              "color": "#0077b5",
+              "rotationSpeed": 0.02,
+              "orbitRadius": 15,
+              "orbitSpeed": 0.01,
               "orbitAngleOffset": 0
             },
             "content": {
-              "template": "contact",
-              "title": "Contact Me",
-              "intro": "I'm always open to new opportunities and collaborations.",
-              "contactInfo": [
-                {
-                  "icon": "fas fa-envelope",
-                  "value": "wsmontes@gmail.com"
-                },
-                {
-                  "icon": "fas fa-map-marker-alt",
-                  "value": "Victoria, BC, Canada"
-                },
-                {
-                  "icon": "fas fa-phone",
-                  "value": "+1 (250) 893-8338"
-                }
-              ]
+              "template": "link",
+              "title": "LinkedIn Profile",
+              "description": "Connect with me on LinkedIn",
+              "icon": "fab fa-linkedin",
+              "url": "https://www.linkedin.com/in/wsmontes"
+            }
+          },
+          {
+            "id": "github_contact",
+            "name": "GitHub",
+            "description": "Code repositories",
+            "group": "social",
+            "visualization": {
+              "val": 18,
+              "mass": 7,
+              "size": 2.3,
+              "texture": "assets/images/textures/github.jpg",
+              "color": "#333333",
+              "rotationSpeed": 0.025,
+              "orbitRadius": 14,
+              "orbitSpeed": 0.01,
+              "orbitAngleOffset": 0
             },
-            "children": [
-              {
-                "id": "linkedin_contact",
-                "name": "LinkedIn",
-                "description": "Professional profile",
-                "group": "social",
-                "visualization": {
-                  "val": 20,
-                  "mass": 8,
-                  "size": 2.5,
-                  "texture": "assets/images/textures/linkedin.jpg",
-                  "color": "#0077b5",
-                  "rotationSpeed": 0.02,
-                  "orbitRadius": 15,
-                  "orbitSpeed": 0.01,
-                  "orbitAngleOffset": 0
-                },
-                "content": {
-                  "template": "link",
-                  "title": "LinkedIn Profile",
-                  "description": "Connect with me on LinkedIn",
-                  "icon": "fab fa-linkedin",
-                  "url": "https://www.linkedin.com/in/wsmontes"
-                }
-              },
-              {
-                "id": "github_contact",
-                "name": "GitHub",
-                "description": "Code repositories",
-                "group": "social",
-                "visualization": {
-                  "val": 18,
-                  "mass": 7,
-                  "size": 2.3,
-                  "texture": "assets/images/textures/github.jpg",
-                  "color": "#333333",
-                  "rotationSpeed": 0.025,
-                  "orbitRadius": 14,
-                  "orbitSpeed": 0.01,
-                  "orbitAngleOffset": 0
-                },
-                "content": {
-                  "template": "link",
-                  "title": "GitHub Profile",
-                  "description": "Check out my code projects",
-                  "icon": "fab fa-github",
-                  "url": "https://github.com/wsmontes"
-                }
-              },
-              {
-                "id": "imdb_contact",
-                "name": "IMDb",
-                "description": "Filmography credits",
-                "group": "social",
-                "visualization": {
-                  "val": 16,
-                  "mass": 6,
-                  "size": 2.1,
-                  "texture": "assets/images/textures/imdb.jpg",
-                  "color": "#f5c518",
-                  "rotationSpeed": 0.022,
-                  "orbitRadius": 13,
-                  "orbitSpeed": 0.01,
-                  "orbitAngleOffset": 0
-                },
-                "content": {
-                  "template": "link",
-                  "title": "IMDb Profile",
-                  "description": "View my film and media credits",
-                  "icon": "fab fa-imdb",
-                  "url": "https://www.imdb.com/name/nm9506783/"
-                }
-              },
-              {
-                "id": "email_contact",
-                "name": "Email",
-                "description": "Direct message",
-                "group": "social",
-                "visualization": {
-                  "val": 14,
-                  "mass": 5,
-                  "size": 1.9,
-                  "texture": "assets/images/textures/email.jpg",
-                  "color": "#d44638",
-                  "rotationSpeed": 0.018,
-                  "orbitRadius": 12,
-                  "orbitSpeed": 0.01,
-                  "orbitAngleOffset": 0
-                },
-                "content": {
-                  "template": "link",
-                  "title": "Email Contact",
-                  "description": "Send me an email",
-                  "icon": "fas fa-envelope",
-                  "url": "mailto:wsmontes@gmail.com"
-                }
-              }
-            ]
+            "content": {
+              "template": "link",
+              "title": "GitHub Profile",
+              "description": "Check out my code projects",
+              "icon": "fab fa-github",
+              "url": "https://github.com/wsmontes"
+            }
+          },
+          {
+            "id": "imdb_contact",
+            "name": "IMDb",
+            "description": "Filmography credits",
+            "group": "social",
+            "visualization": {
+              "val": 16,
+              "mass": 6,
+              "size": 2.1,
+              "texture": "assets/images/textures/imdb.jpg",
+              "color": "#f5c518",
+              "rotationSpeed": 0.022,
+              "orbitRadius": 13,
+              "orbitSpeed": 0.01,
+              "orbitAngleOffset": 0
+            },
+            "content": {
+              "template": "link",
+              "title": "IMDb Profile",
+              "description": "View my film and media credits",
+              "icon": "fab fa-imdb",
+              "url": "https://www.imdb.com/name/nm9506783/"
+            }
+          },
+          {
+            "id": "email_contact",
+            "name": "Email",
+            "description": "Direct message",
+            "group": "social",
+            "visualization": {
+              "val": 14,
+              "mass": 5,
+              "size": 1.9,
+              "texture": "assets/images/textures/email.jpg",
+              "color": "#d44638",
+              "rotationSpeed": 0.018,
+              "orbitRadius": 12,
+              "orbitSpeed": 0.01,
+              "orbitAngleOffset": 0
+            },
+            "content": {
+              "template": "link",
+              "title": "Email Contact",
+              "description": "Send me an email",
+              "icon": "fas fa-envelope",
+              "url": "mailto:wsmontes@gmail.com"
+            }
           }
         ]
       }
