@@ -51,7 +51,9 @@
           "mass": 60,
           "size": 9.2,
           "texture": "assets/images/textures/purple-planet.jpg",
-          "rotationSpeed": 0.011
+          "rotationSpeed": 0.011,
+          "color": "#FF5733",
+          "fixedPosition": true
         },
         "content": {
           "template": "aboutMe",
@@ -436,7 +438,9 @@
           "mass": 55,
           "size": 8.8,
           "texture": "assets/images/textures/yellow-planet.jpg",
-          "rotationSpeed": 0.013
+          "rotationSpeed": 0.013,
+          "color": "#33FF57",
+          "fixedPosition": true
         },
         "content": {
           "template": "contact",
