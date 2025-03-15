@@ -1,0 +1,524 @@
+{
+  "_templateInfo": {
+    "purpose": "This is a comprehensive template that demonstrates all possible configuration options for the interactive portfolio system.",
+    "usage": "Use this as a reference when customizing your portfolio. Copy sections as needed and modify to fit your content.",
+    "version": "1.0"
+  },
+
+  "siteConfig": {
+    "title": "Full Site Title (shown in browser tab)",
+    "shortTitle": "Short Title (shown in navbar)",
+    "metaDescription": "SEO description of your portfolio site for search engines",
+    "favicon": "assets/images/favicon.png",
+    "logo": {
+      "text": "Logo Text",
+      "image": "assets/images/logo.png" 
+    },
+    "theme": {
+      "primaryColor": "#4a6cf7",
+      "accentColor": "#7c3aed",
+      "textColor": "#f1f5f9",
+      "backgroundColor": "#000",
+      "cardBackground": "rgba(30, 41, 59, 0.85)"
+    }
+  },
+
+  "graphConfig": {
+    "centerNode": {
+      "id": "center",
+      "name": "Portfolio",
+      "description": "Central node description",
+      "group": "main", 
+      "visualization": {
+        "val": 80,
+        "mass": 200,
+        "size": 18,
+        "texture": "assets/images/textures/sun.jpg",
+        "color": "#ffffff",
+        "emissive": true,
+        "emissiveColor": "#ffcc00",
+        "emissiveIntensity": 0.5,
+        "rotationSpeed": 0.003,
+        "fixedPosition": true,
+        "initialPosition": {"x": 0, "y": 0, "z": 0}
+      },
+      "content": {
+        "template": "standard",
+        "title": "Interactive Portfolio",
+        "intro": "Welcome introduction text",
+        "sections": [
+          {
+            "title": "Navigation Guide",
+            "text": "Instructions on how to navigate the portfolio"
+          },
+          {
+            "title": "About This Project",
+            "text": "Description of the portfolio project"
+          }
+        ]
+      }
+    },
+
+    "categories": [
+      {
+        "id": "example_category",
+        "name": "Example Category",
+        "description": "Description of this category",
+        "group": "category",
+        "visualization": {
+          "val": 60,
+          "mass": 80,
+          "size": 12,
+          "texture": "assets/images/textures/planet1.jpg",
+          "color": "#ff9900",
+          "rotationSpeed": 0.01,
+          "orbitRadius": 100,
+          "orbitSpeed": 0.005,
+          "orbitAngleOffset": 0
+        },
+        "content": {
+          "template": "standard",
+          "title": "Category Title",
+          "intro": "Introduction text for this category",
+          "description": "Extended description of this category",
+          "image": "assets/images/category-image.jpg",
+          "listItems": [
+            {
+              "title": "Item 1",
+              "description": "Description of item 1"
+            },
+            {
+              "title": "Item 2",
+              "description": "Description of item 2"
+            }
+          ]
+        },
+        "children": [
+          {
+            "id": "example_subcategory",
+            "name": "Example Subcategory",
+            "description": "Description of this subcategory",
+            "group": "subcategory",
+            "parentId": "example_category",
+            "visualization": {
+              "val": 30,
+              "mass": 16,
+              "size": 4,
+              "texture": "assets/images/textures/moon1.jpg",
+              "color": "#cccccc",
+              "rotationSpeed": 0.02,
+              "orbitRadius": 30,
+              "orbitSpeed": 0.01,
+              "orbitAngleOffset": 0.5
+            },
+            "content": {
+              "template": "standard",
+              "title": "Subcategory Title",
+              "description": "Detailed description of this subcategory",
+              "url": "https://example.com",
+              "urlText": "Visit Website",
+              "icon": "fas fa-external-link-alt"
+            }
+          },
+          {
+            "id": "example_cluster",
+            "name": "Example Cluster",
+            "description": "Group of related items",
+            "group": "cluster",
+            "parentId": "example_category",
+            "visualization": {
+              "val": 24,
+              "mass": 20,
+              "size": 4.4,
+              "texture": "assets/images/textures/asteroid_field.jpg",
+              "color": "#ff5500",
+              "rotationSpeed": 0.03,
+              "orbitRadius": 40,
+              "orbitSpeed": 0.008,
+              "orbitAngleOffset": 2.1
+            },
+            "content": {
+              "template": "projectList",
+              "title": "Cluster Projects",
+              "description": "Collection of related projects",
+              "filterType": "technology",
+              "filterValue": "javascript"
+            },
+            "children": [
+              {
+                "id": "example_item",
+                "name": "Example Item",
+                "description": "Individual project or item",
+                "group": "item",
+                "parentId": "example_cluster",
+                "visualization": {
+                  "val": 12,
+                  "mass": 2,
+                  "size": 1.6,
+                  "texture": "assets/images/textures/asteroid1.jpg",
+                  "color": "#888888",
+                  "rotationSpeed": 0.05,
+                  "orbitRadius": 10,
+                  "orbitSpeed": 0.02,
+                  "orbitAngleOffset": 1.2
+                },
+                "content": {
+                  "template": "standard",
+                  "title": "Item Title",
+                  "description": "Detailed description of this item",
+                  "projectId": "reference_to_project_in_repositories"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      
+      {
+        "id": "professional",
+        "name": "Professional Experience",
+        "description": "Work history and professional achievements",
+        "group": "category",
+        "visualization": {
+          "val": 64,
+          "mass": 80,
+          "size": 11.4,
+          "texture": "assets/images/textures/blue-planet.jpg",
+          "rotationSpeed": 0.01
+        },
+        "content": {
+          "template": "standard",
+          "title": "Professional Experience",
+          "intro": "Overview of career path and achievements",
+          "experiences": [
+            {
+              "title": "Job Title",
+              "company": "Company Name",
+              "dateRange": "Jan 2020 - Present",
+              "description": "Description of role and responsibilities",
+              "icon": "fas fa-briefcase",
+              "detailsLink": "#job_detail_node_id"
+            }
+          ]
+        }
+      },
+      
+      {
+        "id": "repositories",
+        "name": "Code Repositories",
+        "description": "Software development projects",
+        "group": "category",
+        "visualization": {
+          "val": 70,
+          "mass": 90,
+          "size": 12.6,
+          "texture": "assets/images/textures/green-planet.jpg",
+          "rotationSpeed": 0.008
+        },
+        "content": {
+          "template": "projectList",
+          "title": "Code Repositories",
+          "intro": "Collection of coding projects and repositories",
+          "filterCategories": [
+            { "id": "web", "name": "Web Apps" },
+            { "id": "mobile", "name": "Mobile Apps" },
+            { "id": "data", "name": "Data Projects" },
+            { "id": "ai", "name": "AI Projects" }
+          ],
+          "projects": [
+            {
+              "id": "project_id",
+              "title": "Project Title",
+              "description": "Description of the project",
+              "technologies": ["React", "Node.js", "MongoDB"],
+              "category": "web",
+              "image": "assets/images/projects/project1.jpg",
+              "liveUrl": "https://example.com/project",
+              "githubUrl": "https://github.com/username/project",
+              "features": [
+                "Feature 1 description",
+                "Feature 2 description"
+              ]
+            }
+          ]
+        }
+      },
+      
+      {
+        "id": "personal",
+        "name": "Personal Universe",
+        "description": "Personal interests and activities",
+        "group": "category",
+        "visualization": {
+          "val": 60,
+          "mass": 70,
+          "size": 10.4,
+          "texture": "assets/images/textures/red-planet.jpg",
+          "rotationSpeed": 0.012
+        },
+        "content": {
+          "template": "gallery",
+          "title": "Personal Universe",
+          "intro": "Explore my personal interests and creative pursuits",
+          "categories": [
+            { "id": "all", "name": "All Photos" },
+            { "id": "nature", "name": "Nature" },
+            { "id": "urban", "name": "Urban" },
+            { "id": "portrait", "name": "Portraits" }
+          ],
+          "photos": [
+            {
+              "title": "Photo Title",
+              "description": "Description of the photo",
+              "image": "assets/images/photos/photo1.jpg",
+              "category": "nature",
+              "date": "June 2023",
+              "location": "Location Name"
+            }
+          ],
+          "imdb": [
+            {
+              "title": "IMDB Profile",
+              "description": "View my filmography and media projects",
+              "url": "https://www.imdb.com/name/nm1234567/",
+              "image": "assets/images/media/imdb-profile.jpg",
+              "rating": "★★★★☆"
+            }
+          ],
+          "instagram": [
+            {
+              "image": "assets/images/social/insta1.jpg",
+              "caption": "Instagram post caption",
+              "date": "2023-06-15",
+              "url": "https://instagram.com/p/example"
+            }
+          ]
+        }
+      },
+      
+      {
+        "id": "about",
+        "name": "About Me",
+        "description": "Personal information and background",
+        "group": "category",
+        "visualization": {
+          "val": 55,
+          "mass": 60,
+          "size": 9.2,
+          "texture": "assets/images/textures/purple-planet.jpg",
+          "rotationSpeed": 0.011
+        },
+        "content": {
+          "template": "aboutMe",
+          "title": "About Me",
+          "profileImage": "assets/images/profile.jpg",
+          "introduction": "Brief introduction paragraph",
+          "bio": "Extended biography with more details",
+          "skills": [
+            "Skill 1",
+            "Skill 2",
+            "Skill 3"
+          ],
+          "contact": {
+            "email": "contact@example.com",
+            "linkedin": "https://www.linkedin.com/in/username"
+          },
+          "education": [
+            {
+              "institution": "University Name",
+              "degree": "Degree Name",
+              "dateRange": "2015 - 2019",
+              "description": "Description of studies",
+              "icon": "fas fa-graduation-cap"
+            }
+          ]
+        }
+      },
+      
+      {
+        "id": "publications",
+        "name": "Publications",
+        "description": "Academic and professional publications",
+        "group": "category",
+        "visualization": {
+          "val": 50,
+          "mass": 50,
+          "size": 9,
+          "texture": "assets/images/textures/book.jpg",
+          "rotationSpeed": 0.012
+        },
+        "content": {
+          "template": "publicationList",
+          "title": "Publications",
+          "intro": "List of academic and professional publications",
+          "publications": [
+            {
+              "title": "Publication Title",
+              "authors": "Author list with names",
+              "journal": "Journal or Publisher Name",
+              "publicationDate": "Publication date",
+              "abstract": "Brief abstract or summary",
+              "url": "https://doi.org/example",
+              "format": "Paper/Book/Article",
+              "pages": "Page count or page range",
+              "language": "Publication language",
+              "isbn": "ISBN if applicable",
+              "doi": "DOI if applicable",
+              "image": "Cover image path"
+            }
+          ]
+        }
+      },
+      
+      {
+        "id": "filmography",
+        "name": "Filmography",
+        "description": "Film and media credits",
+        "group": "category",
+        "visualization": {
+          "val": 48,
+          "mass": 45,
+          "size": 8,
+          "texture": "assets/images/textures/film.jpg",
+          "rotationSpeed": 0.012
+        },
+        "content": {
+          "template": "filmography",
+          "title": "Filmography",
+          "intro": "Film and media production credits",
+          "credits": [
+            {
+              "title": "Film or Project Title",
+              "year": "Year of release",
+              "role": "Your role in the production",
+              "director": "Director name",
+              "department": "Production department",
+              "rating": "Rating if available",
+              "url": "IMDB or other link",
+              "image": "Film poster or production image",
+              "description": "Brief description of the project"
+            }
+          ]
+        }
+      },
+      
+      {
+        "id": "contact",
+        "name": "Contact",
+        "description": "Contact information and form",
+        "group": "category",
+        "visualization": {
+          "val": 52,
+          "mass": 55,
+          "size": 8.8,
+          "texture": "assets/images/textures/yellow-planet.jpg",
+          "rotationSpeed": 0.013
+        },
+        "content": {
+          "template": "contact",
+          "title": "Contact Me",
+          "intro": "Get in touch for opportunities and collaborations",
+          "contactInfo": [
+            {
+              "icon": "fas fa-envelope",
+              "value": "email@example.com"
+            },
+            {
+              "icon": "fas fa-map-marker-alt",
+              "value": "City, Country"
+            },
+            {
+              "icon": "fas fa-phone",
+              "value": "+1 (555) 123-4567"
+            }
+          ],
+          "formEndpoint": "https://formsubmit.co/your@email.com",
+          "formFields": [
+            {
+              "type": "text",
+              "name": "name",
+              "label": "Name",
+              "required": true
+            },
+            {
+              "type": "email",
+              "name": "email",
+              "label": "Email",
+              "required": true
+            },
+            {
+              "type": "textarea",
+              "name": "message",
+              "label": "Message",
+              "required": true
+            }
+          ]
+        },
+        "children": [
+          {
+            "id": "social_link_example",
+            "name": "Social Platform",
+            "description": "Social media profile",
+            "group": "social",
+            "parentId": "contact",
+            "visualization": {
+              "val": 20,
+              "mass": 8,
+              "size": 2.5,
+              "texture": "assets/images/textures/social_platform.jpg",
+              "rotationSpeed": 0.02
+            },
+            "content": {
+              "template": "link",
+              "title": "Social Platform Profile",
+              "description": "Follow me on Social Platform",
+              "icon": "fab fa-platform-icon",
+              "url": "https://platform.com/username"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  
+  "_templateNotes": {
+    "visualizationOptions": {
+      "val": "Node value (affects physics)",
+      "mass": "Node mass (affects physics)",
+      "size": "Visual size of the node",
+      "texture": "Path to texture image",
+      "color": "Hex color code (alternative to texture)",
+      "emissive": "Whether the node emits light",
+      "emissiveColor": "Color of emitted light",
+      "emissiveIntensity": "Brightness of emitted light",
+      "rotationSpeed": "How fast the node rotates",
+      "orbitRadius": "Distance from parent node",
+      "orbitSpeed": "Speed of orbit around parent",
+      "orbitAngleOffset": "Starting position in orbit",
+      "fixedPosition": "Whether node stays in place"
+    },
+    
+    "nodeGroups": {
+      "main": "Central portfolio node",
+      "category": "Main section nodes (planets)",
+      "subcategory": "Secondary nodes (moons)",
+      "cluster": "Group of related items (asteroid fields)",
+      "item": "Individual items (asteroids)",
+      "experience": "Professional experience node",
+      "social": "Social media link node"
+    },
+    
+    "templates": {
+      "standard": "Basic content display with title and text",
+      "gallery": "Image gallery with filtering options",
+      "projectList": "List of projects with filters",
+      "aboutMe": "Personal profile with bio and skills",
+      "educationList": "List of educational qualifications",
+      "experienceDetail": "Detailed professional experience",
+      "publicationList": "Academic and professional publications",
+      "filmography": "Film and media credits",
+      "contact": "Contact information and form",
+      "link": "External link with description"
+    }
+  }
+}

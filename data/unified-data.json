@@ -188,6 +188,123 @@
                 }
               ]
             }
+          },
+          {
+            "id": "icbc_experience",
+            "name": "ICBC",
+            "description": "Experience at Insurance Corporation of British Columbia",
+            "group": "experience",
+            "visualization": {
+              "val": 26,
+              "mass": 14,
+              "size": 3.8,
+              "texture": "assets/images/textures/company1.jpg",
+              "rotationSpeed": 0.019
+            },
+            "content": {
+              "template": "experienceDetail",
+              "title": "ICBC Experience",
+              "company": "Insurance Corporation of British Columbia",
+              "position": "Business System Analyst",
+              "dateRange": "Jan 2025 - Present",
+              "description": "Contract full-time role focusing on business systems analysis and process optimization.",
+              "highlights": [
+                "Business systems analysis",
+                "Process optimization",
+                "Requirements gathering",
+                "Stakeholder management"
+              ]
+            }
+          },
+          {
+            "id": "cgi_experience",
+            "name": "CGI",
+            "description": "Experience at CGI",
+            "group": "experience",
+            "visualization": {
+              "val": 24,
+              "mass": 13,
+              "size": 3.6,
+              "texture": "assets/images/textures/company2.jpg",
+              "rotationSpeed": 0.021
+            },
+            "content": {
+              "template": "experienceDetail",
+              "title": "CGI Experience",
+              "company": "CGI",
+              "position": "Senior Consultant / Consultant",
+              "dateRange": "Apr 2022 - Jan 2025",
+              "description": "Led data analysis, process modeling, and business system development for BC government projects.",
+              "projects": [
+                "MEDIS LTC",
+                "MHSU",
+                "AIMS",
+                "HCC",
+                "PCD",
+                "ALR",
+                "IDAM AM"
+              ]
+            }
+          },
+          {
+            "id": "parc_experience",
+            "name": "PARC Systems",
+            "description": "Experience at PARC Systems Inc",
+            "group": "experience",
+            "visualization": {
+              "val": 22,
+              "mass": 12,
+              "size": 3.4,
+              "texture": "assets/images/textures/company3.jpg",
+              "rotationSpeed": 0.022
+            },
+            "content": {
+              "template": "experienceDetail",
+              "title": "PARC Systems Experience",
+              "company": "PARC Systems Inc",
+              "position": "Technical Business Analyst",
+              "dateRange": "Nov 2019 - Mar 2022",
+              "description": "Drove technical business analysis, data transformation, and process improvement across public sector projects.",
+              "projects": [
+                "MALS 2",
+                "Attorney General/RoadSafetyBC",
+                "WRHA",
+                "Health Data Migration"
+              ]
+            }
+          },
+          {
+            "id": "publications",
+            "parentId": "professional",
+            "name": "Publications",
+            "description": "Academic and professional publications",
+            "group": "category",
+            "visualization": {
+              "val": 50,
+              "mass": 50,
+              "size": 9,
+              "texture": "assets/images/textures/book.jpg",
+              "rotationSpeed": 0.012
+            },
+            "content": {
+              "template": "publicationList",
+              "title": "Publications",
+              "intro": "Explore my academic and professional publications.",
+              "publications": [
+                {
+                  "title": "Over the top: O consumo audiovisual em softwares culturais: O video sob demanda e suas implicações no futuro da televisão",
+                  "format": "Paperback",
+                  "publicationDate": "Aug. 4 2015",
+                  "publisher": "Novas Edições Acadêmicas",
+                  "pages": "104 pages",
+                  "language": "Portuguese",
+                  "isbn10": "3639832027",
+                  "isbn13": "978-3639832020",
+                  "dimensions": "15.01 x 0.61 x 22 cm",
+                  "description": "An analysis of how new media and the internet subvert geographic barriers, transforming audiovisual consumption and redefining the user experience with software."
+                }
+              ]
+            }
           }
         ]
       },
@@ -337,6 +454,40 @@
                   "title": "Interactive Portfolio (JS)",
                   "projectId": "TechBR"
                 }
+              },
+              {
+                "id": "tts_chrome_ext",
+                "name": "TTS Chrome Extension",
+                "description": "Text-to-Speech browser extension",
+                "group": "item",
+                "visualization": {
+                  "val": 13,
+                  "mass": 2.5,
+                  "size": 1.7,
+                  "texture": "assets/images/textures/asteroid2.jpg",
+                  "rotationSpeed": 0.048
+                },
+                "content": {
+                  "title": "Text-to-Speech Chrome Extension",
+                  "projectId": "TTS-Chrome-Extension"
+                }
+              },
+              {
+                "id": "table_exporter_js",
+                "name": "Table Exporter",
+                "description": "Data export utility",
+                "group": "item",
+                "visualization": {
+                  "val": 11,
+                  "mass": 2.2,
+                  "size": 1.5,
+                  "texture": "assets/images/textures/asteroid4.jpg",
+                  "rotationSpeed": 0.052
+                },
+                "content": {
+                  "title": "Table Exporter",
+                  "projectId": "Table-Exporter"
+                }
               }
             ]
           },
@@ -375,6 +526,79 @@
                 "content": {
                   "title": "AI & ML Experiments (Python)",
                   "projectId": "ai_ml_experiments"
+                }
+              },
+              {
+                "id": "excel_to_graph_py",
+                "name": "Excel To Graph",
+                "description": "Data visualization tool",
+                "group": "item",
+                "visualization": {
+                  "val": 13,
+                  "mass": 2.3,
+                  "size": 1.6,
+                  "texture": "assets/images/textures/asteroid5.jpg",
+                  "rotationSpeed": 0.05
+                },
+                "content": {
+                  "title": "Excel To Graph",
+                  "projectId": "Excel-To-Graph"
+                }
+              },
+              {
+                "id": "summarize_it_py",
+                "name": "Summarize It",
+                "description": "Text summarization tool",
+                "group": "item",
+                "visualization": {
+                  "val": 12.5,
+                  "mass": 2.2,
+                  "size": 1.55,
+                  "texture": "assets/images/textures/asteroid6.jpg",
+                  "rotationSpeed": 0.051
+                },
+                "content": {
+                  "title": "Summarize It",
+                  "projectId": "Summarize-It"
+                }
+              }
+            ]
+          },
+          {
+            "id": "swift",
+            "name": "Swift",
+            "description": "Swift projects",
+            "group": "cluster",
+            "visualization": {
+              "val": 22,
+              "mass": 18,
+              "size": 4.0,
+              "texture": "assets/images/textures/asteroid_orange.jpg",
+              "rotationSpeed": 0.028
+            },
+            "content": {
+              "template": "projectList",
+              "title": "Swift Projects",
+              "description": "Projects built with Swift for macOS and iOS.",
+              "filterType": "technology",
+              "filterValue": "swift"
+            },
+            "children": [
+              {
+                "id": "wawachat_mac",
+                "name": "WawaChat for Mac",
+                "description": "macOS chat application",
+                "group": "item",
+                "visualization": {
+                  "val": 12,
+                  "mass": 2,
+                  "size": 1.5,
+                  "texture": "assets/images/textures/asteroid7.jpg",
+                  "rotationSpeed": 0.053
+                },
+                "content": {
+                  "title": "WawaChat for Mac",
+                  "projectId": "WawaChat-Mac"
                 }
               }
             ]
@@ -462,7 +686,47 @@
               "template": "gallery",
               "title": "Photography",
               "description": "A collection of my photography work."
-            }
+            },
+            "children": [
+              {
+                "id": "nature_photography",
+                "name": "Nature",
+                "description": "Nature photography",
+                "group": "item",
+                "visualization": {
+                  "val": 12,
+                  "mass": 3,
+                  "size": 1.8,
+                  "texture": "assets/images/textures/nature.jpg",
+                  "rotationSpeed": 0.04
+                },
+                "content": {
+                  "template": "gallery",
+                  "title": "Nature Photography",
+                  "description": "My collection of nature photographs.",
+                  "filterCategory": "nature"
+                }
+              },
+              {
+                "id": "urban_photography",
+                "name": "Urban",
+                "description": "Urban photography",
+                "group": "item",
+                "visualization": {
+                  "val": 11,
+                  "mass": 2.8,
+                  "size": 1.7,
+                  "texture": "assets/images/textures/urban.jpg",
+                  "rotationSpeed": 0.042
+                },
+                "content": {
+                  "template": "gallery",
+                  "title": "Urban Photography",
+                  "description": "My collection of urban and city photographs.",
+                  "filterCategory": "urban"
+                }
+              }
+            ]
           },
           {
             "id": "imdb_gallery",
@@ -500,6 +764,99 @@
               "title": "Instagram Feed",
               "description": "Recent moments from my Instagram account."
             }
+          },
+          {
+            "id": "hobbies",
+            "name": "Hobbies",
+            "description": "Personal interests and activities",
+            "group": "subcategory",
+            "visualization": {
+              "val": 17,
+              "mass": 9,
+              "size": 3.0,
+              "texture": "assets/images/textures/hobbies.jpg",
+              "rotationSpeed": 0.023
+            },
+            "content": {
+              "template": "standard",
+              "title": "Hobbies & Interests",
+              "description": "Things I enjoy doing in my free time.",
+              "hobbies": [
+                {
+                  "name": "Photography",
+                  "description": "Visual storytelling through imagery",
+                  "icon": "fas fa-camera"
+                },
+                {
+                  "name": "Hiking",
+                  "description": "Exploring nature trails and mountains",
+                  "icon": "fas fa-hiking"
+                },
+                {
+                  "name": "Coding",
+                  "description": "Working on personal programming projects",
+                  "icon": "fas fa-code"
+                },
+                {
+                  "name": "Reading",
+                  "description": "Fiction and technical books",
+                  "icon": "fas fa-book"
+                }
+              ]
+            }
+          },
+          {
+            "id": "filmography",
+            "parentId": "personal",
+            "name": "Filmography",
+            "description": "Media and film credits from IMDb",
+            "group": "category",
+            "visualization": {
+              "val": 48,
+              "mass": 45,
+              "size": 8,
+              "texture": "assets/images/textures/film.jpg",
+              "rotationSpeed": 0.012
+            },
+            "content": {
+              "template": "filmography",
+              "title": "Filmography",
+              "intro": "Explore my media credits and film work as a cinematographer, assistant camera, and producer.",
+              "credits": [
+                {
+                  "title": "Hard Labor",
+                  "year": "2011",
+                  "role": "Assistant Camera",
+                  "department": "Camera and Electrical Department",
+                  "rating": "6.6"
+                },
+                {
+                  "title": "Pé de Pera",
+                  "year": "2012",
+                  "role": "Still Photographer / Co-Executive Producer",
+                  "department": "Camera and Electrical Department / Producer"
+                },
+                {
+                  "title": "Hauling",
+                  "year": "2010",
+                  "role": "Still Photographer",
+                  "department": "Camera and Electrical Department",
+                  "rating": "6.8"
+                },
+                {
+                  "title": "Danças",
+                  "year": "2009",
+                  "role": "Cinematographer",
+                  "department": "Cinematography"
+                },
+                {
+                  "title": "Jennifer",
+                  "year": "2011",
+                  "role": "Co-Cinematographer",
+                  "department": "Cinematography"
+                }
+              ]
+            }
           }
         ]
       },
@@ -535,210 +892,124 @@
             "email": "contact@example.com",
             "linkedin": "https://www.linkedin.com/in/wsmontes"
           }
-        }
-      },
-      {
-        "id": "publications",
-        "name": "Publications",
-        "description": "Academic and professional publications",
-        "group": "category",
-        "visualization": {
-          "val": 50,
-          "mass": 50,
-          "size": 9,
-          "texture": "assets/images/textures/book.jpg",
-          "rotationSpeed": 0.012
         },
-        "content": {
-          "template": "publicationList",
-          "title": "Publications",
-          "intro": "Explore my academic and professional publications.",
-          "publications": [
-            {
-              "title": "Over the top: O consumo audiovisual em softwares culturais: O video sob demanda e suas implicações no futuro da televisão",
-              "format": "Paperback",
-              "publicationDate": "Aug. 4 2015",
-              "publisher": "Novas Edições Acadêmicas",
-              "pages": "104 pages",
-              "language": "Portuguese",
-              "isbn10": "3639832027",
-              "isbn13": "978-3639832020",
-              "dimensions": "15.01 x 0.61 x 22 cm",
-              "description": "An analysis of how new media and the internet subvert geographic barriers, transforming audiovisual consumption and redefining the user experience with software."
-            }
-          ]
-        }
-      },
-      {
-        "id": "filmography",
-        "name": "Filmography",
-        "description": "Media and film credits from IMDb",
-        "group": "category",
-        "visualization": {
-          "val": 48,
-          "mass": 45,
-          "size": 8,
-          "texture": "assets/images/textures/film.jpg",
-          "rotationSpeed": 0.012
-        },
-        "content": {
-          "template": "filmography",
-          "title": "Filmography",
-          "intro": "Explore my media credits and film work as a cinematographer, assistant camera, and producer.",
-          "credits": [
-            {
-              "title": "Hard Labor",
-              "year": "2011",
-              "role": "Assistant Camera",
-              "department": "Camera and Electrical Department",
-              "rating": "6.6"
+        "children": [
+          {
+            "id": "contact",
+            "parentId": "about",
+            "name": "Contact",
+            "description": "Get in touch",
+            "group": "category",
+            "visualization": {
+              "val": 52,
+              "mass": 55,
+              "size": 8.8,
+              "texture": "assets/images/textures/yellow-planet.jpg",
+              "rotationSpeed": 0.013
             },
-            {
-              "title": "Pé de Pera",
-              "year": "2012",
-              "role": "Still Photographer / Co-Executive Producer",
-              "department": "Camera and Electrical Department / Producer"
-            },
-            {
-              "title": "Hauling",
-              "year": "2010",
-              "role": "Still Photographer",
-              "department": "Camera and Electrical Department",
-              "rating": "6.8"
-            },
-            {
-              "title": "Danças",
-              "year": "2009",
-              "role": "Cinematographer",
-              "department": "Cinematography"
-            },
-            {
-              "title": "Jennifer",
-              "year": "2011",
-              "role": "Co-Cinematographer",
-              "department": "Cinematography"
-            }
-          ]
-        }
-      },
-      {
-        "id": "rfq",
-        "name": "RFQ Assessment",
-        "description": "Detailed candidate assessment for Senior Business Analyst Services",
-        "group": "category",
-        "visualization": {
-          "val": 50,
-          "mass": 50,
-          "size": 8,
-          "texture": "assets/images/textures/grey-planet.jpg",
-          "rotationSpeed": 0.01
-        },
-        "content": {
-          "template": "assessment",
-          "title": "RFQ Assessment - Senior Business Analyst Services",
-          "intro": "This section summarizes my extensive BA experience, public sector expertise, and technical proficiencies as required by RFQ 24-208.",
-          "assessment": [
-            {
-              "section": "Candidate Suitability",
-              "points": [
-                "Over 5 years (69 months) of Business Analyst experience in senior roles at CGI and technical roles at PARC Systems.",
-                "Extensive public sector experience with BC Government ministries and projects (MEDIS LTC, MHSU, AIMS, HCC, PCD, ALR, IDAM AM).",
-                "Expertise in creating and maintaining project artefacts (scope documents, flow diagrams, test plans, communication plans) using tools such as Microsoft Office, Excel, Visio, Mural, Miro, Figma, and Adobe Photoshop.",
-                "Skilled at managing multiple concurrent projects and initiatives in consultancy and in-house roles.",
-                "Proficient in developing and executing UAT processes using Excel, JIRA, and manual QA methods.",
-                "Experienced in hosting and facilitating information gathering sessions with diverse stakeholders.",
-                "Hands-on with distributed cloud initiatives (IaaS, PaaS, SaaS) and data migration projects using platforms like Microsoft Azure, AWS, and Atlassian Confluence.",
-                "Comfortable with ServiceNow-like tools such as JIRA, DevOps, and Salesforce.",
-                "Familiar with municipal permitting processes and legal obligations for records management."
-              ]
-            },
-            {
-              "section": "Project References",
-              "references": [
+            "content": {
+              "template": "contact",
+              "title": "Contact Me",
+              "intro": "I'm always open to new opportunities and collaborations.",
+              "contactInfo": [
                 {
-                  "contactName": "Samuel Ramos",
-                  "title": "Project Manager",
-                  "phone": "250 884 8279",
-                  "client": "Ministry of Health (through CGI)",
-                  "projectName": "MEDIS – Long-Term Care",
-                  "dateRange": "2024-07 - Current",
-                  "role": "Senior Business Analyst (Consultant)",
-                  "description": "Served as the primary form developer and technical reference for business requirements and data modeling in a complex digital transformation project."
+                  "icon": "fas fa-envelope",
+                  "value": "wsmontes@gmail.com"
                 },
                 {
-                  "contactName": "Kyle Arctander",
-                  "title": "CTO at PARC Systems",
-                  "phone": "250 888 7212 / 250 544 2169",
-                  "client": "Ministry of Agriculture (through PARC Systems)",
-                  "projectName": "MALS 2 (Ministry of Agriculture Licence System)",
-                  "dateRange": "03/2020 – 03/2021",
-                  "role": "Business Analyst",
-                  "description": "Supported requirement gathering, solution development, and QA processes for a cloud-based licence management system."
+                  "icon": "fas fa-map-marker-alt",
+                  "value": "Victoria, BC, Canada"
                 },
                 {
-                  "contactName": "Ducan Yuill",
-                  "title": "Stakeholder at WRHA",
-                  "phone": "204-787-5691",
-                  "client": "Winnipeg Regional Health Authority",
-                  "projectName": "Invoice Data Collection System",
-                  "dateRange": "Jan. 2021 – Oct. 2021",
-                  "role": "Business Analyst / Automation Developer",
-                  "description": "Managed implementation and upgrade of an automated invoice processing system, delivering workflows, validation interfaces, and comprehensive test processes."
+                  "icon": "fas fa-phone",
+                  "value": "+1 (250) 893-8338"
                 }
               ]
-            }
-          ]
-        }
-      },
-      {
-        "id": "contact",
-        "name": "Contact",
-        "description": "Get in touch",
-        "group": "category",
-        "visualization": {
-          "val": 52,
-          "mass": 55,
-          "size": 8.8,
-          "texture": "assets/images/textures/yellow-planet.jpg",
-          "rotationSpeed": 0.013
-        },
-        "content": {
-          "template": "contact",
-          "title": "Contact Me",
-          "intro": "I'm always open to new opportunities and collaborations.",
-          "contactInfo": [
-            {
-              "icon": "fas fa-envelope",
-              "value": "contact@example.com"
             },
-            {
-              "icon": "fas fa-map-marker-alt",
-              "value": "Victoria, BC, Canada"
-            },
-            {
-              "icon": "fas fa-phone",
-              "value": "+1 (555) 123-4567"
-            }
-          ],
-          "socialLinks": [
-            {
-              "icon": "fab fa-linkedin",
-              "url": "https://www.linkedin.com/in/wsmontes"
-            },
-            {
-              "icon": "fab fa-github",
-              "url": "https://github.com/wsmontes"
-            },
-            {
-              "icon": "fab fa-imdb",
-              "url": "https://www.imdb.com/name/nm9506783/"
-            },
-            {
-              "icon": "fab fa-twitter",
-              "url": "https://twitter.com/example"
-            }
-          ]
-        }
+            "children": [
+              {
+                "id": "linkedin_contact",
+                "name": "LinkedIn",
+                "description": "Professional profile",
+                "group": "social",
+                "visualization": {
+                  "val": 20,
+                  "mass": 8,
+                  "size": 2.5,
+                  "texture": "assets/images/textures/linkedin.jpg",
+                  "rotationSpeed": 0.02
+                },
+                "content": {
+                  "template": "link",
+                  "title": "LinkedIn Profile",
+                  "description": "Connect with me on LinkedIn",
+                  "icon": "fab fa-linkedin",
+                  "url": "https://www.linkedin.com/in/wsmontes"
+                }
+              },
+              {
+                "id": "github_contact",
+                "name": "GitHub",
+                "description": "Code repositories",
+                "group": "social",
+                "visualization": {
+                  "val": 18,
+                  "mass": 7,
+                  "size": 2.3,
+                  "texture": "assets/images/textures/github.jpg",
+                  "rotationSpeed": 0.025
+                },
+                "content": {
+                  "template": "link",
+                  "title": "GitHub Profile",
+                  "description": "Check out my code projects",
+                  "icon": "fab fa-github",
+                  "url": "https://github.com/wsmontes"
+                }
+              },
+              {
+                "id": "imdb_contact",
+                "name": "IMDb",
+                "description": "Filmography credits",
+                "group": "social",
+                "visualization": {
+                  "val": 16,
+                  "mass": 6,
+                  "size": 2.1,
+                  "texture": "assets/images/textures/imdb.jpg",
+                  "rotationSpeed": 0.022
+                },
+                "content": {
+                  "template": "link",
+                  "title": "IMDb Profile",
+                  "description": "View my film and media credits",
+                  "icon": "fab fa-imdb",
+                  "url": "https://www.imdb.com/name/nm9506783/"
+                }
+              },
+              {
+                "id": "email_contact",
+                "name": "Email",
+                "description": "Direct message",
+                "group": "social",
+                "visualization": {
+                  "val": 14,
+                  "mass": 5,
+                  "size": 1.9,
+                  "texture": "assets/images/textures/email.jpg",
+                  "rotationSpeed": 0.018
+                },
+                "content": {
+                  "template": "link",
+                  "title": "Email Contact",
+                  "description": "Send me an email",
+                  "icon": "fas fa-envelope",
+                  "url": "mailto:wsmontes@gmail.com"
+                }
+              }
+            ]
+          }
+        ]
       }
     ]
   }
