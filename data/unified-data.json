@@ -1,4 +1,18 @@
 {
+  "siteConfig": {
+    "title": "Wagner Montes Portfolio",
+    "shortTitle": "Wagner Montes",
+    "metaDescription": "Interactive 3D portfolio showcasing software development, IT skills, media work, and photography",
+    "favicon": "assets/images/favicon.png",
+    "logo": {
+      "text": "Wagner Montes",
+      "image": null
+    },
+    "theme": {
+      "primaryColor": "#4a6cf7",
+      "accentColor": "#7c3aed"
+    }
+  },
   "graphConfig": {
     "centerNode": {
       "id": "center",

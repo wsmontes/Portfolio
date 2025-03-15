@@ -28,6 +28,20 @@ document.addEventListener('DOMContentLoaded', () => {
       window.addEventListener('graphLoaded', () => {
         document.querySelector('.loading-screen').classList.add('hidden');
       });
+      
+      // Listen for site configuration changes
+      window.addEventListener('siteConfigApplied', (e) => {
+        // If site config provides logo text different from what main.js added,
+        // update it (this ensures the most specific display text is used)
+        if (e.detail.config.shortTitle || e.detail.config.logo?.text) {
+          const logoElement = document.querySelector('.logo a');
+          if (logoElement) {
+            logoElement.textContent = e.detail.config.shortTitle || 
+                                      e.detail.config.logo.text || 
+                                      logoElement.textContent;
+          }
+        }
+      });
     } catch (error) {
       console.error('Initialization error:', error);
       // Continue with static navigation if dynamic fails
