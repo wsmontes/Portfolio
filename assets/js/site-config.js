@@ -12,7 +12,7 @@ class SiteConfigLoader {
       // Fetch configuration data
       const config = await this.getSiteConfig();
       if (!config) {
-        console.warn('Site configuration not found');
+        console.warn('Site configuration not found in unified data');
         return;
       }
       
@@ -30,27 +30,9 @@ class SiteConfigLoader {
    * @returns {Promise<Object|null>} Site configuration object
    */
   static async getSiteConfig() {
-    try {
-      // Try to use ContentLoader's cached unified data first
-      if (window.ContentLoader && window.ContentLoader.getUnifiedData) {
-        const unifiedData = await window.ContentLoader.getUnifiedData();
-        if (unifiedData && unifiedData.siteConfig) {
-          return unifiedData.siteConfig;
-        }
-      }
-      
-      // Otherwise, fetch directly
-      const response = await fetch('data/unified-data.json');
-      if (!response.ok) {
-        throw new Error(`Failed to load unified data: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      return data.siteConfig || null;
-    } catch (error) {
-      console.error('Error fetching site configuration:', error);
-      return null;
-    }
+    // Use ContentLoader to get the unified data
+    const unifiedData = await window.ContentLoader.getUnifiedData();
+    return unifiedData.siteConfig || null;
   }
   
   /**
@@ -113,7 +95,7 @@ class SiteConfigLoader {
 
 // Initialize on DOM ready
 document.addEventListener('DOMContentLoaded', () => {
-  // Initialize with slight delay to ensure other scripts have loaded
+  // Initialize with slight delay to ensure ContentLoader is available
   setTimeout(() => {
     SiteConfigLoader.initialize();
   }, 100);

@@ -31,8 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
       
       // Listen for site configuration changes
       window.addEventListener('siteConfigApplied', (e) => {
-        // If site config provides logo text different from what main.js added,
-        // update it (this ensures the most specific display text is used)
+        // Update logo text from site config
         if (e.detail.config.shortTitle || e.detail.config.logo?.text) {
           const logoElement = document.querySelector('.logo a');
           if (logoElement) {
@@ -44,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     } catch (error) {
       console.error('Initialization error:', error);
-      // Continue with static navigation if dynamic fails
+      // Even without fallbacks, still set up event listeners
       setupEventListeners();
     }
   }
@@ -53,54 +52,39 @@ document.addEventListener('DOMContentLoaded', () => {
    * Update the navigation menu based on unified data source
    */
   async function updateNavigationMenu() {
-    try {
-      // Try to use ContentLoader to get the unified data
-      let unifiedData;
-      if (window.ContentLoader && window.ContentLoader.getUnifiedData) {
-        unifiedData = await window.ContentLoader.getUnifiedData();
-      } else {
-        // Fallback to direct fetch if ContentLoader isn't available yet
-        const response = await fetch('data/unified-data.json');
-        if (!response.ok) throw new Error('Failed to fetch unified data');
-        unifiedData = await response.json();
-      }
-      
-      if (!unifiedData || !unifiedData.graphConfig || !unifiedData.graphConfig.categories) {
-        throw new Error('Invalid or missing categories in unified data');
-      }
-      
-      // Get the categories from the unified data
-      const categories = unifiedData.graphConfig.categories;
-      
-      // Clear existing menu items
-      navMenu.innerHTML = '';
-      
-      // Create menu items for each category
-      categories.forEach(category => {
-        // Create new list item
-        const listItem = document.createElement('li');
-        
-        // Create link
-        const link = document.createElement('a');
-        link.href = '#';
-        link.setAttribute('data-section', category.id);
-        link.textContent = category.name;
-        
-        // Add link to list item
-        listItem.appendChild(link);
-        
-        // Add list item to menu
-        navMenu.appendChild(listItem);
-      });
-      
-      console.log('Navigation menu updated with data from unified source');
-      
-      // Make navLinks reference the newly created links after DOM update
-      return true;
-    } catch (error) {
-      console.error('Error updating navigation menu:', error);
-      return false;
+    // Get the unified data using ContentLoader
+    const unifiedData = await window.ContentLoader.getUnifiedData();
+    
+    if (!unifiedData || !unifiedData.graphConfig || !unifiedData.graphConfig.categories) {
+      throw new Error('Invalid or missing categories in unified data');
     }
+    
+    // Get the categories from the unified data
+    const categories = unifiedData.graphConfig.categories;
+    
+    // Clear existing menu items
+    navMenu.innerHTML = '';
+    
+    // Create menu items for each category
+    categories.forEach(category => {
+      // Create new list item
+      const listItem = document.createElement('li');
+      
+      // Create link
+      const link = document.createElement('a');
+      link.href = '#';
+      link.setAttribute('data-section', category.id);
+      link.textContent = category.name;
+      
+      // Add link to list item
+      listItem.appendChild(link);
+      
+      // Add list item to menu
+      navMenu.appendChild(listItem);
+    });
+    
+    console.log('Navigation menu updated with data from unified source');
+    return true;
   }
   
   /**

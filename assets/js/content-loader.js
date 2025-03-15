@@ -19,8 +19,8 @@ class ContentLoader {
       const nodeData = this.findNodeInUnifiedData(unifiedData, nodeId);
       
       if (!nodeData) {
-        // If node not found in unified data, fall back to the old method
-        return this.legacyLoadContent(nodeId, container);
+        container.innerHTML = `<p class="error">Node ID "${nodeId}" not found in unified data</p>`;
+        return null;
       }
       
       // Get content from the node data
@@ -53,8 +53,8 @@ class ContentLoader {
       return nodeData;
     } catch (error) {
       console.error(`Error loading content for ${nodeId}:`, error);
-      // Fall back to the legacy method if unified data fails
-      return this.legacyLoadContent(nodeId, container);
+      container.innerHTML = `<p class="error">Failed to load content. Please try again.</p>`;
+      throw error;
     }
   }
   

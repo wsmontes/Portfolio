@@ -33,8 +33,7 @@ class NetworkDataGenerator {
       return this.processUnifiedData(unifiedData);
     } catch (error) {
       console.error("Failed to generate network data:", error);
-      // Return fallback network data from network-data.js
-      return window.NetworkData || { nodes: [], links: [] };
+      throw error; // No fallback now, just throw the error
     }
   }
   
