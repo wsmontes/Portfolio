@@ -162,6 +162,7 @@ iframe#content-frame.loaded {
   border-right-color: var(--accent-color, #7c3aed);
   border-radius: 50%;
   animation: spin 1s linear infinite;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
 }
 
 .frame-fallback-content {
@@ -236,6 +237,7 @@ iframe#content-frame.loaded {
   height: 100%;
   overflow: hidden; /* Let the inner frame templates handle scrolling */
   padding: 1rem;
+  animation: fadeInUp 0.5s ease forwards;
 }
 
 .content-container.loaded {
@@ -261,4 +263,16 @@ iframe#content-frame.loaded {
 * {
   scrollbar-width: thin;
   scrollbar-color: var(--primary-color, #4a6cf7) rgba(0, 0, 0, 0.1);
+}
+
+/* Add a subtle fade-in animation for content */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

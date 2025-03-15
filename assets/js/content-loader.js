@@ -955,11 +955,39 @@ class ContentLoader {
         };
         
       case 'gallery':
+        // For subcategory nodes (photography, imdb, instagram), we need special handling
+        let categories = content.categories || [];
+        let items = [];
+        
+        // For subcategory nodes, try to get data from parent if not available here
+        if (nodeData.group === 'subcategory' && nodeData.parentId === 'personal') {
+          const personal = unifiedData.graphConfig.categories.find(c => c.id === 'personal');
+          
+          if (personal && personal.content) {
+            // Use parent categories if we don't have our own
+            if (categories.length === 0 && personal.content.categories) {
+              categories = personal.content.categories;
+            }
+            
+            // Get items based on node type
+            if (nodeId === 'photography') {
+              items = this.getGalleryItems(nodeId, content.photos ? content : personal.content, unifiedData);
+            } else if (nodeId === 'imdb') {
+              items = this.getGalleryItems(nodeId, content.imdb ? content : personal.content, unifiedData);
+            } else if (nodeId === 'instagram') {
+              items = this.getGalleryItems(nodeId, content.instagram ? content : personal.content, unifiedData);
+            }
+          }
+        } else {
+          // For regular nodes, just use the content as is
+          items = this.getGalleryItems(nodeId, content, unifiedData);
+        }
+        
         return {
           title: content.title || nodeData.name,
-          intro: content.intro || nodeData.description || '',
-          categories: content.categories || [],
-          items: this.getGalleryItems(nodeId, content, unifiedData)
+          intro: content.intro || content.description || nodeData.description || '',
+          categories: categories,
+          items: items
         };
         
       case 'projectList':
@@ -1000,13 +1028,71 @@ class ContentLoader {
    * @returns {Array} - Gallery items
    */
   static getGalleryItems(nodeId, content, unifiedData) {
-    // For a photography node, return photos
-    if (nodeId === 'photography' || nodeId === 'personal') {
-      return content.photos || [];
+    // If we already have items array in the content, use that
+    if (content.items && Array.isArray(content.items)) {
+      return content.items;
     }
     
-    // For other node types with gallery template, check if there's an items array
-    return content.items || [];
+    // For photography node or personal node, use photos array if available
+    if ((nodeId === 'photography' || nodeId === 'personal') && content.photos && Array.isArray(content.photos)) {
+      return content.photos.map(photo => ({
+        title: photo.title || 'Untitled',
+        description: photo.description || '',
+        image: photo.image,
+        category: photo.category || ''
+      }));
+    }
+    
+    // For IMDB node, convert IMDB items to gallery format if available
+    if (nodeId === 'imdb') {
+      // First check if we have IMDB data in this node
+      if (content.imdb && Array.isArray(content.imdb)) {
+        return content.imdb.map(item => ({
+          title: item.title || 'Untitled',
+          description: `Rating: ${item.rating || '★★★☆☆'}`,
+          image: item.image || 'assets/images/media/default-movie.jpg',
+          category: 'movie'
+        }));
+      }
+      
+      // Otherwise check for IMDB data in parent personal node
+      const personal = unifiedData.graphConfig.categories.find(c => c.id === 'personal');
+      if (personal && personal.content && Array.isArray(personal.content.imdb)) {
+        return personal.content.imdb.map(item => ({
+          title: item.title || 'Untitled',
+          description: `Rating: ${item.rating || '★★★☆☆'}`,
+          image: item.image || 'assets/images/media/default-movie.jpg',
+          category: 'movie'
+        }));
+      }
+    }
+    
+    // For Instagram node, convert Instagram items to gallery format if available
+    if (nodeId === 'instagram') {
+      // First check if we have Instagram data in this node
+      if (content.instagram && Array.isArray(content.instagram)) {
+        return content.instagram.map(post => ({
+          title: post.caption || 'Instagram Post',
+          description: '',
+          image: post.image,
+          category: 'instagram'
+        }));
+      }
+      
+      // Otherwise check for Instagram data in parent personal node
+      const personal = unifiedData.graphConfig.categories.find(c => c.id === 'personal');
+      if (personal && personal.content && Array.isArray(personal.content.instagram)) {
+        return personal.content.instagram.map(post => ({
+          title: post.caption || 'Instagram Post',
+          description: '',
+          image: post.image,
+          category: 'instagram'
+        }));
+      }
+    }
+    
+    // Default empty array if no suitable data found
+    return [];
   }
   
   /**

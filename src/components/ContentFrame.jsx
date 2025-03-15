@@ -21,16 +21,27 @@ const ContentFrame = ({ nodeId, onClose }) => {
     if (contentContainerRef.current && nodeId) {
       // Only start loading content once the frame is visible
       const loadContentTimeout = setTimeout(() => {
+        console.log(`Starting content load for node: ${nodeId}`);
+        
+        // Check if ContentLoader is available before trying to use it
+        if (!window.ContentLoader) {
+          console.error("ContentLoader not found - cannot load content");
+          setContentLoaded(true);
+          return;
+        }
+        
         window.ContentLoader.loadContent(nodeId, contentContainerRef.current)
-          .then(() => {
+          .then((result) => {
+            // Log the data returned from the content loader
+            console.log(`Content loaded for ${nodeId}:`, result);
+            
             // Only mark content as loaded after the frame is fully visible
             setTimeout(() => {
               setContentLoaded(true);
-              console.log("Content loaded for", nodeId);
             }, 300); // Wait for frame animation to complete
           })
           .catch((error) => {
-            console.error("Failed to load content for", nodeId, error);
+            console.error(`Failed to load content for ${nodeId}:`, error);
             setContentLoaded(true);
           });
       }, 300); // Wait for frame animation to start

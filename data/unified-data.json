@@ -98,6 +98,7 @@
               "rotationSpeed": 0.02
             },
             "content": {
+              "template": "standard",
               "title": "LinkedIn Profile",
               "description": "Connect with me on LinkedIn to see my professional experience and skills.",
               "url": "https://www.linkedin.com/",
@@ -118,6 +119,7 @@
               "rotationSpeed": 0.015
             },
             "content": {
+              "template": "standard",
               "title": "Curriculum Vitae",
               "description": "My detailed work history and professional qualifications.",
               "url": "#",
@@ -138,6 +140,7 @@
               "rotationSpeed": 0.018
             },
             "content": {
+              "template": "standard",
               "title": "Academic Background",
               "description": "My educational qualifications and research work.",
               "institution": "University of Technology",
@@ -221,6 +224,7 @@
               "rotationSpeed": 0.03
             },
             "content": {
+              "template": "projectList",
               "title": "JavaScript Projects",
               "description": "Projects built with JavaScript and related technologies.",
               "filterType": "technology",
@@ -276,6 +280,7 @@
               "rotationSpeed": 0.025
             },
             "content": {
+              "template": "projectList",
               "title": "Python Projects",
               "description": "Projects built with Python and related technologies.",
               "filterType": "technology",
@@ -314,6 +319,7 @@
               "rotationSpeed": 0.022
             },
             "content": {
+              "template": "projectList",
               "title": "AI & Machine Learning Projects",
               "description": "Projects focused on artificial intelligence and machine learning.",
               "filterType": "technology",
@@ -424,6 +430,7 @@
               "rotationSpeed": 0.017
             },
             "content": {
+              "template": "gallery",
               "title": "Photography",
               "description": "A collection of my photography work."
             }
@@ -441,6 +448,7 @@
               "rotationSpeed": 0.022
             },
             "content": {
+              "template": "gallery",
               "title": "Movies & Shows",
               "description": "My favorite films and TV series."
             }
@@ -458,6 +466,7 @@
               "rotationSpeed": 0.02
             },
             "content": {
+              "template": "gallery",
               "title": "Instagram Feed",
               "description": "Recent moments from my Instagram account."
             }
