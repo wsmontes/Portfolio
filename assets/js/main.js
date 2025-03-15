@@ -7,7 +7,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const contentPanel = document.getElementById('content-panel');
   const contentInner = contentPanel.querySelector('.content-inner');
   const closePanel = contentPanel.querySelector('.close-panel');
-  const navLinks = document.querySelectorAll('.nav-menu a');
   const menuToggle = document.querySelector('.menu-toggle');
   const navMenu = document.querySelector('.nav-menu');
   
@@ -17,14 +16,99 @@ document.addEventListener('DOMContentLoaded', () => {
   /**
    * Initialize the application
    */
-  function init() {
-    // Set up event listeners
-    setupEventListeners();
+  async function init() {
+    try {
+      console.log('Initializing main application...');
+      
+      // Check if React bridge is available
+      if (window.createContentFrame) {
+        console.log('React bridge functions detected during initialization');
+      } else {
+        console.warn('React bridge functions not available during initialization');
+      }
+      
+      // Load data and update navigation menu
+      await updateNavigationMenu();
+      
+      // Set up event listeners
+      setupEventListeners();
+      
+      // Hide loading screen after graph is initialized
+      window.addEventListener('graphLoaded', () => {
+        document.querySelector('.loading-screen').classList.add('hidden');
+      });
+      
+      // Listen for site configuration changes
+      window.addEventListener('siteConfigApplied', (e) => {
+        // Update logo text from site config
+        if (e.detail.config.shortTitle || e.detail.config.logo?.text) {
+          const logoElement = document.querySelector('.logo a');
+          if (logoElement) {
+            logoElement.textContent = e.detail.config.shortTitle || 
+                                      e.detail.config.logo.text || 
+                                      logoElement.textContent;
+          }
+        }
+      });
+      
+      // Listen for React becoming available after initialization
+      if (!window.reactInitialized) {
+        document.addEventListener('reactAppReady', () => {
+          console.log('React became available after initialization');
+        });
+      }
+      
+      console.log('Main application initialized successfully');
+    } catch (error) {
+      console.error('Initialization error:', error);
+      // Even without fallbacks, still set up event listeners
+      setupEventListeners();
+    }
+  }
+  
+  /**
+   * Update the navigation menu based on unified data source
+   */
+  async function updateNavigationMenu() {
+    // Get the unified data using ContentLoader
+    const unifiedData = await window.ContentLoader.getUnifiedData();
     
-    // Hide loading screen after graph is initialized
-    window.addEventListener('graphLoaded', () => {
-      document.querySelector('.loading-screen').classList.add('hidden');
+    if (!unifiedData || !unifiedData.graphConfig || !unifiedData.graphConfig.categories) {
+      throw new Error('Invalid or missing categories in unified data');
+    }
+    
+    // Get the categories from the unified data
+    const categories = unifiedData.graphConfig.categories;
+    
+    // Clear existing menu items
+    navMenu.innerHTML = '';
+    
+    // Create menu items for each category
+    categories.forEach(category => {
+      // Create new list item
+      const listItem = document.createElement('li');
+      
+      // Create link
+      const link = document.createElement('a');
+      link.href = '#';
+      link.setAttribute('data-section', category.id);
+      link.textContent = category.name;
+      
+      // Add link to list item
+      listItem.appendChild(link);
+      
+      // Add list item to menu
+      navMenu.appendChild(listItem);
     });
+    
+    console.log('Navigation menu updated with data from unified source');
+    
+    // Apply menu colors if available
+    if (window.applyMenuColors && window.networkData) {
+      window.applyMenuColors(window.networkData);
+    }
+    
+    return true;
   }
   
   /**
@@ -36,14 +120,15 @@ document.addEventListener('DOMContentLoaded', () => {
       navMenu.classList.toggle('active');
     });
     
-    // Navigation menu links event listener - no fallback, assume node exists:
-    navLinks.forEach(link => {
-      link.addEventListener('click', (e) => {
-        e.preventDefault();
-        navMenu.classList.remove('active');
-        const section = link.getAttribute('data-section');
-        window.focusOnNode(section, true);
-      });
+    // Navigation menu links - use event delegation for dynamically created items
+    navMenu.addEventListener('click', (e) => {
+      const link = e.target.closest('a[data-section]');
+      if (!link) return; // Not clicking on a navigation link
+      
+      e.preventDefault();
+      navMenu.classList.remove('active');
+      const section = link.getAttribute('data-section');
+      window.focusOnNode(section, true);
     });
     
     // Close panel button
@@ -80,27 +165,17 @@ document.addEventListener('DOMContentLoaded', () => {
    * @param {string} section - Section ID to load
    */
   function showContent(section) {
-    // Check if React ContentFrame is available
-    if (window.createContentFrame) {
+    console.log(`Attempting to show content for: ${section}`);
+    
+    // Use React ContentFrame to display content
+    if (typeof window.createContentFrame === 'function') {
+      console.log(`Using React ContentFrame for: ${section}`);
       window.createContentFrame(section);
     } else {
-      // Fallback to direct content loading if React is not available
-      loadLegacyContent(section);
+      console.error('React ContentFrame function is not available');
+      // If React isn't available for some unexpected reason, at least show an error message
+      contentPanel.classList.remove('hidden');
+      contentInner.innerHTML = '<p class="error">Content loading system is unavailable. Check console for details.</p>';
     }
-  }
-  
-  /**
-   * Load content for a specific section (fallback method)
-   * @param {string} section - Section ID to load
-   */
-  function loadLegacyContent(section) {
-    // Show the content panel
-    contentPanel.classList.remove('hidden');
-    
-    // Show loading state
-    contentInner.innerHTML = '<div class="spinner"></div><p>Loading content...</p>';
-    
-    // Load the content
-    ContentLoader.loadContent(section, contentInner);
   }
 });
