@@ -1,55 +1,41 @@
 /**
- * THREE.js Initialization Script
- * This ensures THREE is available globally before other scripts try to use it
+ * THREE.js initialization and global management
  */
+
 (function() {
-  // Set a global flag that we're trying to initialize THREE
-  window.THREE_INITIALIZING = true;
-  
-  function checkThreeAvailability() {
-    // First check if THREE is directly available
-    if (typeof window.THREE === 'object') {
-      console.log("THREE.js found globally");
-      window.THREE_LOADED = true;
-      window.dispatchEvent(new Event('threeReady'));
-      return;
+    // Check if THREE is already defined globally
+    if (typeof window.THREE !== 'undefined' && window.THREE.REVISION) {
+        console.log('THREE.js found globally');
+        // THREE is already defined, no need to reinitialize
+        console.log('THREE.js initialized globally');
+        return;
     }
     
-    // Then check if it's available through ForceGraph3D
-    if (window.ForceGraph3D && window.ForceGraph3D.THREE) {
-      console.log("THREE.js found in ForceGraph3D, making globally available");
-      window.THREE = window.ForceGraph3D.THREE;
-      window.THREE_LOADED = true;
-      window.dispatchEvent(new Event('threeReady'));
-      return;
+    // If we reach here, THREE wasn't properly initialized
+    console.warn('THREE.js not properly initialized. Please check script loading order.');
+    
+    // Update deprecated geometry names for newer THREE.js versions
+    if (window.THREE) {
+        // Add compatibility wrappers for renamed classes
+        if (window.THREE.CylinderGeometry && !window.THREE.CylinderBufferGeometry) {
+            window.THREE.CylinderBufferGeometry = window.THREE.CylinderGeometry;
+        }
+        
+        if (window.THREE.SphereGeometry && !window.THREE.SphereBufferGeometry) {
+            window.THREE.SphereBufferGeometry = window.THREE.SphereGeometry;
+        }
     }
     
-    // If THREE isn't available yet and script loading is still in progress
-    console.log("Waiting for THREE.js to load...");
-    setTimeout(checkThreeAvailability, 50);
-  }
-  
-  // Start checking for THREE
-  checkThreeAvailability();
+    // Add error logger for THREE.js warnings
+    const originalWarn = console.warn;
+    console.warn = function(message) {
+        // Forward to original warning function
+        originalWarn.apply(console, arguments);
+        
+        // Check if this is a THREE.js related warning
+        if (typeof message === 'string' && 
+            (message.includes('THREE.') || message.includes('React'))) {
+            // Log to our custom error handling if needed
+        }
+    };
 })();
-
-/**
- * THREE.js Initialization
- * Sets up THREE globally to avoid multiple instances
- */
-
-// Make sure THREE is available globally
-window.THREE = THREE;
-
-console.log("THREE.js initialized globally");
-
-// Optionally detect multiple instances
-const originalWarn = console.warn;
-console.warn = function() {
-  const args = Array.from(arguments);
-  if (args[0] && typeof args[0] === 'string' && 
-      args[0].includes('Multiple instances of Three.js')) {
-    console.error('THREE.js multiple instances detected. This can cause serious issues. Please check imports.');
-  }
-  originalWarn.apply(console, args);
-};

@@ -121,6 +121,23 @@
         console.log("Celestial bodies module initialized successfully");
     }
     
+    // Update deprecated geometry classes to use new names
+    function createSphere(radius, segments, color) {
+        // Use SphereGeometry instead of SphereBufferGeometry
+        const geometry = new THREE.SphereGeometry(radius, segments, segments);
+        const material = new THREE.MeshBasicMaterial({ color: color });
+        return new THREE.Mesh(geometry, material);
+    }
+    
+    function createCylinder(radiusTop, radiusBottom, height, segments, color) {
+        // Use CylinderGeometry instead of CylinderBufferGeometry
+        const geometry = new THREE.CylinderGeometry(
+            radiusTop, radiusBottom, height, segments
+        );
+        const material = new THREE.MeshBasicMaterial({ color: color });
+        return new THREE.Mesh(geometry, material);
+    }
+    
     // Wait for THREE to be available using the global flag or event
     function checkThreeAndInitialize() {
         if (window.THREE_LOADED && window.THREE) {

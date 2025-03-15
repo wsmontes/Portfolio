@@ -165,29 +165,80 @@ class ContentLoader {
    * @param {HTMLElement} container - Container element
    */
   static renderCenterNode(content, container) {
+    console.log("Rendering center node with content:", content);
+    
+    // Ensure content has required properties
+    const title = content?.title || 'Portfolio';
+    const intro = content?.intro || 'Welcome to my interactive portfolio.';
+    
     let html = `
       <div class="section-content">
-        <h2 class="section-title">${content.title}</h2>
-        <p class="section-intro">${content.intro}</p>
-        <div class="navigation-help">
+        <h2 class="section-title">${title}</h2>
+        <p class="section-intro">${intro}</p>
     `;
     
     // Add sections if available
-    if (Array.isArray(content.sections)) {
+    if (content && Array.isArray(content.sections) && content.sections.length > 0) {
+      html += `<div class="navigation-help">`;
+      
       content.sections.forEach(section => {
-        html += `
-          <div class="help-section">
-            <h3>${section.title}</h3>
-            <p>${section.text}</p>
-          </div>
-        `;
+        if (section && section.title) {
+          html += `
+            <div class="help-section">
+              <h3>${section.title}</h3>
+              <p>${section.text || ''}</p>
+            </div>
+          `;
+        }
       });
+      
+      html += `</div>`;
+    } else {
+      console.warn("Center node sections not found or empty:", content?.sections);
+      // Add fallback sections if none are provided
+      html += `
+        <div class="navigation-help">
+          <div class="help-section">
+            <h3>Explore</h3>
+            <p>Click on nodes to navigate through different sections of the portfolio.</p>
+          </div>
+          <div class="help-section">
+            <h3>Controls</h3>
+            <p>Use scroll to zoom, drag to rotate, and right-click to pan around.</p>
+          </div>
+        </div>
+      `;
     }
     
-    html += `</div></div>`;
+    html += `</div>`;
     container.innerHTML = html;
+    
+    // Apply styles to ensure sections are visible
+    const helpSections = container.querySelectorAll('.help-section');
+    if (helpSections.length > 0) {
+      helpSections.forEach(section => {
+        section.style.marginBottom = '15px';
+        section.style.padding = '15px';
+        section.style.borderRadius = '8px';
+        section.style.background = 'rgba(255, 255, 255, 0.1)';
+        
+        const heading = section.querySelector('h3');
+        if (heading) {
+          heading.style.marginTop = '0';
+          heading.style.color = 'var(--primary-color, #4a6cf7)';
+        }
+      });
+      
+      const navHelp = container.querySelector('.navigation-help');
+      if (navHelp) {
+        navHelp.style.marginTop = '20px';
+        navHelp.style.display = 'grid';
+        navHelp.style.gridTemplateColumns = 'repeat(auto-fit, minmax(280px, 1fr))';
+        navHelp.style.gap = '15px';
+      }
+    }
   }
-  
+
   /**
    * Render category node (main sections)
    * @param {string} nodeId - Node ID
