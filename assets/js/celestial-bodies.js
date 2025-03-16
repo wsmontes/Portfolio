@@ -61,8 +61,11 @@
                 // Increased segments for even smoother appearance on larger nodes
                 const segments = node.id === 'center' ? 64 : 
                               ['professional', 'repositories', 'personal'].includes(node.id) ? 48 : 36;
-                // Use SphereGeometry (current name) instead of SphereBufferGeometry (deprecated)
-                geometryCache[geometryKey] = new THREE.SphereGeometry(size, segments, segments);
+                
+                // Ensure we're using the correct class name (SphereGeometry, not SphereBufferGeometry)
+                // THREE.SphereBufferGeometry is deprecated
+                const GeometryClass = THREE.SphereGeometry || THREE.SphereBufferGeometry;
+                geometryCache[geometryKey] = new GeometryClass(size, segments, segments);
             }
             const geometry = geometryCache[geometryKey];
             
@@ -125,18 +128,57 @@
     // Update deprecated geometry classes to use new names
     function createSphere(radius, segments, color) {
         // Use SphereGeometry instead of SphereBufferGeometry
-        const geometry = new THREE.SphereGeometry(radius, segments, segments);
+        const GeometryClass = THREE.SphereGeometry || THREE.SphereBufferGeometry;
+        const geometry = new GeometryClass(radius, segments, segments);
         const material = new THREE.MeshBasicMaterial({ color: color });
         return new THREE.Mesh(geometry, material);
     }
     
     function createCylinder(radiusTop, radiusBottom, height, segments, color) {
         // Use CylinderGeometry instead of CylinderBufferGeometry
-        const geometry = new THREE.CylinderGeometry(
+        const GeometryClass = THREE.CylinderGeometry || THREE.CylinderBufferGeometry;
+        const geometry = new GeometryClass(
             radiusTop, radiusBottom, height, segments
         );
         const material = new THREE.MeshBasicMaterial({ color: color });
         return new THREE.Mesh(geometry, material);
+    }
+    
+    /**
+     * Create a basic sphere
+     */
+    function createBasicSphere(size, texture, color, emissive = false) {
+        // Update to use the modern THREE.SphereGeometry name instead of SphereBufferGeometry
+        const geometry = new THREE.SphereGeometry(size, 32, 32);
+        
+        // ...existing code...
+    }
+
+    /**
+     * Create a moon with craters
+     */
+    function createMoon(size, texture) {
+        // Update to use the modern THREE.SphereGeometry name
+        const geometry = new THREE.SphereGeometry(size, 24, 24);
+        
+        // ...existing code...
+    }
+
+    /**
+     * Create a ring system (like Saturn's rings)
+     */
+    function createRings(innerRadius, outerRadius, texture) {
+        // Update to use the modern THREE.CylinderGeometry name
+        const geometry = new THREE.CylinderGeometry(
+            outerRadius, // top radius
+            outerRadius, // bottom radius
+            0.2, // height
+            64, // radial segments
+            1, // height segments
+            true // open ended
+        );
+        
+        // ...existing code...
     }
     
     // Wait for THREE to be available using the global flag or event

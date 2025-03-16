@@ -152,13 +152,28 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
     
-    // Listen for graph node click events - this is triggered from graph.js
+    // Listen for graph node click events with improved error handling
     window.addEventListener('nodeClick', (e) => {
+      if (!e.detail) {
+        console.warn('Received nodeClick event without details');
+        return;
+      }
+      
       const nodeId = e.detail.id;
+      if (!nodeId) {
+        console.warn('Received nodeClick event without node ID');
+        return;
+      }
+      
+      // Type check for string before using string methods
+      const isRepository = e.detail.isRepository || 
+        (typeof nodeId === 'string' && nodeId.startsWith('repo-'));
+      
+      console.log(`Node click event received for: ${nodeId}, isRepository: ${isRepository}`);
       
       // If this event has the 'showContent' flag set to true, show content
       if (e.detail.showContent) {
-        showContent(nodeId);
+        showContent(nodeId, isRepository);
       }
     });
     
@@ -192,21 +207,54 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   
   /**
-   * Show content for a specific section
-   * @param {string} section - Section ID to load
+   * Show content for a specific section with improved error handling
+   * @param {string|any} section - Section ID to load
+   * @param {boolean} isRepository - Whether this is a repository node
    */
-  function showContent(section) {
-    console.log(`Attempting to show content for: ${section}`);
+  function showContent(section, isRepository = false) {
+    if (section === undefined || section === null) {
+      console.warn('Undefined or null section ID provided to showContent');
+      return;
+    }
     
-    // Use React ContentFrame to display content
-    if (typeof window.createContentFrame === 'function') {
-      console.log(`Using React ContentFrame for: ${section}`);
-      window.createContentFrame(section);
-    } else {
-      console.error('React ContentFrame function is not available');
-      // If React isn't available for some unexpected reason, at least show an error message
-      contentPanel.classList.remove('hidden');
-      contentInner.innerHTML = '<p class="error">Content loading system is unavailable. Check console for details.</p>';
+    try {
+      console.log(`Attempting to show content for: ${section} ${isRepository ? '(repository)' : ''}`);
+      
+      // Use React ContentFrame to display content
+      if (typeof window.createContentFrame === 'function') {
+        console.log(`Using React ContentFrame for: ${section}`);
+        window.createContentFrame(section);
+      } else {
+        console.warn('React ContentFrame function is not available, falling back to ContentLoader');
+        
+        if (window.ContentLoader && typeof window.ContentLoader.loadContent === 'function') {
+          // Get content panel elements
+          const contentPanel = document.getElementById('content-panel');
+          const contentInner = contentPanel.querySelector('.content-inner');
+          
+          // Make sure the panel is visible
+          contentPanel.classList.remove('hidden');
+          
+          // Show loading indicator
+          contentInner.innerHTML = '<div class="loading"><span>Loading content...</span></div>';
+          
+          // Load content using ContentLoader
+          window.ContentLoader.loadContent(section, contentInner)
+            .catch(err => {
+              console.error(`Error loading content for ${section}:`, err);
+              contentInner.innerHTML = '<p class="error">Error loading content. Please try again.</p>';
+            });
+        } else {
+          console.error('Content loading system is unavailable');
+          // If no loading method is available, at least show an error message
+          const contentPanel = document.getElementById('content-panel');
+          const contentInner = contentPanel.querySelector('.content-inner');
+          contentPanel.classList.remove('hidden');
+          contentInner.innerHTML = '<p class="error">Content loading system is unavailable. Check console for details.</p>';
+        }
+      }
+    } catch (error) {
+      console.error(`Error in showContent for ${section}:`, error);
     }
   }
   
@@ -221,4 +269,98 @@ document.addEventListener('DOMContentLoaded', () => {
       fitNodesToView(window.Graph, 0, false, true);
     }
   }, { once: true });
+  
+  // Initialize the application with repository data
+  async function initializeApp() {
+    try {
+        console.log('Starting application initialization...');
+        
+        // Show loading screen if not already displayed
+        const loadingScreen = document.querySelector('.loading-screen');
+        if (loadingScreen) {
+            loadingScreen.classList.add('active');
+            const loadingText = loadingScreen.querySelector('p');
+            if (loadingText) {
+                loadingText.textContent = 'Loading repositories...';
+            }
+        }
+        
+        // Prefetch repositories and unified data in parallel
+        const reposPromise = window.GithubRepoFetcher ? 
+            window.GithubRepoFetcher.getRepositories() : 
+            Promise.resolve([]);
+        
+        const unifiedDataPromise = window.ContentLoader ? 
+            window.ContentLoader.getUnifiedData() : 
+            Promise.resolve(null);
+        
+        // Wait for both to resolve
+        const [repos, unifiedData] = await Promise.all([reposPromise, unifiedDataPromise]);
+        
+        console.log(`Loaded ${repos.length} repositories and unified data`);
+        
+        // Update loading message
+        if (loadingScreen && loadingScreen.querySelector('p')) {
+            loadingScreen.querySelector('p').textContent = 'Generating network...';
+        }
+        
+        // Generate enhanced network data with repositories
+        let networkData;
+        
+        if (window.NetworkDataGenerator && window.NetworkDataGenerator.generateNetworkWithRepositories) {
+            networkData = await window.NetworkDataGenerator.generateNetworkWithRepositories();
+        } else {
+            // Fallback to basic network
+            console.warn('NetworkDataGenerator not available, using minimal network data');
+            networkData = window.NetworkData || { nodes: [], links: [] };
+        }
+        
+        // Make sure the graph is initialized with our data
+        if (typeof initGraph === 'function') {
+            initGraph(networkData);
+        } else if (window.Graph) {
+            // If graph already exists but needs data
+            window.Graph.graphData(networkData);
+        }
+        
+        // Set up menu items based on network data
+        await updateNavigationMenu();
+        
+        // Hide loading screen after a short delay to ensure render completes
+        setTimeout(() => {
+            if (loadingScreen) {
+                loadingScreen.classList.remove('active');
+            }
+            
+            console.log('Application fully initialized');
+            
+            // Ensure optimal camera view
+            if (window.CameraManager && window.Graph) {
+                window.CameraManager.fitAllNodes(window.Graph, 800);
+            }
+        }, 500);
+        
+    } catch (error) {
+        console.error("Error initializing application:", error);
+        
+        // Hide loading screen even on error
+        const loadingScreen = document.querySelector('.loading-screen');
+        if (loadingScreen) {
+            loadingScreen.classList.remove('active');
+        }
+        
+        // Show error to user
+        alert("Some data could not be loaded. The portfolio will continue with limited functionality.");
+    }
+  }
+
+  // Make it available globally for immediate execution from other scripts
+  window.initializeApp = initializeApp;
+
+  // Run initialization as soon as DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeApp);
+  } else {
+    initializeApp();
+  }
 });

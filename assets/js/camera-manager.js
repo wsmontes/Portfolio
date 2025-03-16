@@ -247,6 +247,336 @@ const CameraManager = {
     },
     
     /**
+     * Focus on a node with improved edge detection
+     * @param {Object} graph - 3D Force Graph instance
+     * @param {string|Object} nodeIdOrObject - Node ID or object to focus on
+     * @param {number} duration - Animation duration in ms
+     * @param {Object} options - Additional options
+     * @returns {boolean} - Success status
+     */
+    focusOnNode: function(graph, nodeIdOrObject, duration = this.config.durations.focusNode, options = {}) {
+        if (!graph || !graph.graphData) {
+            console.warn("Invalid graph object provided to focusOnNode");
+            return false;
+        }
+        
+        // Normalize options with defaults
+        const config = {
+            offset: options.offset || 0.2,          // Camera offset from direct line to node
+            extraDistance: options.extraDistance || 50, // Extra distance for better viewing
+            ensureVisible: options.ensureVisible !== false, // Check if node would be visible
+            maxAngle: options.maxAngle || Math.PI/6     // Maximum angle for edge correction
+        };
+        
+        // Determine if we have a node ID or object
+        const nodeId = typeof nodeIdOrObject === 'string' ? nodeIdOrObject : nodeIdOrObject?.id;
+        let node = typeof nodeIdOrObject === 'object' ? nodeIdOrObject : null;
+        
+        // If we only have an ID, find the node
+        if (!node && nodeId) {
+            const graphData = graph.graphData();
+            node = graphData.nodes.find(n => n.id === nodeId);
+        }
+        
+        if (!node) {
+            console.warn(`Node not found: ${nodeId}`);
+            return false;
+        }
+        
+        // Store current camera position for potential edge correction
+        const currentPos = graph.cameraPosition();
+        const currentLookAt = currentPos.lookAt || {x: 0, y: 0, z: 0};
+        
+        // Calculate node size or use default
+        const nodeSize = node.size || node.val || 5;
+        
+        // Calculate distance based on node size and type
+        const distanceFactor = this._getNodeDistanceFactor(node);
+        const baseDistance = nodeSize * 10 * distanceFactor;
+        const distance = baseDistance + config.extraDistance;
+        
+        // Check if node is at screen edge and would be hard to see
+        const isEdgeNode = this._isNodeAtScreenEdge(graph, node);
+        
+        let targetPosition, lookAtPosition;
+        
+        if (isEdgeNode && config.ensureVisible) {
+            console.log(`Node ${nodeId} detected at screen edge, applying correction`);
+            
+            // Calculate better camera position that brings edge node into view
+            const correctionResult = this._calculateEdgeNodeCameraPosition(graph, node, distance, config);
+            targetPosition = correctionResult.position;
+            lookAtPosition = correctionResult.lookAt;
+        } else {
+            // Standard positioning for central nodes
+            const distRatio = 1 + distance/Math.hypot(node.x, node.y, node.z);
+            
+            // Add a slight offset for better viewing angle
+            const offsetX = node.x * config.offset;
+            const offsetY = node.y * config.offset;
+            
+            targetPosition = {
+                x: node.x * distRatio + offsetX,
+                y: node.y * distRatio + offsetY,
+                z: node.z * distRatio
+            };
+            
+            lookAtPosition = node;
+        }
+        
+        // Animate camera to new position
+        graph.cameraPosition(
+            targetPosition,
+            lookAtPosition,
+            duration
+        );
+        
+        return true;
+    },
+    
+    /**
+     * Focus on a node and its children together
+     * @param {Object} graph - 3D Force Graph instance
+     * @param {string} nodeId - ID of the parent node to focus on
+     * @param {Array} childNodes - Array of child nodes
+     * @param {Number} duration - Animation duration in ms
+     * @returns {Boolean} - Success status
+     */
+    focusOnNodeAndChildren: function(graph, nodeId, childNodes, duration = this.config.durations.focusNode) {
+        if (!graph || !graph.graphData) return false;
+    
+        // Get the parent node
+        const parentNode = typeof nodeId === 'string' ? 
+            graph.graphData().nodes.find(n => n.id === nodeId) : 
+            nodeId;
+        
+        if (!parentNode) {
+            console.warn(`Node ${nodeId} not found`);
+            return false;
+        }
+        
+        // Get valid child nodes (either from parameter or find by parentId)
+        let children = Array.isArray(childNodes) ? childNodes : [];
+        if (children.length === 0) {
+            children = graph.graphData().nodes.filter(node => 
+                node.parentId === parentNode.id
+            );
+        }
+        
+        // If no children found, just focus on the parent node
+        if (children.length === 0) {
+            return this.focusOnNode(graph, parentNode, duration);
+        }
+        
+        // Calculate center position of all nodes (parent + children)
+        let allNodes = [parentNode, ...children];
+        
+        // Calculate center of the group
+        let centerX = 0, centerY = 0, centerZ = 0;
+        let totalWeight = 0;
+        
+        allNodes.forEach(node => {
+            if (!node || node.x === undefined) return;
+            
+            // Parent node has more weight in centering
+            const weight = node === parentNode ? 2 : 1;
+            centerX += node.x * weight;
+            centerY += node.y * weight;
+            centerZ += node.z * weight;
+            totalWeight += weight;
+        });
+        
+        if (totalWeight === 0) return false;
+        
+        const centerPoint = {
+            x: centerX / totalWeight,
+            y: centerY / totalWeight,
+            z: centerZ / totalWeight
+        };
+        
+        // Calculate bounding sphere to find optimal distance
+        let maxDistanceFromCenter = 0;
+        allNodes.forEach(node => {
+            if (!node || node.x === undefined) return;
+            
+            const distance = Math.sqrt(
+                Math.pow(node.x - centerPoint.x, 2) + 
+                Math.pow(node.y - centerPoint.y, 2) + 
+                Math.pow(node.z - centerPoint.z, 2)
+            );
+            
+            // Consider node size in calculation
+            const nodeRadius = node.size || 5;
+            maxDistanceFromCenter = Math.max(maxDistanceFromCenter, distance + nodeRadius);
+        });
+        
+        // Calculate optimal view distance (include margins)
+        const viewDistance = maxDistanceFromCenter * 1.5;
+        
+        // Apply minimum distance constraint
+        const adjustedDistance = Math.max(
+            viewDistance,
+            this._getMinDistanceForScreenSize()
+        );
+        
+        // Get current camera position for direction reference
+        const curPos = graph.cameraPosition();
+        const distRatio = adjustedDistance / Math.sqrt(curPos.x * curPos.x + curPos.y * curPos.y + curPos.z * curPos.z);
+        
+        // Move camera to view the nodes
+        graph.cameraPosition(
+            // Updated position
+            {
+                x: centerPoint.x + (curPos.x * distRatio * 0.2),
+                y: centerPoint.y + (curPos.y * distRatio * 0.2),
+                z: centerPoint.z + (adjustedDistance)
+            },
+            // Look-at position (center of nodes)
+            centerPoint,
+            // Duration
+            duration
+        );
+        
+        return true;
+    },
+
+    /**
+     * Check if a node is at the edge of the current view
+     * @param {Object} graph - 3D Force Graph instance
+     * @param {Object} node - Node to check
+     * @returns {boolean} - Whether node is at screen edge
+     */
+    _isNodeAtScreenEdge: function(graph, node) {
+        if (!graph || !graph.renderer || !graph.camera) return false;
+        
+        try {
+            // Get the renderer and camera
+            const renderer = graph.renderer();
+            const camera = graph.camera();
+            
+            if (!renderer || !camera) return false;
+            
+            // Convert node position to screen position
+            const vector = new THREE.Vector3(node.x, node.y, node.z);
+            vector.project(camera);
+            
+            // Convert to normalized device coordinates (-1 to +1)
+            const x = vector.x;
+            const y = vector.y;
+            
+            // Check if the node is near the edge (within 15% of the edge)
+            const edgeThreshold = 0.85; // 1.0 - 0.15
+            
+            return (Math.abs(x) > edgeThreshold || Math.abs(y) > edgeThreshold);
+        } catch (e) {
+            console.warn("Error checking node edge position:", e);
+            return false;
+        }
+    },
+    
+    /**
+     * Calculate optimal camera position for an edge node
+     * @param {Object} graph - 3D Force Graph instance
+     * @param {Object} node - Node to focus on
+     * @param {number} distance - Target distance to node
+     * @param {Object} options - Calculation options
+     * @returns {Object} - Position and lookAt objects
+     */
+    _calculateEdgeNodeCameraPosition: function(graph, node, distance, options) {
+        // Get current camera position
+        const camera = graph.camera();
+        const currentPos = graph.cameraPosition();
+        
+        // Calculate node vector from origin
+        const nodeVector = new THREE.Vector3(node.x, node.y, node.z);
+        const nodeDistance = nodeVector.length();
+        
+        // Calculate vector from camera to node
+        const cameraToNode = new THREE.Vector3(
+            node.x - currentPos.x,
+            node.y - currentPos.y,
+            node.z - currentPos.z
+        );
+        
+        // Normalize and scale to desired distance
+        const direction = cameraToNode.clone().normalize();
+        
+        // Calculate midpoint between camera and center of graph
+        const graphCenter = new THREE.Vector3();
+        const midpoint = new THREE.Vector3(
+            (graphCenter.x + node.x) / 2,
+            (graphCenter.y + node.y) / 2,
+            (graphCenter.z + node.z) / 2
+        );
+        
+        // Calculate camera target position
+        const cameraPosition = new THREE.Vector3(
+            node.x - direction.x * distance * 0.8,
+            node.y - direction.y * distance * 0.8,
+            node.z - direction.z * distance * 0.9
+        );
+        
+        // Adjust position to get a better angle
+        // Bring camera slightly toward the center
+        const centerWeight = 0.3; // How much to weight toward the center
+        cameraPosition.lerp(midpoint, centerWeight);
+        
+        return {
+            position: {
+                x: cameraPosition.x,
+                y: cameraPosition.y,
+                z: cameraPosition.z
+            },
+            lookAt: node
+        };
+    },
+
+    /**
+     * Start tracking edge nodes and ensure they're in view
+     * @param {Object} graph - 3D Force Graph instance
+     * @param {Object} options - Configuration options
+     */
+    startEdgeNodeTracking: function(graph, options = {}) {
+        if (!graph) return;
+        
+        const config = {
+            checkInterval: options.checkInterval || 500,
+            nodeThreshold: options.nodeThreshold || 0.85,
+            adjustDuration: options.adjustDuration || 800,
+            enabled: options.enabled !== false,
+            autoCorrect: options.autoCorrect !== false
+        };
+        
+        this._edgeTracking = {
+            active: config.enabled,
+            config: config,
+            intervalId: null
+        };
+        
+        if (!config.enabled) return;
+        
+        // Clear any existing trackers
+        if (this._edgeTracking.intervalId) {
+            clearInterval(this._edgeTracking.intervalId);
+        }
+        
+        // Start periodic checks
+        this._edgeTracking.intervalId = setInterval(() => {
+            if (!this._edgeTracking.active || !graph) return;
+            
+            // Check if any focused nodes are too close to the edge
+            const result = this._checkNodesAtEdge(graph, config.nodeThreshold);
+            
+            if (result.edgeNodesCount > 0 && config.autoCorrect) {
+                // Auto-correct camera position with a smooth transition
+                this._adjustForEdgeNodes(graph, result.edgeNodes, config.adjustDuration);
+            }
+        }, config.checkInterval);
+        
+        return this._edgeTracking;
+    },
+    
+    /**
      * Reset camera to default home view
      * @param {Object} graph - 3D Force Graph instance
      * @param {Number} duration - Animation duration in ms

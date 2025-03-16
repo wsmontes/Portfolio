@@ -135,3 +135,72 @@
       }
     }, 3000);
 })();
+
+// Fallback content display when React isn't available
+function fallbackCreateContentFrame(nodeId) {
+    console.log(`Using fallback content display for: ${nodeId}`);
+    
+    const contentPanel = document.getElementById('content-panel');
+    const contentInner = contentPanel.querySelector('.content-inner');
+    
+    // Clear previous content and show loading indicator
+    contentInner.innerHTML = '<div class="loading-spinner"></div><p>Loading content...</p>';
+    contentPanel.classList.remove('hidden');
+    
+    // Use ContentLoader to load content if available
+    if (window.ContentLoader) {
+        try {
+            window.ContentLoader.loadContent(nodeId, contentInner)
+                .then(() => {
+                    console.log("Content loaded via fallback method");
+                    
+                    // Initialize image error handlers for all images
+                    const images = contentInner.querySelectorAll('img');
+                    images.forEach(img => {
+                        // Add error handler if not already present
+                        if (!img.hasAttribute('onerror')) {
+                            img.onerror = handleImageError;
+                        }
+                    });
+                })
+                .catch(error => {
+                    console.error(`Error loading content for ${nodeId}:`, error);
+                    contentInner.innerHTML = `<div class="error-message">Error loading content: ${error.message}</div>`;
+                });
+        } catch (error) {
+            console.error(`Error with ContentLoader for ${nodeId}:`, error);
+            contentInner.innerHTML = `<div class="error-message">Error in content system: ${error.message}</div>`;
+        }
+    } else {
+        contentInner.innerHTML = '<div class="error-message">Content loading system is not available.</div>';
+    }
+    
+    return null;
+}
+
+// Define the image error handler here as well to ensure it's available
+function handleImageError(event) {
+    console.warn(`Failed to load image: ${event.target.src}`);
+    
+    // Try to load the placeholder image
+    event.target.src = 'assets/images/placeholder.jpg';
+    // Prevent infinite error loops
+    event.target.onerror = null;
+}
+
+// Listen for React load failure
+document.addEventListener('reactLoadFailed', () => {
+    console.log("React load failed event received, activating fallback rendering");
+    
+    // Flag as using fallback mode
+    window.usingReactFallback = true;
+    console.log("Using vanilla JS fallback rendering");
+    
+    // Create a global function for creating content frames in fallback mode
+    window.createContentFrame = fallbackCreateContentFrame;
+    
+    // Initialize any page content that might need it
+    if (window.initializePageContent) {
+        window.initializePageContent();
+    }
+});

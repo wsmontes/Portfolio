@@ -17,6 +17,14 @@
         // Store graph instance
         let graph = null;
         
+        // Make sure window.Graph always refers to the graph instance
+        Object.defineProperty(window, 'Graph', {
+            get: function() {
+                return graph;
+            },
+            configurable: true
+        });
+        
         // Camera animation duration (ms)
         const CAMERA_ANIMATION_DURATION = 1000;
         const CONTENT_DELAY = 1000;
@@ -122,9 +130,8 @@
                     }
                     
                     try {
-                        // Generate data from JSON files
-                        const generator = new NetworkDataGenerator();
-                        networkData = await generator.generate();
+                        // Generate data correctly - NetworkDataGenerator is a module, not a constructor
+                        networkData = await window.NetworkDataGenerator.generateNetworkWithRepositories();
                         
                         // Expose the generated data globally for other components to use
                         window.NetworkData = networkData;
@@ -806,6 +813,68 @@
             }
         }
         
+        // Special handling for repository and language nodes
+        function handleSpecialNodeClick(node) {
+            if (!node) {
+                console.warn('Null node passed to handleSpecialNodeClick');
+                return false;
+            }
+            
+            const nodeId = node.id;
+            
+            // Type check for string before using string methods
+            if (!nodeId || typeof nodeId !== 'string') {
+                console.warn('Node ID is not a string:', nodeId);
+                return false;
+            }
+            
+            // For repository nodes (repo-*)
+            if (nodeId.startsWith('repo-')) {
+                try {
+                    // Make sure we focus on the node first
+                    console.log(`Focusing on repository node: ${nodeId}`);
+                    window.focusOnNode(node, true);
+                    return true;
+                } catch (err) {
+                    console.error(`Error focusing on repo node ${nodeId}:`, err);
+                    return false;
+                }
+            }
+            
+            // For language nodes (lang-*)
+            if (nodeId.startsWith('lang-')) {
+                try {
+                    console.log(`Focusing on language node: ${nodeId}`);
+                    
+                    // Get the child repository nodes for this language
+                    const childRepoNodes = graph.graphData().nodes.filter(n => 
+                        n.parentId === nodeId && typeof n.id === 'string' && n.id.startsWith('repo-')
+                    );
+                    
+                    console.log(`Found ${childRepoNodes.length} child repositories for language ${nodeId}`);
+                    
+                    // Use CameraManager to fit this node and its children if available
+                    if (window.CameraManager) {
+                        if (typeof window.CameraManager.focusOnNodeAndChildren === 'function') {
+                            window.CameraManager.focusOnNodeAndChildren(graph, node, childRepoNodes, 800);
+                        } else {
+                            // Fallback if the function isn't available
+                            console.log('focusOnNodeAndChildren not available, using standard focus');
+                            window.focusOnNode(nodeId, true);
+                        }
+                    } else {
+                        window.focusOnNode(nodeId, true);
+                    }
+                    return true;
+                } catch (err) {
+                    console.error(`Error focusing on language node ${nodeId}:`, err);
+                    return false;
+                }
+            }
+            
+            return false; // Not a special node
+        }
+
         // Node click handler
         function handleNodeClick(node) {
             if (!node) return;
@@ -813,11 +882,20 @@
             isUserInteracting = true;
             resetIdleTimer();
             
+            // Check if this is a special node type with custom handling
+            if (handleSpecialNodeClick(node)) {
+                return;
+            }
+            
             // First focus on the node (camera movement)
             const nodeId = node.id;
             
+            // Type check for string before using string methods
+            const isRepoNode = typeof nodeId === 'string' && nodeId.startsWith('repo-');
+            
             // Focus camera on the node - increased distances for larger nodes
-            const distance = nodeId === 'center' ? 400 : 250;
+            const distance = isRepoNode ? 200 : 
+                            nodeId === 'center' ? 400 : 250;
             const distRatio = 1 + distance/Math.hypot(node.x, node.y, node.z);
             graph.cameraPosition(
                 { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio },
@@ -829,10 +907,15 @@
             setTimeout(() => {
                 // Dispatch node click event with flag to show content
                 const clickEvent = new CustomEvent('nodeClick', {
-                    detail: { id: nodeId, showContent: true }
+                    detail: { 
+                        id: nodeId, 
+                        showContent: true,
+                        isRepository: isRepoNode,
+                        node: node 
+                    }
                 });
                 window.dispatchEvent(clickEvent);
-            }, CONTENT_DELAY);
+            }, isRepoNode ? CONTENT_DELAY / 2 : CONTENT_DELAY); // Faster loading for repo nodes
         }
         
         // Loading screen functions - no delay needed
@@ -1166,7 +1249,7 @@ function initializeGraph(data) {
     }
     
     // Create the 3D force graph
-    Graph = ForceGraph3D({ extraRenderers: [] })(document.getElementById('graph-container'))
+    window.Graph = ForceGraph3D({ extraRenderers: [] })(document.getElementById('graph-container'))
         .graphData(graphData)
         .nodeLabel(node => node.name)
         .nodeColor(node => node.color || getNodeColor(node))
@@ -1183,11 +1266,11 @@ function initializeGraph(data) {
     
     // Apply custom force configuration
     if (typeof GraphLayout !== 'undefined') {
-        GraphLayout.applyForceConfiguration(Graph);
+        GraphLayout.applyForceConfiguration(window.Graph);
     }
     
-    // Make graph globally available
-    window.Graph = Graph;
+    // Make graph globally available - IMPORTANT: keep consistent naming
+    Graph = window.Graph;
     
     // Calculate initial distance and set camera position
     const initialDistance = 1500; // Temporary initial position
@@ -1341,4 +1424,44 @@ function setupGraphControls() {
     }
 }
 
-// ... existing code ...
+// Listen for node navigation events from content
+window.addEventListener('nodeNavigation', (e) => {
+    if (!e.detail || !e.detail.nodeId) {
+        console.warn('Node navigation event missing nodeId');
+        return;
+    }
+    
+    const targetNodeId = e.detail.nodeId;
+    
+    // Safety check - ensure graph exists and is initialized
+    if (!graph) {
+        console.warn('Graph not initialized - cannot navigate');
+        return;
+    }
+    
+    try {
+        const graphData = graph.graphData();
+        if (!graphData || !graphData.nodes || !graphData.nodes.length) {
+            console.warn('No graph data available for navigation');
+            return;
+        }
+        
+        const node = graphData.nodes.find(n => n.id === targetNodeId);
+        
+        if (node) {
+            console.log(`Navigating to node: ${targetNodeId}`);
+            
+            // Type check before using string methods
+            if (typeof targetNodeId === 'string' && targetNodeId.startsWith('lang-')) {
+                handleSpecialNodeClick(node);
+            } else {
+                // Otherwise use standard focus
+                window.focusOnNode(targetNodeId, true);
+            }
+        } else {
+            console.warn(`Navigation target node not found: ${targetNodeId}`);
+        }
+    } catch (err) {
+        console.error('Error during navigation:', err);
+    }
+});

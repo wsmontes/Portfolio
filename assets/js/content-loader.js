@@ -6,12 +6,28 @@
 class ContentLoader {
   /**
    * Load content from the unified data source
-   * @param {string} nodeId - Node ID to load content for
+   * @param {string|Object} nodeIdOrObject - Node ID or node object to load content for
    * @param {HTMLElement} container - Container element to populate
    * @returns {Promise} - Promise resolved when content is loaded
    */
-  static async loadContent(nodeId, container) {
+  static async loadContent(nodeIdOrObject, container) {
     try {
+      // Normalize nodeId - handle both string ID and node object
+      const nodeId = typeof nodeIdOrObject === 'string' 
+        ? nodeIdOrObject 
+        : (nodeIdOrObject && nodeIdOrObject.id ? nodeIdOrObject.id : null);
+      
+      if (!nodeId) {
+        console.error("Invalid node ID or object provided", nodeIdOrObject);
+        container.innerHTML = `<p class="error">Invalid node data provided</p>`;
+        return null;
+      }
+      
+      // Special handling for repository nodes (which won't be in unified data)
+      if (nodeId.startsWith('repo-')) {
+        return await this.loadRepositoryContent(nodeId, container);
+      }
+      
       // Get the unified data
       const unifiedData = await this.getUnifiedData();
       
@@ -19,6 +35,13 @@ class ContentLoader {
       const nodeData = this.findNodeInUnifiedData(unifiedData, nodeId);
       
       if (!nodeData) {
+        console.warn(`Node ID "${nodeId}" not found in unified data`);
+        
+        // Check if it might be a dynamic repository node
+        if (window.repositoryNodes && window.repositoryNodes.find(n => n.id === nodeId)) {
+          return await this.loadRepositoryContent(nodeId, container);
+        }
+        
         container.innerHTML = `<p class="error">Node ID "${nodeId}" not found in unified data</p>`;
         return null;
       }
@@ -57,7 +80,7 @@ class ContentLoader {
       
       return nodeData;
     } catch (error) {
-      console.error(`Error loading content for ${nodeId}:`, error);
+      console.error(`Error loading content for ${nodeIdOrObject}:`, error);
       container.innerHTML = `<p class="error">Failed to load content. Please try again.</p>`;
       throw error;
     }
@@ -1249,15 +1272,231 @@ class ContentLoader {
         break;
     }
   }
+
+  /**
+   * Load repository content for a node ID
+   * @param {string|Object} nodeIdOrObject - Node ID in format "repo-{repoName}" or node object
+   * @param {HTMLElement} container - Container element
+   * @returns {Promise<Object>} - Repository data
+   */
+  static async loadRepositoryContent(nodeIdOrObject, container) {
+    try {
+      // Normalize nodeId - handle both string ID and node object
+      const nodeId = typeof nodeIdOrObject === 'string' 
+        ? nodeIdOrObject 
+        : (nodeIdOrObject && nodeIdOrObject.id ? nodeIdOrObject.id : null);
+      
+      if (!nodeId) {
+        container.innerHTML = `<div class="error-message">Invalid repository node data provided</div>`;
+        return null;
+      }
+      
+      // Extract repository name from node ID
+      const repoName = nodeId.replace('repo-', '');
+      
+      console.log(`Loading repository content for: ${repoName}`);
+      
+      // Try to get repositories using different methods
+      let repos = [];
+      
+      // 1. Try from window.repositoryNodes
+      if (window.repositoryNodes && window.repositoryNodes.length) {
+        const repoNode = window.repositoryNodes.find(n => n.id === nodeId);
+        if (repoNode && repoNode.repoData) {
+          repos = [repoNode.repoData];
+        }
+      }
+      
+      // 2. If not found, try fetching from GitHub
+      if (repos.length === 0 && window.GithubRepoFetcher) {
+        try {
+          repos = await window.GithubRepoFetcher.getRepositories();
+        } catch (err) {
+          console.warn("Couldn't fetch repositories from GitHub:", err);
+        }
+      }
+      
+      // Find the repository
+      const repo = repos.find(r => r.name === repoName);
+      
+      if (!repo) {
+        container.innerHTML = `<div class="error-message">Repository ${repoName} not found</div>`;
+        return null;
+      }
+      
+      // Find parent node (language cluster)
+      let parentNode = null;
+      let parentId = null;
+      
+      // Make sure we use the global Graph reference
+      if (window.Graph && window.Graph.graphData) {
+        const graphData = window.Graph.graphData();
+        if (graphData && graphData.nodes) {
+          const repoNode = graphData.nodes.find(n => n.id === nodeId);
+          if (repoNode && repoNode.parentId) {
+            parentId = repoNode.parentId;
+            parentNode = graphData.nodes.find(n => n.id === parentId);
+          }
+        }
+      }
+      
+      // Fetch README content
+      let readmeContent = `# ${repoName}\n\nNo README content available.`;
+      
+      if (window.GithubRepoFetcher && window.GithubRepoFetcher.fetchReadme) {
+        try {
+          readmeContent = await window.GithubRepoFetcher.fetchReadme(repo);
+        } catch (err) {
+          console.warn(`Couldn't fetch README for ${repoName}:`, err);
+        }
+      }
+      
+      // Parse creation date
+      const createdDate = new Date(repo.created_at).toLocaleDateString();
+      const updatedDate = new Date(repo.updated_at).toLocaleDateString();
+      
+      // Create repository content HTML
+      const html = `
+          <div class="repository-content">
+              ${parentNode ? `
+              <div class="breadcrumb-nav">
+                  <span class="breadcrumb-item" data-node-id="repositories">Repositories</span>
+                  <span class="breadcrumb-separator">/</span>
+                  <span class="breadcrumb-item" data-node-id="${parentId}">${parentNode.name || 'Language'}</span>
+                  <span class="breadcrumb-separator">/</span>
+                  <span class="breadcrumb-active">${repo.name}</span>
+              </div>
+              ` : ''}
+              
+              <header class="repo-header">
+                  <h1><a href="${repo.html_url}" target="_blank" rel="noopener">${repo.name}</a></h1>
+                  <div class="repo-stats">
+                      <span class="repo-language"><i class="fas fa-code"></i> ${repo.language || 'Not specified'}</span>
+                      <span class="repo-stars"><i class="fas fa-star"></i> ${repo.stargazers_count}</span>
+                      <span class="repo-forks"><i class="fas fa-code-branch"></i> ${repo.forks_count}</span>
+                  </div>
+              </header>
+              
+              <div class="repo-description">
+                  <p>${repo.description || 'No description available'}</p>
+              </div>
+              
+              ${repo.topics && repo.topics.length ? `
+              <div class="repo-topics">
+                  ${repo.topics.map(topic => `<span class="topic-tag">${topic}</span>`).join('')}
+              </div>` : ''}
+              
+              <div class="repo-dates">
+                  <span>Created: ${createdDate}</span>
+                  <span>Last updated: ${updatedDate}</span>
+              </div>
+              
+              ${repo.homepage ? `
+              <div class="repo-homepage">
+                  <a href="${repo.homepage}" target="_blank" rel="noopener">
+                      <i class="fas fa-external-link-alt"></i> Visit project website
+                  </a>
+              </div>` : ''}
+              
+              <div class="readme-content">
+                  <h2>README</h2>
+                  <div class="markdown-body">
+                      ${window.MarkdownParser ? window.MarkdownParser.parse(readmeContent) : readmeContent}
+                  </div>
+              </div>
+          </div>
+      `;
+      
+      container.innerHTML = html;
+      
+      // Initialize image error handlers
+      const images = container.querySelectorAll('img');
+      images.forEach(img => {
+        if (!img.hasAttribute('onerror')) {
+          img.onerror = handleImageError;
+        }
+      });
+      
+      // Add click handlers for navigation breadcrumbs with improved reliability
+      const breadcrumbItems = container.querySelectorAll('.breadcrumb-item');
+      breadcrumbItems.forEach(item => {
+        item.addEventListener('click', e => {
+          e.preventDefault();
+          e.stopPropagation(); // Prevent event bubbling
+          
+          const targetNodeId = item.getAttribute('data-node-id');
+          if (targetNodeId) {
+            console.log(`Breadcrumb navigation to: ${targetNodeId}`);
+            
+            try {
+              // First approach: use direct navigation method
+              if (window.focusOnNode && typeof window.focusOnNode === 'function') {
+                window.focusOnNode(targetNodeId, true);
+                return;
+              }
+              
+              // Second approach: dispatch navigation event
+              const navEvent = new CustomEvent('nodeNavigation', {
+                detail: { 
+                  nodeId: targetNodeId, 
+                  source: 'breadcrumb' 
+                }
+              });
+              window.dispatchEvent(navEvent);
+            } catch (err) {
+              console.error("Error during breadcrumb navigation:", err);
+            }
+          }
+        });
+      });
+      
+      return repo;
+    } catch (error) {
+      console.error("Error loading repository content:", error);
+      container.innerHTML = `
+          <div class="error-message">
+              <h2>Error Loading Repository Content</h2>
+              <p>${error.message}</p>
+          </div>
+      `;
+      throw error;
+    }
+  }
 }
 
-// Simple image error handler
+// Improved image error handler with better fallback logic
 function handleImageError(event) {
-  console.warn(`Failed to load image: ${event.target.src}`);
-  // Replace with placeholder image
-  event.target.src = 'assets/images/placeholder.jpg';
-  // Remove onerror after it's been handled to prevent loops
-  event.target.onerror = null;
+    console.warn(`Failed to load image: ${event.target.src}`);
+    
+    // Get the base URL
+    const baseUrl = window.location.origin;
+    const placeholderPath = '/assets/images/placeholder.jpg';
+    
+    try {
+        // First try assets/images/placeholder.jpg
+        event.target.src = `${baseUrl}/assets/images/placeholder.jpg`;
+        
+        // If that fails (it will trigger another error handler call), use a data URI as ultimate fallback
+        event.target.onerror = function() {
+            // Simple gray placeholder with text using data URI
+            this.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(`
+                <svg xmlns="http://www.w3.org/2000/svg" width="200" height="150" viewBox="0 0 200 150">
+                    <rect width="100%" height="100%" fill="#cccccc" />
+                    <text x="50%" y="50%" font-family="Arial" font-size="14" text-anchor="middle" fill="#666666">
+                        Image not found
+                    </text>
+                </svg>
+            `);
+            // Remove any further error handlers to prevent loops
+            this.onerror = null;
+        };
+    } catch (e) {
+        // Ultimate fallback if anything goes wrong with the above
+        event.target.src = '';
+        event.target.alt = 'Image not available';
+        event.target.style.display = 'none';
+        event.target.onerror = null;
+    }
 }
 
 // Export the ContentLoader class
@@ -1514,3 +1753,99 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // ...existing code...
 })();
+
+/**
+ * Content Loader
+ * Handles loading and displaying content for network nodes
+ * Includes repository content display
+ */
+
+// ...existing code...
+
+// Add repository content loading functionality
+ContentLoader.loadRepositoryContent = async function(nodeId, container) {
+    try {
+        const repoName = nodeId.replace('repo-', '');
+        const repos = await GithubRepoFetcher.getRepositories();
+        const repo = repos.find(r => r.name === repoName);
+        
+        if (!repo) {
+            container.innerHTML = `<div class="error-message">Repository ${repoName} not found</div>`;
+            return;
+        }
+        
+        // Fetch README content
+        const readmeContent = await GithubRepoFetcher.fetchReadme(repo);
+        
+        // Parse creation date
+        const createdDate = new Date(repo.created_at).toLocaleDateString();
+        const updatedDate = new Date(repo.updated_at).toLocaleDateString();
+        
+        // Create repository content HTML
+        const html = `
+            <div class="repository-content">
+                <header class="repo-header">
+                    <h1><a href="${repo.html_url}" target="_blank" rel="noopener">${repo.name}</a></h1>
+                    <div class="repo-stats">
+                        <span class="repo-language"><i class="fas fa-code"></i> ${repo.language || 'Not specified'}</span>
+                        <span class="repo-stars"><i class="fas fa-star"></i> ${repo.stargazers_count}</span>
+                        <span class="repo-forks"><i class="fas fa-code-branch"></i> ${repo.forks_count}</span>
+                    </div>
+                </header>
+                
+                <div class="repo-description">
+                    <p>${repo.description || 'No description available'}</p>
+                </div>
+                
+                ${repo.topics && repo.topics.length ? `
+                <div class="repo-topics">
+                    ${repo.topics.map(topic => `<span class="topic-tag">${topic}</span>`).join('')}
+                </div>` : ''}
+                
+                <div class="repo-dates">
+                    <span>Created: ${createdDate}</span>
+                    <span>Last updated: ${updatedDate}</span>
+                </div>
+                
+                ${repo.homepage ? `
+                <div class="repo-homepage">
+                    <a href="${repo.homepage}" target="_blank" rel="noopener">
+                        <i class="fas fa-external-link-alt"></i> Visit project website
+                    </a>
+                </div>` : ''}
+                
+                <div class="readme-content">
+                    <h2>README</h2>
+                    <div class="markdown-body">
+                        ${MarkdownParser.parse(readmeContent)}
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        container.innerHTML = html;
+        
+    } catch (error) {
+        console.error("Error loading repository content:", error);
+        container.innerHTML = `
+            <div class="error-message">
+                <h2>Error Loading Repository Content</h2>
+                <p>${error.message}</p>
+            </div>
+        `;
+    }
+};
+
+// Update the renderNodeContent function to handle repository nodes
+const originalRenderNodeContent = ContentLoader.renderNodeContent;
+ContentLoader.renderNodeContent = function(node, container) {
+    // Check if this is a repository node
+    if (node.type === 'repository') {
+        this.loadRepositoryContent(node.id, container);
+    } else {
+        // Use the original function for other node types
+        originalRenderNodeContent(node, container);
+    }
+};
+
+// ...existing code...

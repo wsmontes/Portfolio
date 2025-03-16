@@ -1,0 +1,28 @@
+[
+  {
+    "id": 1,
+    "name": "Portfolio",
+    "description": "Interactive 3D portfolio network visualization",
+    "html_url": "https://github.com/wsmontes/Portfolio",
+    "homepage": "https://wsmontes.github.io/Portfolio",
+    "language": "JavaScript",
+    "stargazers_count": 0,
+    "forks_count": 0,
+    "topics": ["portfolio", "threejs", "3d", "visualization"],
+    "created_at": "2023-01-01T00:00:00Z",
+    "updated_at": "2023-05-01T00:00:00Z"
+  },
+  {
+    "id": 2,
+    "name": "ExampleProject1",
+    "description": "Example project description as fallback",
+    "html_url": "https://github.com/wsmontes/ExampleProject1",
+    "homepage": "",
+    "language": "TypeScript",
+    "stargazers_count": 5,
+    "forks_count": 2,
+    "topics": ["react", "typescript", "web"],
+    "created_at": "2022-06-01T00:00:00Z",
+    "updated_at": "2023-04-01T00:00:00Z"
+  }
+]

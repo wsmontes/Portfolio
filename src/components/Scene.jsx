@@ -61,10 +61,109 @@ const Scene = () => {
       setIsTransitioning(false);
     }, 500);
 
-    // Update graph focus - force "false" for showContent to prevent event loop
+    // Check if this is an edge node that needs special camera handling
+    const isEdgeNode = checkIfEdgeNode(nodeId);
+    
+    // Enhanced graph focus with edge node detection
     if (window.focusOnNode && lastNavSource !== 'graph') {
-      window.focusOnNode(nodeId, false);
+      // Use enhanced camera options for edge nodes
+      const cameraOptions = isEdgeNode ? {
+        ensureVisible: true,
+        extraDistance: isEdgeNode ? 70 : 50,
+        offset: isEdgeNode ? 0.25 : 0.2
+      } : {};
+      
+      // Pass a flag to NOT show content since we're handling that here
+      window.focusOnNode(nodeId, false, cameraOptions);
     }
+  };
+  
+  /**
+   * Check if a node is at the edge of the graph
+   * @param {string} nodeId - ID of the node to check
+   * @returns {boolean} - Whether this is an edge node
+   */
+  const checkIfEdgeNode = (nodeId) => {
+    // Early return if we don't have access to the graph data
+    if (!window.Graph || !window.Graph.graphData) {
+      return false;
+    }
+    
+    try {
+      // Get graph data
+      const graphData = window.Graph.graphData();
+      if (!graphData || !graphData.nodes) return false;
+      
+      // Find the node
+      const node = graphData.nodes.find(n => n.id === nodeId);
+      if (!node) return false;
+      
+      // Get the center node
+      const centerNode = graphData.nodes.find(n => n.id === 'center');
+      if (!centerNode) return false;
+      
+      // Calculate distance from center
+      const dx = node.x - centerNode.x;
+      const dy = node.y - centerNode.y;
+      const dz = node.z - centerNode.z;
+      const distanceFromCenter = Math.sqrt(dx*dx + dy*dy + dz*dz);
+      
+      // Calculate the maximum distance of any node from the center
+      let maxDistance = 0;
+      graphData.nodes.forEach(n => {
+        if (n.id === 'center') return;
+        const ndx = n.x - centerNode.x;
+        const ndy = n.y - centerNode.y;
+        const ndz = n.z - centerNode.z;
+        const distance = Math.sqrt(ndx*ndx + ndy*ndy + ndz*ndz);
+        maxDistance = Math.max(maxDistance, distance);
+      });
+      
+      // Consider a node an edge node if it's in the outer 25% of the graph
+      return distanceFromCenter > maxDistance * 0.75;
+      
+    } catch (error) {
+      console.error("Error checking if node is an edge node:", error);
+      return false;
+    }
+  };
+  
+  // Handle scene transitions with improved animations
+  const handleSceneTransition = (targetNodeId, options = {}) => {
+    // Don't interrupt ongoing transitions
+    if (isTransitioning) return;
+    
+    // Start transition
+    setIsTransitioning(true);
+    
+    // Check if this is an edge node
+    const isEdgeNode = checkIfEdgeNode(targetNodeId);
+    
+    // Determine transition timing
+    const cameraTransitionTime = isEdgeNode ? 1000 : 800;
+    const contentDelay = isEdgeNode ? 800 : 600; 
+    
+    // First move camera to focus on node
+    if (window.focusOnNode) {
+      const cameraOptions = {
+        duration: cameraTransitionTime,
+        ensureVisible: true,
+        extraDistance: isEdgeNode ? 70 : 50
+      };
+      
+      window.focusOnNode(targetNodeId, false, cameraOptions);
+    }
+    
+    // After camera starts moving, prepare to show content
+    setTimeout(() => {
+      setActiveNode(targetNodeId);
+      setShowFrame(true);
+      
+      // Reset transitioning state after animation completes
+      setTimeout(() => {
+        setIsTransitioning(false);
+      }, 500);
+    }, contentDelay);
   };
 
   // Handle navigation between nodes from within content frames

@@ -12,6 +12,7 @@
     <link rel="preconnect" href="https://cdnjs.cloudflare.com">
     
     <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/repository.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" type="image/png" href="assets/images/favicon.png">
     <style>
@@ -79,7 +80,7 @@
         // Store original THREE instance before 3D-force-graph loads
         window.originalTHREE = window.THREE;
         
-        // Function to restore our THREE instance if overwritten
+        // Improved function to restore our THREE instance if overwritten
         function ensureGlobalTHREE() {
             if (window.THREE !== window.originalTHREE) {
                 console.log('Restoring global THREE instance');
@@ -94,8 +95,15 @@
                 
                 // Restore our original THREE
                 window.THREE = window.originalTHREE;
+                
+                // Add console info to help debugging
+                console.info('THREE.js instance has been unified. The warning about multiple instances can be ignored.');
             }
         }
+        
+        // Run immediately and also after scripts load
+        ensureGlobalTHREE();
+        window.addEventListener('load', ensureGlobalTHREE);
     </script>
     
     <!-- 5. Load d3-force for the collision detection -->
@@ -106,6 +114,10 @@
     
     <!-- 6. Load 3D-force-graph which depends on THREE -->
     <script src="https://unpkg.com/3d-force-graph@1.70.5/dist/3d-force-graph.min.js" onload="ensureGlobalTHREE()"></script>
+    
+    <!-- Add GitHub repo fetcher before network data scripts -->
+    <script src="assets/js/github-repo-fetcher.js"></script>
+    <script src="assets/js/markdown-parser.js"></script>
     
     <!-- 7. Load baseline data and utilities -->
     <script src="assets/js/network-data.js"></script>
@@ -129,6 +141,17 @@
     
     <!-- 11. Finally load the graph initialization -->
     <script src="assets/js/graph.js"></script>
+    
+    <!-- Initialize app after all scripts are loaded -->
+    <script>
+        // Ensure all resources are loaded before initialization
+        window.addEventListener('load', () => {
+            // Start app initialization if not already started
+            if (window.initializeApp && typeof window.initializeApp === 'function') {
+                window.initializeApp();
+            }
+        });
+    </script>
     
     <!-- 12. Improved React app loading with better fallback mechanism -->
     <script>

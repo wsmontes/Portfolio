@@ -1,0 +1,491 @@
+/**
+ * Enhanced Repository Content Styling
+ * Provides improved visual design and scroll interactions for repository content
+ */
+
+/* Repository Container */
+.repository-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 100%;
+  animation: fadeInUp 0.5s ease forwards;
+}
+
+/* Repository Header with Name and Stats */
+.repo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 20px;
+}
+
+.repo-header h1 {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: var(--primary-color, #4a6cf7);
+}
+
+.repo-header a {
+  color: var(--primary-color, #4a6cf7);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.repo-header a:hover {
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 0 3px var(--primary-color, #4a6cf7);
+}
+
+/* Repository Statistics */
+.repo-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  font-size: 0.95rem;
+}
+
+.repo-stats span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 30px;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.repo-stats span:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-2px);
+}
+
+/* Repository Description */
+.repo-description {
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.6;
+  max-width: 800px;
+  font-size: 1.05rem;
+  margin-bottom: 20px;
+}
+
+/* Repository Topics/Tags */
+.repo-topics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0;
+}
+
+.topic-tag {
+  display: inline-block;
+  padding: 4px 12px;
+  background: rgba(74, 108, 247, 0.15);
+  color: var(--primary-color, #4a6cf7);
+  border-radius: 30px;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+
+.topic-tag:hover {
+  background: rgba(74, 108, 247, 0.25);
+  transform: translateY(-2px);
+  box-shadow: 0 2px 6px rgba(74, 108, 247, 0.1);
+}
+
+/* Repository Dates */
+.repo-dates {
+  display: flex;
+  justify-content: space-between;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9rem;
+  margin: 10px 0;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* Repository Homepage Link */
+.repo-homepage {
+  margin-top: 15px;
+  margin-bottom: 20px;
+}
+
+.repo-homepage a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: var(--primary-color, #4a6cf7);
+  color: white;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.repo-homepage a:hover {
+  background: rgba(74, 108, 247, 0.8);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(74, 108, 247, 0.2);
+}
+
+/* README Content Section */
+.readme-content {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 20px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: 500px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+/* Add scrollbar styling for WebKit browsers */
+.readme-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.readme-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.readme-content::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  border: none;
+}
+
+.readme-content::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.readme-content h1,
+.readme-content h2,
+.readme-content h3,
+.readme-content h4 {
+  color: var(--primary-color, #4a6cf7);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 8px;
+}
+
+.readme-content h2 {
+  margin-top: 20px;
+  margin-bottom: 15px;
+  font-size: 1.6rem;
+}
+
+/* README content images */
+.readme-content img {
+  max-width: 100%;
+  border-radius: 4px;
+  margin: 15px 0;
+}
+
+/* Code blocks in README */
+.readme-content pre {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  padding: 12px;
+  overflow-x: auto;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+}
+
+.readme-content code {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  color: #e06c75;
+  padding: 2px 4px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+.readme-content pre code {
+  background: transparent;
+  color: #abb2bf;
+  padding: 0;
+}
+
+/* Lists in README */
+.readme-content ul,
+.readme-content ol {
+  margin-left: 20px;
+  margin-bottom: 20px;
+}
+
+.readme-content li {
+  margin-bottom: 8px;
+}
+
+/* Tables in README */
+.readme-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  overflow-x: auto;
+  display: block;
+}
+
+.readme-content th,
+.readme-content td {
+  padding: 8px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.readme-content th {
+  background: rgba(255, 255, 255, 0.05);
+  text-align: left;
+}
+
+/* Links in README */
+.readme-content a {
+  color: var(--primary-color, #4a6cf7);
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.readme-content a:hover {
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 0 3px var(--primary-color, #4a6cf7);
+  text-decoration: underline;
+}
+
+/* Error message styling */
+.error-message {
+  padding: 15px;
+  background: rgba(220, 38, 38, 0.1);
+  border-left: 4px solid rgba(220, 38, 38, 0.8);
+  color: rgb(252, 165, 165);
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+
+/* Placeholder for missing images */
+.readme-content img.placeholder {
+  background: rgba(255, 255, 255, 0.05);
+  min-height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.4);
+  position: relative;
+}
+
+.readme-content img.placeholder::after {
+  content: "Image not available";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Animations for content reveal */
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(15px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.scroll-reveal.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Repository section scroll indicators */
+.readme-content.scrollable {
+  position: relative;
+}
+
+.scroll-indicator {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: rgba(74, 108, 247, 0.6);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+.readme-content:hover .scroll-indicator {
+  opacity: 0.8;
+  transform: translateY(0);
+}
+
+.scroll-indicator:hover {
+  opacity: 1;
+  transform: translateY(-2px);
+}
+
+/* Repository content tabs */
+.repo-tabs {
+  display: flex;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 20px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.repo-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.repo-tab {
+  padding: 10px 16px;
+  cursor: pointer;
+  position: relative;
+  white-space: nowrap;
+  color: rgba(255, 255, 255, 0.6);
+  transition: all 0.2s;
+}
+
+.repo-tab.active {
+  color: var(--primary-color, #4a6cf7);
+}
+
+.repo-tab::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--primary-color, #4a6cf7);
+  transform: scaleX(0);
+  transition: transform 0.3s;
+}
+
+.repo-tab.active::after {
+  transform: scaleX(1);
+}
+
+.repo-tab:hover {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Repository tab content */
+.repo-tab-content {
+  display: none;
+  animation: fadeIn 0.3s ease forwards;
+}
+
+.repo-tab-content.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Repository file browser */
+.repo-files {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.repo-file-item {
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.2s;
+}
+
+.repo-file-item:last-child {
+  border-bottom: none;
+}
+
+.repo-file-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.repo-file-icon {
+  margin-right: 10px;
+  color: rgba(255, 255, 255, 0.6);
+  width: 20px;
+  text-align: center;
+}
+
+.repo-file-name {
+  flex: 1;
+}
+
+.repo-file-size {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.85rem;
+}
+
+/* Repository contributors section */
+.repo-contributors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.repo-contributor {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 80px;
+}
+
+.repo-contributor-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 25px;
+  object-fit: cover;
+  transition: transform 0.2s;
+}
+
+.repo-contributor:hover .repo-contributor-avatar {
+  transform: scale(1.1);
+}
+
+.repo-contributor-name {
+  font-size: 0.8rem;
+  text-align: center;
+  margin-top: 5px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .repo-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .repo-stats {
+    margin-top: 10px;
+  }
+  
+  .readme-content {
+    max-height: 400px;
+  }
+  
+  .repo-tabs {
+    gap: 5px;
+  }
+  
+  .repo-tab {
+    padding: 8px 12px;
+    font-size: 0.9rem;
+  }
+}

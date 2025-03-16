@@ -235,8 +235,179 @@ const FrameTemplates = {
         </div>
       </div>
     `;
+  },
+
+  /**
+   * Repository detail template with improved content organization
+   * @param {Object} data - Repository data
+   * @returns {string} HTML template
+   */
+  repository: function(data) {
+    if (!data || !data.repoData) {
+      return `
+        <div class="frame-template repository-template">
+          <div class="error-message">Repository data not available</div>
+        </div>
+      `;
+    }
+    
+    const repo = data.repoData;
+    
+    // Parse dates
+    const createdDate = new Date(repo.created_at).toLocaleDateString();
+    const updatedDate = new Date(repo.updated_at).toLocaleDateString();
+    
+    return `
+      <div class="frame-template repository-template">
+        <header class="repo-header">
+          <h1>
+            <a href="${repo.html_url}" target="_blank" rel="noopener">
+              ${repo.name}
+              <i class="fas fa-external-link-alt" style="font-size: 0.7em; margin-left: 5px;"></i>
+            </a>
+          </h1>
+          <div class="repo-stats">
+            <span class="repo-language"><i class="fas fa-code"></i> ${repo.language || 'Not specified'}</span>
+            <span class="repo-stars"><i class="fas fa-star"></i> ${repo.stargazers_count}</span>
+            <span class="repo-forks"><i class="fas fa-code-branch"></i> ${repo.forks_count}</span>
+            <span class="repo-issues"><i class="fas fa-exclamation-circle"></i> ${repo.open_issues_count}</span>
+          </div>
+        </header>
+        
+        <div class="repo-description scroll-reveal">
+          <p>${repo.description || 'No description available'}</p>
+        </div>
+        
+        ${repo.topics && repo.topics.length ? `
+        <div class="repo-topics scroll-reveal">
+          ${repo.topics.map(topic => `<span class="topic-tag">${topic}</span>`).join('')}
+        </div>` : ''}
+        
+        <div class="repo-dates scroll-reveal">
+          <span><i class="fas fa-calendar"></i> Created: ${createdDate}</span>
+          <span><i class="fas fa-clock"></i> Updated: ${updatedDate}</span>
+        </div>
+        
+        ${repo.homepage ? `
+        <div class="repo-homepage scroll-reveal">
+          <a href="${repo.homepage}" target="_blank" rel="noopener">
+            <i class="fas fa-external-link-alt"></i> Visit project website
+          </a>
+        </div>` : ''}
+        
+        <div class="repo-tabs scroll-reveal">
+          <div class="repo-tab active" data-tab="readme">README</div>
+          <div class="repo-tab" data-tab="files">Files</div>
+          ${repo.has_issues ? `<div class="repo-tab" data-tab="issues">Issues</div>` : ''}
+          <div class="repo-tab" data-tab="stats">Stats</div>
+        </div>
+        
+        <div class="repo-tab-content active" data-tab="readme">
+          <div class="readme-content scroll-reveal scrollable-container">
+            <div class="markdown-body">
+              ${data.readmeContent ? 
+                (window.MarkdownParser ? window.MarkdownParser.parse(data.readmeContent) : data.readmeContent) : 
+                '<div class="empty-readme">No README content available.</div>'}
+            </div>
+            <button class="scroll-indicator" title="Scroll to top">
+              <i class="fas fa-chevron-up"></i>
+            </button>
+          </div>
+        </div>
+        
+        <div class="repo-tab-content" data-tab="files">
+          <div class="repo-files scroll-reveal scrollable-container">
+            <p class="loading-message">Loading repository files...</p>
+            <!-- Files will be loaded dynamically -->
+          </div>
+        </div>
+        
+        ${repo.has_issues ? `
+        <div class="repo-tab-content" data-tab="issues">
+          <div class="repo-issues scroll-reveal scrollable-container">
+            <p class="loading-message">Loading issues...</p>
+            <!-- Issues will be loaded dynamically -->
+          </div>
+        </div>` : ''}
+        
+        <div class="repo-tab-content" data-tab="stats">
+          <div class="repo-stats-detail scroll-reveal">
+            <h3>Repository Statistics</h3>
+            <div class="stats-grid">
+              <div class="stat-card">
+                <div class="stat-value">${repo.stargazers_count}</div>
+                <div class="stat-label"><i class="fas fa-star"></i> Stars</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-value">${repo.forks_count}</div>
+                <div class="stat-label"><i class="fas fa-code-branch"></i> Forks</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-value">${repo.watchers_count}</div>
+                <div class="stat-label"><i class="fas fa-eye"></i> Watchers</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-value">${repo.open_issues_count}</div>
+                <div class="stat-label"><i class="fas fa-exclamation-circle"></i> Issues</div>
+              </div>
+            </div>
+            
+            <h3>Activity</h3>
+            <p>Last updated: ${updatedDate}</p>
+            <div class="activity-timeline">
+              <div class="timeline-item">
+                <div class="timeline-icon"><i class="fas fa-plus-circle"></i></div>
+                <div class="timeline-content">
+                  <h4>Repository created</h4>
+                  <p>${createdDate}</p>
+                </div>
+              </div>
+            </div>
+            
+            ${repo.language ? `
+            <h3>Language</h3>
+            <div class="language-stats">
+              <div class="language-bar">
+                <div class="language-fill" style="width: 100%; background: ${getLanguageColor(repo.language)};"></div>
+              </div>
+              <p>${repo.language}</p>
+            </div>` : ''}
+          </div>
+        </div>
+      </div>
+    `;
   }
 };
+
+/**
+ * Get color for programming language
+ * @param {string} language - Programming language name
+ * @returns {string} - CSS color value
+ */
+function getLanguageColor(language) {
+  const colorMap = {
+    'JavaScript': '#f1e05a',
+    'TypeScript': '#2b7489',
+    'HTML': '#e34c26',
+    'CSS': '#563d7c',
+    'Python': '#3572A5',
+    'Java': '#b07219',
+    'C#': '#178600',
+    'Go': '#00ADD8',
+    'Rust': '#dea584',
+    'Ruby': '#701516',
+    'PHP': '#4F5D95',
+    'C++': '#f34b7d',
+    'C': '#555555',
+    'Shell': '#89e051',
+    'Swift': '#ffac45',
+    'Kotlin': '#F18E33',
+    'Dart': '#00B4AB',
+    'Jupyter Notebook': '#DA5B0B'
+  };
+  
+  return colorMap[language] || '#8257e5'; // Default purple color for unknown languages
+}
 
 // Add CSS for templates
 document.addEventListener('DOMContentLoaded', function() {

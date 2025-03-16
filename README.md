@@ -11,6 +11,7 @@ This repository contains the source code for my interactive 3D portfolio website
 - Dark/light mode toggle
 - Dynamically loaded content for projects and photography
 - Filtering capabilities for projects and photography work
+- Dynamic GitHub repository integration with README display
 
 ## How It Works
 
@@ -19,6 +20,7 @@ The portfolio presents itself as an interactive 3D network where:
 - Main section nodes (About, Skills, Projects, Photography, Contact) connect to the central node
 - Sub-nodes represent specific skills, project types, and photography categories
 - Connections between nodes show relationships between different areas
+- Each GitHub repository is represented as an individual node with its own data and README content
 
 ### Navigation System
 
@@ -27,9 +29,24 @@ There are two ways to navigate through the portfolio:
 1. **Node Navigation**: Click directly on nodes in the 3D graph:
    - Click on main section nodes (About, Skills, Projects, etc.) to view section content in a modal panel
    - Click on sub-nodes (Frontend, Web Projects, Portrait, etc.) to open a fullscreen detailed view
+   - Click on repository nodes to display the repository information and README content
    - Click on the central "Portfolio" node to reset the view
    
 2. **Menu Navigation**: Use the top navigation menu as an alternative way to access main sections
+
+### Data Integration
+
+The portfolio dynamically fetches data from multiple sources:
+
+1. **GitHub Repository Integration**:
+   - Primary Method: Uses AllOrigins as a CORS proxy to fetch data directly from GitHub's API
+   - Each repository appears as a node in the network visualization
+   - When clicked, displays repository metadata and renders the README content
+   - Fallback: Local JSON data is used when GitHub API is unavailable or rate-limited
+
+2. **Content Management**:
+   - Project information is primarily sourced from GitHub repositories
+   - Additional content is loaded from local JSON files
 
 ## Technologies Used
 
@@ -38,6 +55,9 @@ There are two ways to navigate through the portfolio:
 - React for UI components
 - Three.js for 3D rendering
 - Force-Graph library for network visualization
+- GitHub API for repository data
+- AllOrigins proxy for CORS-free API requests
+- Markdown parsing for README rendering
 - Responsive design for all device sizes
 - Dynamic content loading with fetch API
 - GitHub Pages for hosting

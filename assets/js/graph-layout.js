@@ -650,7 +650,7 @@ const GraphLayout = {
     },
 
     /**
-     * Configure custom force simulation parameters
+     * Apply force configuration to graph for better node distribution
      * @param {Object} forceGraph - 3D Force Graph instance
      */
     applyForceConfiguration: function(forceGraph) {
@@ -734,6 +734,50 @@ const GraphLayout = {
         if (!forceGraph.d3Force('centerZ')) {
             forceGraph.d3Force('centerZ', d3.forceZ ? d3.forceZ(0).strength(0.03) : null);
         }
+
+        // Add edge node repulsion to prevent nodes being pushed too far to edges
+        if (!forceGraph.d3Force('edgeRepulsion')) {
+            forceGraph.d3Force('edgeRepulsion', alpha => {
+                const nodes = forceGraph.graphData().nodes;
+                
+                // Calculate center of mass
+                let centerX = 0, centerY = 0, centerZ = 0;
+                nodes.forEach(node => {
+                    centerX += node.x || 0;
+                    centerY += node.y || 0;
+                    centerZ += node.z || 0;
+                });
+                
+                centerX /= nodes.length || 1;
+                centerY /= nodes.length || 1;
+                centerZ /= nodes.length || 1;
+                
+                // Apply force to bring edge nodes back toward center
+                const boundaryRadius = 300;
+                const edgeThreshold = 0.7; // When node is 70% to boundary, start pulling back
+                const edgeForceStrength = 0.03 * alpha;
+                
+                nodes.forEach(node => {
+                    if (!node.x || !node.y || !node.z) return;
+                    
+                    // Calculate distance from center
+                    const dx = node.x - centerX;
+                    const dy = node.y - centerY;
+                    const dz = node.z - centerZ;
+                    const distance = Math.sqrt(dx*dx + dy*dy + dz*dz);
+                    
+                    // If node is approaching boundary, apply force toward center
+                    if (distance > boundaryRadius * edgeThreshold) {
+                        const force = (distance - boundaryRadius * edgeThreshold) * edgeForceStrength;
+                        const direction = distance > 0 ? 1 : -1;
+                        
+                        node.vx -= (dx / distance) * force * direction;
+                        node.vy -= (dy / distance) * force * direction;
+                        node.vz -= (dz / distance) * force * direction;
+                    }
+                });
+            });
+        }
     },
     
     /**
@@ -742,6 +786,35 @@ const GraphLayout = {
      */
     updateForces: function(forceGraph) {
         this.applyForceConfiguration(forceGraph);
+        
+        // Adjust force strengths based on viewport size
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        const aspectRatio = width / height;
+        const isPortrait = aspectRatio < 1;
+        
+        // Get current forces
+        const centerY = forceGraph.d3Force('centerY');
+        const centerZ = forceGraph.d3Force('centerZ');
+        
+        if (centerY) {
+            // Stronger Y centering for portrait orientation
+            centerY.strength(isPortrait ? 0.03 : 0.02);
+        }
+        
+        if (centerZ) {
+            // Adjust Z centering based on aspect ratio
+            centerZ.strength(0.03);
+        }
+        
+        // Prevent overcompression with collision force
+        const collisionForce = forceGraph.d3Force('collision');
+        if (collisionForce) {
+            collisionForce.radius(node => {
+                // Base collision radius on node size
+                return (node.val || 5) * 1.2; // 20% larger than visual size
+            });
+        }
     },
     
     /**
@@ -764,5 +837,76 @@ const GraphLayout = {
         
         // Update the graph
         forceGraph.graphData({nodes, links});
+        
+        // Apply edge node positioning to prevent nodes being too close to edges
+        this._optimizeEdgeNodePositioning(nodes);
+    },
+    
+    /**
+     * Optimize positioning of edge nodes to improve visibility
+     * @param {Array} nodes - Graph nodes 
+     * @private
+     */
+    _optimizeEdgeNodePositioning: function(nodes) {
+        if (!nodes || nodes.length === 0) return;
+        
+        // Calculate graph center and boundaries
+        let centerX = 0, centerY = 0, centerZ = 0;
+        let minX = Infinity, maxX = -Infinity;
+        let minY = Infinity, maxY = -Infinity;
+        let minZ = Infinity, maxZ = -Infinity;
+        
+        // Calculate center and find bounds
+        nodes.forEach(node => {
+            if (node.x === undefined) return;
+            
+            centerX += node.x;
+            centerY += node.y;
+            centerZ += node.z || 0;
+            
+            minX = Math.min(minX, node.x);
+            maxX = Math.max(maxX, node.x);
+            minY = Math.min(minY, node.y);
+            maxY = Math.max(maxY, node.y);
+            minZ = Math.min(minZ, node.z || 0);
+            maxZ = Math.max(maxZ, node.z || 0);
+        });
+        
+        centerX /= nodes.length;
+        centerY /= nodes.length;
+        centerZ /= nodes.length;
+        
+        // Calculate graph dimensions
+        const width = maxX - minX;
+        const height = maxY - minY;
+        const depth = maxZ - minZ;
+        const maxDimension = Math.max(width, height, depth);
+        
+        // Define edge threshold (consider a node at the edge if it's beyond 80% of max distance)
+        const edgeThreshold = maxDimension * 0.4;
+        
+        // Find edge nodes and adjust their positions
+        nodes.forEach(node => {
+            if (node.x === undefined) return;
+            
+            // Calculate distance from graph center
+            const dx = node.x - centerX;
+            const dy = node.y - centerY;
+            const dz = (node.z || 0) - centerZ;
+            const distanceFromCenter = Math.sqrt(dx*dx + dy*dy + dz*dz);
+            
+            // If node is beyond edge threshold, move it slightly inward
+            if (distanceFromCenter > edgeThreshold) {
+                // Calculate move factor - more aggressive for further nodes
+                const moveFactor = 0.15; // Move 15% closer to center
+                
+                // Apply position adjustment
+                node.x = node.x - dx * moveFactor;
+                node.y = node.y - dy * moveFactor;
+                if (node.z !== undefined) {
+                    node.z = node.z - dz * moveFactor;
+                }
+            }
+        });
     }
 };

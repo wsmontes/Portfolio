@@ -30,131 +30,132 @@ const Menu = ({ onNodeClick, activeNode }) => {
   
   // Load menu items from unified data
   useEffect(() => {
-    const loadMenuItems = async () => {
-      if (!window.ContentLoader) {
-        console.error("ContentLoader not available for menu items");
-        // Fallback to some basic items if ContentLoader is not available
-        setMenuNodes([
-          { title: 'Home', id: 'center' },
-          { title: 'Professional', id: 'professional' },
-          { title: 'Repositories', id: 'repositories' },
-          { title: 'Personal', id: 'personal' },
-          { title: 'About', id: 'about' }
-        ]);
-        setIsLoading(false);
-        return;
-      }
+    const loadMenuNodes = async () => {
+      setIsLoading(true);
       
       try {
-        // Get the unified data
+        // Check if ContentLoader is available
+        if (!window.ContentLoader) {
+          console.error("ContentLoader not available");
+          setMenuNodes([]);
+          setIsLoading(false);
+          return;
+        }
+        
+        // Get unified data
         const unifiedData = await window.ContentLoader.getUnifiedData();
         
-        if (!unifiedData || !unifiedData.graphConfig) {
-          throw new Error("Invalid unified data format");
-        }
+        // Extract categories and important nodes for the menu
+        const mainCategories = unifiedData.graphConfig.categories || [];
+        const centerNode = unifiedData.graphConfig.centerNode;
         
-        // Start with the portfolio/center node
-        const items = [
+        // Create an array of menu items
+        const menuItems = [
+          // Add center node as home
           {
-            title: unifiedData.graphConfig.centerNode.name || 'Home',
-            id: unifiedData.graphConfig.centerNode.id || 'center',
-            color: unifiedData.graphConfig.centerNode.visualization?.color,
-            description: unifiedData.graphConfig.centerNode.description
-          }
+            id: centerNode.id,
+            name: "Home",
+            description: centerNode.description,
+            icon: "fas fa-home",
+            priority: 0
+          },
+          // Add categories
+          ...mainCategories.map((category, index) => ({
+            id: category.id,
+            name: category.name,
+            description: category.description,
+            icon: getCategoryIcon(category.id),
+            priority: index + 1,
+            color: getCategoryColor(category)
+          }))
         ];
         
-        // Add category nodes
-        if (Array.isArray(unifiedData.graphConfig.categories)) {
-          unifiedData.graphConfig.categories.forEach(category => {
-            // Skip adding duplicates or center node (already added)
-            if (category.id !== 'center' && items.findIndex(item => item.id === category.id) === -1) {
-              items.push({
-                title: category.name,
-                id: category.id,
-                color: category.visualization?.color,
-                description: category.description,
-                disabled: false
-              });
-            }
-          });
-        }
+        // Sort by priority
+        menuItems.sort((a, b) => a.priority - b.priority);
         
-        setMenuNodes(items);
+        setMenuNodes(menuItems);
       } catch (error) {
-        console.error("Error loading menu items:", error);
-        // Fallback to some basic items
-        setMenuNodes([
-          { title: 'Home', id: 'center' },
-          { title: 'Professional', id: 'professional' },
-          { title: 'Repositories', id: 'repositories' },
-          { title: 'Personal', id: 'personal' },
-          { title: 'About', id: 'about' }
-        ]);
+        console.error("Error loading menu nodes:", error);
+        setMenuNodes([]);
       } finally {
         setIsLoading(false);
       }
     };
     
-    loadMenuItems();
+    loadMenuNodes();
     
-    // Handle window resize to update mobile status
+    // Add resize listener for mobile detection
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
     };
     
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
   
-  // Handle menu toggle for mobile
+  // Get appropriate icon for category
+  const getCategoryIcon = (categoryId) => {
+    switch(categoryId) {
+      case 'professional': return 'fas fa-briefcase';
+      case 'repositories': return 'fas fa-code';
+      case 'personal': return 'fas fa-user';
+      case 'contact': return 'fas fa-envelope';
+      default: return 'fas fa-star';
+    }
+  };
+  
+  // Get color for category node
+  const getCategoryColor = (category) => {
+    // Try to get color from visualization properties
+    if (category.visualization && category.visualization.color) {
+      return category.visualization.color;
+    }
+    
+    // Fallback colors based on category id
+    switch(category.id) {
+      case 'professional': return '#3a82f7';
+      case 'repositories': return '#00ff00';
+      case 'personal': return '#ff0000';
+      case 'contact': return '#ffff00';
+      default: return '#ffffff';
+    }
+  };
+  
+  // Toggle mobile menu visibility
   const toggleMenu = () => {
     setMenuActive(!menuActive);
   };
   
   // Handle menu item click
-  const handleMenuClick = (nodeId) => {
+  const handleMenuItemClick = (nodeId) => {
+    // Close mobile menu
+    if (isMobile) {
+      setMenuActive(false);
+    }
+    
+    // Call parent handler
     if (onNodeClick) {
-      console.log("Menu click: navigating to node", nodeId);
-      
-      // Trigger node navigation event for better compatibility
-      const event = new CustomEvent('nodeNavigation', {
-        detail: { 
-          nodeId: nodeId, 
-          source: 'menu'
-        }
-      });
-      window.dispatchEvent(event);
-      
-      // Also call the direct handler
       onNodeClick(nodeId);
-      
-      // Close menu on mobile after click
-      if (isMobile) {
-        setMenuActive(false);
-      }
     }
   };
   
-  // Get logo text - use active node name if available, otherwise "Portfolio"
-  const getLogoText = () => {
-    // For center node or no active node, show "Portfolio"
-    if (!activeNode || activeNode === 'center') {
-      return "Portfolio";
-    }
+  // Determine if a menu item is active
+  const isMenuItemActive = (nodeId) => {
+    return activeNode === nodeId;
+  };
+  
+  // Apply custom styling to menu item based on node data
+  const getMenuItemStyle = (node) => {
+    // Return empty object if node has no color or is active
+    if (!node.color || isMenuItemActive(node.id)) return {};
     
-    // For active node, first check if we have its data
-    if (activeNodeData) {
-      return activeNodeData.name;
-    }
-    
-    // If no active node data yet, check menuNodes
-    const matchingNode = menuNodes.find(node => node.id === activeNode);
-    if (matchingNode) {
-      return matchingNode.title;
-    }
-    
-    // Fallback
-    return "Portfolio";
+    // Create a style with custom CSS variable for the color
+    return {
+      '--item-color': node.color
+    };
   };
   
   return (
@@ -162,43 +163,42 @@ const Menu = ({ onNodeClick, activeNode }) => {
       <div className="logo">
         <a href="#" onClick={(e) => {
           e.preventDefault();
-          handleMenuClick('center');
+          handleMenuItemClick('center');
         }}>
-          {getLogoText()}
+          Wagner Montes
         </a>
       </div>
       
-      <button 
-        className="menu-toggle" 
-        aria-label="Toggle Menu"
-        onClick={toggleMenu}
-      >
-        <i className={`fas ${menuActive ? 'fa-times' : 'fa-bars'}`}></i>
-      </button>
+      {isMobile && (
+        <button className="menu-toggle" onClick={toggleMenu}>
+          <i className={menuActive ? "fas fa-times" : "fas fa-bars"}></i>
+        </button>
+      )}
       
       <ul className={`nav-menu ${menuActive ? 'active' : ''}`}>
-        {!isLoading && menuNodes.map((node, index) => (
-          <li 
-            key={node.id} 
-            className={activeNode === node.id ? 'active' : ''}
-            style={node.color ? {'--item-color': node.color} : {}}
-            title={node.description || node.title}
-          >
-            <a 
-              href="#"
-              data-section={node.id}
-              onClick={(e) => {
-                e.preventDefault();
-                if (!node.disabled) {
-                  handleMenuClick(node.id);
-                }
-              }}
-              className={node.disabled ? 'menu-item-disabled' : ''}
+        {isLoading ? (
+          <li><span className="loading">Loading...</span></li>
+        ) : (
+          menuNodes.map(node => (
+            <li 
+              key={node.id} 
+              className={isMenuItemActive(node.id) ? 'active' : ''}
             >
-              {node.title}
-            </a>
-          </li>
-        ))}
+              <a 
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleMenuItemClick(node.id);
+                }}
+                title={node.description}
+                data-section={node.id}
+                style={getMenuItemStyle(node)}
+              >
+                {node.icon && <i className={node.icon}></i>} {node.name}
+              </a>
+            </li>
+          ))
+        )}
       </ul>
     </nav>
   );

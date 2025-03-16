@@ -365,7 +365,7 @@ const ContentFrame = ({ nodeId, onClose }) => {
     >
       <div 
         ref={frameRef}
-        className="frame-container"
+        className={`frame-container ${isClosing ? 'closing' : ''} ${isVisible ? 'visible' : ''}`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="frame-header">
@@ -381,6 +381,17 @@ const ContentFrame = ({ nodeId, onClose }) => {
         
         <div className="frame-body">
           {renderContent()}
+        </div>
+        
+        {/* Add scroll control buttons */}
+        <div className="frame-scroll-controls">
+          <button 
+            className="scroll-top-btn" 
+            onClick={() => contentContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' })}
+            aria-label="Scroll to top"
+          >
+            <i className="fas fa-chevron-up"></i>
+          </button>
         </div>
       </div>
     </div>
