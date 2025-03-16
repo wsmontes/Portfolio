@@ -370,76 +370,120 @@ class ContentLoader {
    * @param {HTMLElement} container - Container element
    * @param {Object} unifiedData - Complete unified data
    */
-  static renderRepositoryCluster(nodeId, nodeData, content, container, unifiedData) {
-    // Get parent category to access all projects
-    const parentCategory = unifiedData.graphConfig.categories.find(c => c.id === 'repositories');
-    if (!parentCategory || !parentCategory.content || !parentCategory.content.projects) {
+  static async renderRepositoryCluster(nodeId, nodeData, content, container) {
+    // Show loading indicator
+    container.innerHTML = `
+      <div class="section-content">
+        <h2 class="section-title">${content.title || nodeData.name}</h2>
+        <p class="loading">Loading ${nodeData.name} repositories...</p>
+      </div>
+    `;
+    
+    try {
+      // Load repositories from GitHub
+      const allRepos = await this.getGitHubRepositories();
+      
+      // Determine which language(s) to filter by based on the node ID
+      let filterLanguages = [];
+      
+      switch (nodeId) {
+        case 'javascript':
+          filterLanguages = ['JavaScript', 'TypeScript', 'Vue', 'React'];
+          break;
+        case 'python':
+          filterLanguages = ['Python', 'Jupyter Notebook'];
+          break;
+        case 'ai_ml':
+          filterLanguages = ['Python', 'Jupyter Notebook', 'R'];
+          break;
+        default:
+          // If content has filterValue, use that
+          if (content.filterValue) {
+            filterLanguages = Array.isArray(content.filterValue) ? 
+              content.filterValue : [content.filterValue];
+          } else {
+            filterLanguages = [nodeData.name];
+          }
+      }
+      
+      // Filter repositories by language
+      const filteredRepos = allRepos.filter(repo => {
+        const repoLang = repo.language || '';
+        return filterLanguages.some(lang => 
+          repoLang.toLowerCase() === lang.toLowerCase() ||
+          (repo.topics && repo.topics.some(topic => 
+            topic.toLowerCase() === lang.toLowerCase() ||
+            topic.toLowerCase().includes(lang.toLowerCase())
+          ))
+        );
+      });
+      
+      // Prepare HTML
+      let html = `
+        <div class="section-content">
+          <h2 class="section-title">${content.title || nodeData.name}</h2>
+          <p class="section-description">${content.description || nodeData.description || `${nodeData.name} projects directly from GitHub`}</p>
+      `;
+      
+      if (filteredRepos.length > 0) {
+        html += `<div class="projects-grid">`;
+        
+        filteredRepos.forEach(repo => {
+          html += `
+            <div class="project-card">
+              <div class="project-header">
+                <h3>${repo.name}</h3>
+                <span class="language-tag" style="background: ${this.getLanguageColor(repo.language)}">
+                  ${repo.language || 'Other'}
+                </span>
+              </div>
+              <div class="project-details">
+                <p>${repo.description || 'No description available'}</p>
+                
+                <div class="repo-meta">
+                  <span><i class="fas fa-star"></i> ${repo.stargazers_count}</span>
+                  <span><i class="fas fa-code-branch"></i> ${repo.forks_count}</span>
+                  <span><i class="fas fa-history"></i> ${new Date(repo.updated_at).toLocaleDateString()}</span>
+                </div>
+                
+                ${repo.topics && repo.topics.length > 0 ? `
+                  <div class="technologies">
+                    ${repo.topics.slice(0, 5).map(topic => 
+                      `<span class="tech-tag">${topic}</span>`
+                    ).join('')}
+                  </div>
+                ` : ''}
+                
+                <div class="project-links">
+                  <a href="${repo.html_url}" target="_blank" class="btn secondary">
+                    <i class="fab fa-github"></i> View on GitHub
+                  </a>
+                  ${repo.homepage ? `<a href="${repo.homepage}" target="_blank" class="btn primary">
+                    <i class="fas fa-external-link-alt"></i> Live Demo
+                  </a>` : ''}
+                </div>
+              </div>
+            </div>
+          `;
+        });
+        
+        html += `</div>`;
+      } else {
+        html += `<p class="empty-state">No ${nodeData.name} projects available.</p>`;
+      }
+      
+      html += `</div>`;
+      container.innerHTML = html;
+      
+    } catch (error) {
+      console.error(`Failed to load ${nodeData.name} repositories:`, error);
       container.innerHTML = `
         <div class="section-content">
           <h2 class="section-title">${content.title || nodeData.name}</h2>
-          <p class="error">No project data available.</p>
+          <p class="error">Failed to load repositories. Please try again later.</p>
         </div>
       `;
-      return;
     }
-    
-    // Get all projects
-    const allProjects = parentCategory.content.projects;
-    
-    // Filter projects by technology
-    const filterValue = content.filterValue;
-    const filteredProjects = allProjects.filter(project => {
-      if (!project.technologies) return false;
-      
-      if (Array.isArray(filterValue)) {
-        // Multiple filter values
-        return filterValue.some(filter => 
-          project.technologies.some(tech => 
-            tech.toLowerCase().includes(filter.toLowerCase())
-          )
-        );
-      } else {
-        // Single filter value
-        return project.technologies.some(tech => 
-          tech.toLowerCase().includes(filterValue.toLowerCase())
-        );
-      }
-    });
-    
-    let html = `
-      <div class="section-content">
-        <h2 class="section-title">${content.title || nodeData.name}</h2>
-        <p class="section-description">${content.description || nodeData.description}</p>
-        <div class="projects-grid">
-    `;
-    
-    if (filteredProjects.length === 0) {
-      html += `<p class="empty-state">No ${nodeData.name} projects available.</p>`;
-    } else {
-      filteredProjects.forEach(project => {
-        html += `
-          <div class="project-card">
-            <div class="project-image">
-              <img src="${project.image}" alt="${project.title}" onerror="handleImageError(event)">
-            </div>
-            <div class="project-details">
-              <h3>${project.title}</h3>
-              <p>${project.description}</p>
-              <div class="technologies">
-                ${project.technologies.map(tech => `<span class="tech-tag">${tech}</span>`).join('')}
-              </div>
-              <div class="project-links">
-                <a href="${project.liveUrl}" target="_blank" class="btn primary"><i class="fas fa-external-link-alt"></i> View Live</a>
-                <a href="${project.githubUrl}" target="_blank" class="btn secondary"><i class="fab fa-github"></i> GitHub</a>
-              </div>
-            </div>
-          </div>
-        `;
-      });
-    }
-    
-    html += `</div></div>`;
-    container.innerHTML = html;
   }
   
   /**
@@ -736,52 +780,169 @@ class ContentLoader {
   }
   
   /**
-   * Render projects content from projects.json
+   * Render projects content from GitHub repositories instead of static data
    * @param {Object} data - Projects data
    * @param {HTMLElement} container - Container element
    */
-  static renderProjects(data, container) {
-    let html = `
+  static async renderProjects(data, container) {
+    // Show loading indicator
+    container.innerHTML = `
       <div class="section-content">
         <h2 class="section-title">Code Repositories</h2>
-        <div class="project-filters">
-          <button class="filter-btn active" data-filter="all">All Projects</button>
-          <button class="filter-btn" data-filter="web">Web Apps</button>
-          <button class="filter-btn" data-filter="mobile">Mobile Apps</button>
-          <button class="filter-btn" data-filter="other">Other Projects</button>
-        </div>
-        <div class="projects-grid">
+        <p class="loading">Loading GitHub repositories...</p>
+      </div>
     `;
     
-    // Add project cards
-    data.projects.forEach(project => {
-      html += `
-        <div class="project-card" data-category="${project.category}">
-          <div class="project-image">
-            <img src="${project.image}" alt="${project.title}" onerror="handleImageError(event)">
-          </div>
-          <div class="project-details">
-            <h3>${project.title}</h3>
-            <p>${project.description}</p>
-            <div class="technologies">
-              ${project.technologies.map(tech => `<span class="tech-tag">${tech}</span>`).join('')}
+    try {
+      // Load repositories from GitHub
+      const repos = await this.getGitHubRepositories();
+      
+      if (!repos || repos.length === 0) {
+        throw new Error("No repositories found");
+      }
+      
+      // Use the language detector to enhance repositories with categories
+      const enhancedRepos = window.RepositoryLanguageDetector ? 
+        window.RepositoryLanguageDetector.enhanceRepositoryData(repos) : repos;
+      
+      // Group repositories by category instead of just by language
+      const reposByCategory = this.groupRepositoriesByCategory(enhancedRepos);
+      const reposByLanguage = this.groupRepositoriesByLanguage(enhancedRepos);
+      
+      // Create meaningful filter categories based on actual repository data
+      const filterCategories = [
+        { id: 'all', name: 'All Projects' },
+        { id: 'web', name: 'Web Projects' },
+        { id: 'mobile', name: 'Mobile Apps' },
+        { id: 'ai-ml', name: 'AI/ML Projects' },
+        { id: 'backend', name: 'Backend' }
+      ];
+      
+      // Add language filters for languages with multiple repos
+      Object.keys(reposByLanguage).forEach(lang => {
+        if (reposByLanguage[lang].length >= 2 && 
+            !['Other', 'HTML', 'CSS'].includes(lang)) {
+          filterCategories.push({
+            id: lang.toLowerCase().replace(/\s+/g, '-'),
+            name: lang
+          });
+        }
+      });
+      
+      // Prepare HTML
+      let html = `
+        <div class="section-content">
+          <h2 class="section-title">Code Repositories</h2>
+          <p class="section-intro">${data.intro || 'Explore my code repositories directly from GitHub.'}</p>
+          <div class="repo-stats">
+            <div class="stat-card">
+              <span class="stat-value">${enhancedRepos.length}</span>
+              <span class="stat-label">Repositories</span>
             </div>
-            <div class="project-links">
-              <a href="${project.liveUrl}" target="_blank" class="btn primary"><i class="fas fa-external-link-alt"></i> View Live</a>
-              <a href="${project.githubUrl}" target="_blank" class="btn secondary"><i class="fab fa-github"></i> GitHub</a>
+            <div class="stat-card">
+              <span class="stat-value">${Object.keys(reposByLanguage).filter(lang => lang !== 'Other').length}</span>
+              <span class="stat-label">Languages</span>
             </div>
           </div>
+          <div class="project-filters">
+      `;
+      
+      // Add filter buttons
+      filterCategories.forEach((category, index) => {
+        const activeClass = index === 0 ? 'active' : '';
+        html += `<button class="filter-btn ${activeClass}" data-filter="${category.id}">${category.name}</button>`;
+      });
+      
+      html += `</div><div class="projects-grid">`;
+      
+      // Add project cards for each repository
+      enhancedRepos.forEach(repo => {
+        const language = repo.language || 'Other';
+        const categories = [
+          'all', // Always include in "All Projects"
+          language.toLowerCase().replace(/\s+/g, '-')
+        ];
+        
+        // Add additional categories based on detected technologies
+        if (repo.techCategories) {
+          repo.techCategories.forEach(tech => {
+            // Map technology categories to filter categories
+            switch(tech) {
+              case 'JavaScript':
+              case 'TypeScript':
+              case 'Web':
+                categories.push('web');
+                break;
+              case 'Mobile':
+                categories.push('mobile');
+                break;
+              case 'AI/ML':
+                categories.push('ai-ml');
+                break;
+              case 'Backend':
+                categories.push('backend');
+                break;
+            }
+          });
+        }
+        
+        // Add the project card with all its categories as data attributes
+        html += `
+          <div class="project-card" data-categories="${[...new Set(categories)].join(' ')}">
+            <div class="project-header">
+              <h3>${repo.name}</h3>
+              <span class="language-tag" style="background: ${this.getLanguageColor(repo.language)}">
+                ${repo.language || 'Other'}
+              </span>
+            </div>
+            <div class="project-details">
+              <p>${repo.description || 'No description available'}</p>
+              
+              <div class="repo-meta">
+                <span><i class="fas fa-star"></i> ${repo.stargazers_count}</span>
+                <span><i class="fas fa-code-branch"></i> ${repo.forks_count}</span>
+                <span><i class="fas fa-history"></i> ${new Date(repo.updated_at).toLocaleDateString()}</span>
+              </div>
+              
+              ${repo.topics && repo.topics.length > 0 ? `
+                <div class="technologies">
+                  ${repo.topics.slice(0, 5).map(topic => 
+                    `<span class="tech-tag">${topic}</span>`
+                  ).join('')}
+                </div>
+              ` : ''}
+              
+              <div class="project-links">
+                <a href="${repo.html_url}" target="_blank" class="btn secondary">
+                  <i class="fab fa-github"></i> View on GitHub
+                </a>
+                ${repo.homepage ? `<a href="${repo.homepage}" target="_blank" class="btn primary">
+                  <i class="fas fa-external-link-alt"></i> Live Demo
+                </a>` : ''}
+              </div>
+            </div>
+          </div>
+        `;
+      });
+      
+      html += `</div></div>`;
+      container.innerHTML = html;
+      
+      // Update project filters to work with the new categories system
+      this.initProjectFilters(container);
+      
+    } catch (error) {
+      console.error('Failed to load GitHub repositories:', error);
+      container.innerHTML = `
+        <div class="section-content">
+          <h2 class="section-title">Code Repositories</h2>
+          <p class="error">Failed to load GitHub repositories. Please try again later.</p>
+          <pre class="error-details">${error.message}</pre>
         </div>
       `;
-    });
-    
-    html += `</div></div>`;
-    container.innerHTML = html;
-    
-    // Initialize project filters
-    this.initProjectFilters(container);
+    }
   }
-  
+
   /**
    * Render personal/photography content
    * @param {Object} data - Personal data
@@ -907,9 +1068,10 @@ class ContentLoader {
         
         const filter = button.getAttribute('data-filter');
         
-        // Filter projects
+        // Filter projects - look for category in space-separated list
         projects.forEach(project => {
-          if (filter === 'all' || project.getAttribute('data-category') === filter) {
+          const categories = project.getAttribute('data-categories');
+          if (filter === 'all' || categories && categories.includes(filter)) {
             project.style.display = 'block';
           } else {
             project.style.display = 'none';
@@ -1460,6 +1622,102 @@ class ContentLoader {
           </div>
       `;
       throw error;
+    }
+  }
+
+  /**
+   * Group repositories by language
+   * @param {Array} repositories - Array of repository objects
+   * @returns {Object} - Object with languages as keys and arrays of repositories as values
+   */
+  static groupRepositoriesByLanguage(repositories) {
+    const reposByLanguage = {};
+    
+    repositories.forEach(repo => {
+      const language = repo.language || 'Other';
+      
+      if (!reposByLanguage[language]) {
+        reposByLanguage[language] = [];
+      }
+      
+      reposByLanguage[language].push(repo);
+    });
+    
+    return reposByLanguage;
+  }
+  
+  /**
+   * Get color for a programming language
+   * @param {string} language - Programming language name
+   * @returns {string} - CSS color value
+   */
+  static getLanguageColor(language) {
+    const colorMap = {
+      'JavaScript': '#f1e05a',
+      'TypeScript': '#2b7489',
+      'HTML': '#e34c26',
+      'CSS': '#563d7c',
+      'Python': '#3572A5',
+      'Java': '#b07219',
+      'C#': '#178600',
+      'Go': '#00ADD8',
+      'Rust': '#dea584',
+      'Ruby': '#701516',
+      'PHP': '#4F5D95',
+      'C++': '#f34b7d',
+      'C': '#555555',
+      'Shell': '#89e051',
+      'Swift': '#ffac45',
+      'Kotlin': '#F18E33',
+      'Dart': '#00B4AB',
+      'Jupyter Notebook': '#DA5B0B',
+      'Other': '#8257e5'
+    };
+    
+    return colorMap[language] || colorMap['Other'];
+  }
+  
+  /**
+   * Get GitHub repositories with caching
+   * @returns {Promise<Array>} - Array of repositories
+   */
+  static async getGitHubRepositories() {
+    // Check for cached repositories in window object
+    if (window._cachedGitHubRepos) {
+      return window._cachedGitHubRepos;
+    }
+    
+    try {
+      // Check if GithubRepoFetcher is available
+      if (window.GithubRepoFetcher) {
+        const repos = await window.GithubRepoFetcher.getRepositories();
+        
+        // Add categories to repositories using the language detector
+        const enhancedRepos = window.RepositoryLanguageDetector ? 
+          window.RepositoryLanguageDetector.enhanceRepositoryData(repos) : repos;
+        
+        // Cache the repositories
+        window._cachedGitHubRepos = enhancedRepos;
+        console.log(`Cached ${enhancedRepos.length} GitHub repositories with categories`);
+        return enhancedRepos;
+      } else {
+        throw new Error('GitHub repository fetcher not available');
+      }
+    } catch (error) {
+      console.error('Error fetching GitHub repositories:', error);
+      
+      // Try to load from fallback data
+      try {
+        const response = await fetch('data/repositories.json');
+        const fallbackRepos = await response.json();
+        
+        // Cache the fallback repositories
+        window._cachedGitHubRepos = fallbackRepos;
+        return fallbackRepos;
+      } catch (fallbackError) {
+        console.error('Failed to load fallback repository data:', fallbackError);
+        return []; // Return empty array as last resort
+      }
     }
   }
 }
